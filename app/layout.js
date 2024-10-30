@@ -1,4 +1,6 @@
 import './global.css';
+import Header from './components/Header';
+import Footer from './components/Footer';
 /**
  * Metadata configuration for the Next.js application.
  * This object defines various site-wide metadata, including
@@ -63,7 +65,11 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow pt-16">{children}</main> {/* Add padding to account for fixed header */}
+        <Footer />
+      </body>
     </html>
   );
 }
