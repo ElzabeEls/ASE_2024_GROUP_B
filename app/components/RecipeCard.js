@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Carousel from "./Carousel";
 
-export default function RecipeCard(recipe) {
+export default function RecipeCard({ recipe }) {
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     const date = new Date(dateString);
