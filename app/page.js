@@ -1,5 +1,6 @@
 import RecipeCard from "./components/RecipeCard";
 import { fetchRecipes } from "../lib/api";
+import Link from "next/link";
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
@@ -27,21 +28,30 @@ export default async function Home({ searchParams }) {
       </div>
 
       {/* Pagination controls */}
-      <div className="flex justify-center mt-8">
-        <a
-          href={`/?page=${page - 1}`}
-          className={`px-4 py-2 mr-2 bg-gray-300 rounded ${page === 1 && "pointer-events-none opacity-50"}`}
-        >
-          Previous
-        </a>
-        <span className="px-4">Page {page}</span>
-        <a
-          href={`/?page=${page + 1}`}
-          className="px-4 py-2 ml-2 bg-gray-300 rounded"
-        >
-          Next
-        </a>
-      </div>
+      <div className="flex justify-center mt-8 items-center">
+  <Link 
+    href={`/?page=${page - 1}`} 
+    className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
+      page === 1 ? "bg-gray-300 pointer-events-none opacity-50" : "bg-orange-500 hover:bg-orange-600"
+    }`} 
+    aria-label="Previous page" 
+    title="Previous page"
+  >
+    ←
+  </Link>
+  
+  <span className="px-4 text-lg font-semibold text-orange-700">Page {page}</span>
+  
+  <Link 
+    href={`/?page=${page + 1}`} 
+    className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600" 
+    aria-label="Next page" 
+    title="Next page"
+  >
+    →
+  </Link>
+</div>
+
     </main>
   );
 }
