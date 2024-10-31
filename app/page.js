@@ -14,6 +14,9 @@ export default async function Home({ searchParams }) {
   const page = parseInt(searchParams.page, 10) || 1; // Get the page number from search params
   const limit = 20;
 
+  // Get selected filter option from search params
+  const selectedFilter = searchParams.filter || "none";
+
   // Fetch recipes based on the current page
   const data = await fetchRecipes(page, limit);
   
@@ -41,6 +44,26 @@ export default async function Home({ searchParams }) {
         >
           Next
         </a>
+
+        {/* Filter Form */}
+      <form action={`/?page=${page}`} method="GET" className="mb-4">
+        <label htmlFor="filter" className="block text-lg font-semibold mb-2">
+          Advanced Filters:
+        </label>
+        <select
+          id="filter"
+          name="filter"
+          value={selectedFilter}
+          className="p-2 border rounded"
+        >
+          <option value="none">Select a filter</option>
+         {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
+          {/* Add more options as needed */}
+        </select>
+        <button type="submit" className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
+          Apply
+        </button>
+      </form>
       </div>
     </main>
   );
