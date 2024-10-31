@@ -16,10 +16,10 @@ export const metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: "/site.webmanifest",
-  applicationName: "ArejengRecipeApp",
+  applicationName: "Arejeng Recipe App",
   openGraph: {
     title: "Arejeng Recipe App",
-    description: "Discover a variety of recipes with ArejengRecipeApp",
+    description: "Discover a variety of recipes with Arejeng Recipe App",
     // Uncomment and add the correct URL of the website if available
     // url: "https://mywebsite.com", 
     type: "website",
@@ -33,15 +33,8 @@ export const metadata = {
       },
     ],
   },
-  twitter: {
-    card: "summary_large_image",
-    site: "@YourTwitterHandle",
-    title: "Arejeng Recipe App",
-    description: "Discover a variety of recipes with ArejengRecipeApp",
-    image: "https://yourwebsite.com/twitter-image.jpg",
-  },
   keywords: ["recipes", "cooking", "food", "ArejengRecipeApp"],
-  author: "Name of author", // Add the name of the author here
+  author: "Group_B", // Add the name of the author here
 };
 
 /**
