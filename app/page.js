@@ -14,12 +14,14 @@ import { fetchRecipes } from "../lib/api";
 export default async function Home({ searchParams }) {
   const page = parseInt(searchParams.page, 10) || 1; // Get the page number from search params
   const limit = 20;
+  const searchQuery = searchParams.search ? decodeURIComponent(searchParams.search) : "";
+
 
   // Get selected filter option from search params
   const selectedFilter = searchParams.filter || "none";
 
   // Fetch recipes based on the current page
-  const data = await fetchRecipes(page, limit);
+  const data = await fetchRecipes(page, limit, searchQuery);
   
   return (
     <main>
