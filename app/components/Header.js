@@ -1,9 +1,36 @@
-// components/Header.js
-
+"use client";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { fetchCategories } from "../../lib/api";
+import CategoryFilter from "./CategoryFilter";
 
 const Header = () => {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categoriesData = await fetchCategories(); // Call the fetchCategories function
+        if (categoriesData.success) {
+          setCategories(categoriesData.categories);
+        } else {
+          console.error("Error fetching categories:", categoriesData.error);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const handleCategoryChange = (selectedCategory) => {
+    // Logic to handle category selection
+    console.log("Selected Category:", selectedCategory);
+    // You can also add logic to filter your displayed items based on the selected category here
+  };
+
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-gray-300 bg-opacity-80 shadow-md backdrop-blur-lg">
       {/* Top Row - Navigation Bar */}
@@ -54,11 +81,11 @@ const Header = () => {
           </Link>
           <Link href="/favourites">
             <span className="hover:text-gray-500 cursor-pointer">
-              favourites
+              Favourites
             </span>
           </Link>
           <Link href="/recipes">
-            <span className="hover:text-gray-500 cursor-pointer">recipes</span>
+            <span className="hover:text-gray-500 cursor-pointer">Recipes</span>
           </Link>
         </div>
       </div>
@@ -68,20 +95,10 @@ const Header = () => {
         {/* Filter and Sort */}
         <div className="flex items-center space-x-4">
           {/* Filter by Category */}
-          <div className="flex items-center space-x-2">
-            <label htmlFor="category" className="text-gray-700"></label>
-            <select
-              id="category"
-              className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
-            >
-              <option value="">Select Category</option>
-              <option value="appliances">Appliances</option>
-              <option value="electronics">Electronics</option>
-              <option value="beauty">Beauty</option>
-              <option value="books">Books</option>
-              {/* Add more categories as needed */}
-            </select>
-          </div>
+          <CategoryFilter
+            categories={categories}
+            onCategoryChange={handleCategoryChange}
+          />
 
           {/* Sort by */}
           <div className="flex items-center space-x-2">
