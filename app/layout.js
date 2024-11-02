@@ -1,7 +1,7 @@
 import './global.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import { Helmet } from 'react-helmet';
+import Head from 'next/head';
 
 /**
  * Metadata for the Arejeng Recipe App.
@@ -30,8 +30,7 @@ import { Helmet } from 'react-helmet';
  */
 export const metadata = {
   title: "Arejeng Recipes",
-  description:
-    "Arejeng Recipe App is your ultimate culinary companion, offering an extensive collection of easy-to-follow recipes that cater to every taste and occasion. Whether you're a seasoned chef or a kitchen newbie, our app empowers you to discover, save, and share delicious recipes from around the world.",
+  description: "Arejeng Recipe App is your ultimate culinary companion, offering an extensive collection of easy-to-follow recipes that cater to every taste and occasion.",
   icons: {
     icon: [
       { rel: "icon", url: "/favicon-192x192.png", sizes: "192x192" },
@@ -80,20 +79,14 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <Helmet>
+      <Head>
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
         <meta name="keywords" content={metadata.keywords.join(", ")} />
         <meta name="author" content={metadata.author} />
-        <meta property="og:title" content={metadata.openGraph.title} />
-        <meta property="og:description" content={metadata.openGraph.description} />
-        <meta property="og:type" content={metadata.openGraph.type} />
-        <meta property="og:image" content={metadata.openGraph.images[0].url} />
-        <meta property="og:image:alt" content={metadata.openGraph.images[0].alt} />
-        <meta name="robots" content={metadata.robots} />
         <link rel="manifest" href={metadata.manifest} />
-        <link rel="canonical" href={window.location.href} />
-      </Helmet>
+        
+      </Head>
       <body className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow pt-16">{children}</main>
