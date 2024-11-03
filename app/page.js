@@ -1,5 +1,6 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
+import FilterIndicator from "./components/FilterIndicater"; // Import the new component
 import { fetchRecipes } from "../lib/api";
 
 /**
@@ -12,7 +13,7 @@ import { fetchRecipes } from "../lib/api";
  * @returns {JSX.Element} A React component displaying a grid of recipe cards with pagination controls.
  */
 export default async function Home({ searchParams }) {
-  const page = parseInt(searchParams.page, 10) || 1; // Get the page number from search params
+  const page = parseInt(searchParams.page, 10) || 1;
   const limit = 20;
 
   // Get selected filter option from search params
@@ -20,11 +21,14 @@ export default async function Home({ searchParams }) {
 
   // Fetch recipes based on the current page
   const data = await fetchRecipes(page, limit);
-  
+
   return (
     <main>
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
-      
+
+      {/* Use FilterIndicator component to display the filter status */}
+      <FilterIndicator selectedFilter={selectedFilter} />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.recipes.map((recipe) => (
           <RecipeCard key={recipe._id} recipe={recipe} />
@@ -33,23 +37,23 @@ export default async function Home({ searchParams }) {
 
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
-        <Link 
-          href={`/?page=${page - 1}&filter=${selectedFilter}`} 
+        <Link
+          href={`/?page=${page - 1}&filter=${selectedFilter}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             page === 1 ? "bg-gray-300 pointer-events-none opacity-50" : "bg-orange-500 hover:bg-orange-600"
-          }`} 
-          aria-label="Previous page" 
+          }`}
+          aria-label="Previous page"
           title="Previous page"
         >
           ←
         </Link>
-        
+
         <span className="px-4 text-lg font-semibold text-orange-700">Page {page}</span>
-        
-        <Link 
-          href={`/?page=${page + 1}&filter=${selectedFilter}`} 
-          className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600" 
-          aria-label="Next page" 
+
+        <Link
+          href={`/?page=${page + 1}&filter=${selectedFilter}`}
+          className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
+          aria-label="Next page"
           title="Next page"
         >
           →
