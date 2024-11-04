@@ -1,26 +1,46 @@
-/**
- * Handles GET requests to search for recipes in the MongoDB collection.
- * 
- * @param {Request} request - The request object containing the search query.
- * @returns {Response} A response object containing the search results or an error message.
- * @throws {Error} If there is an error during the database search operation.
- */
-export async function GET(request) {
+import clientPromise from "../../../lib/mongodb";
+
+export async function GET(req) {
   try {
-    const { searchParams } = new URL(request.url);
-    const searchQuery = searchParams.get('q') || '';
+    const url = new URL(req.url);
+    const searchTerm = url.searchParams.get('searchTerm');
 
-    // Use a more complex search query here if needed
-    const results = await collection.find({ $text: { $search: searchQuery } }).toArray();
+    if (!searchTerm) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Search term is required" }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
-    return new Response(JSON.stringify({ results }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const client = await clientPromise;
+    const db = client.db("devdb");
+
+  
+    const textResults = await db.collection("recipes")
+      .find({ $text: { $search: searchTerm } })
+      .toArray();
+
+    
+    
+
+    const results = [...new Set([...textResults, ...regexResults])];
+
+    return new Response(
+      JSON.stringify({ success: true, results, total: results.length }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+
   } catch (error) {
-    console.error('Search error:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    console.error('Failed to perform search:', error);
+    return new Response(
+      
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 }
