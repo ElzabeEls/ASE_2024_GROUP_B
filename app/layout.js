@@ -8,7 +8,8 @@ import Footer from './components/Footer';
  */
 export const metadata = {
   title: "Arejeng Recipes",
-  description: "Arejeng Recipe App is your ultimate culinary companion, offering an extensive collection of easy-to-follow recipes that cater to every taste and occasion. Whether you're a seasoned chef or a kitchen newbie, our app empowers you to discover, save, and share delicious recipes from around the world. With step-by-step instructions, customizable recipe options, and handy cooking tips, Arejeng Recipe App makes every meal a memorable experience. Explore new flavors, create mouth-watering dishes, and let your cooking journey begin!",
+  description:
+    "Arejeng Recipe App is your ultimate culinary companion, offering an extensive collection of easy-to-follow recipes that cater to every taste and occasion. Whether you're a seasoned chef or a kitchen newbie, our app empowers you to discover, save, and share delicious recipes from around the world. With step-by-step instructions, customizable recipe options, and handy cooking tips, Arejeng Recipe App makes every meal a memorable experience. Explore new flavors, create mouth-watering dishes, and let your cooking journey begin!",
   icons: {
     icon: [
       { rel: "icon", url: "/favicon-192x192.png", sizes: "192x192" },
@@ -18,32 +19,24 @@ export const metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: "/site.webmanifest",
-  applicationName: "ArejengRecipeApp",
+  applicationName: "Arejeng Recipe App",
   openGraph: {
     title: "Arejeng Recipe App",
-    description: "Discover a variety of recipes with ArejengRecipeApp",
+    description: "Discover a variety of recipes with Arejeng Recipe App",
     // Uncomment and add the correct URL of the website if available
-    // url: "https://mywebsite.com", 
+    // url: "https://mywebsite.com",
     type: "website",
     images: [
       {
-        // Uncomment and add the correct URL for the Open Graph image if available
-        // url: "https://yourwebsite.com/og-image.jpg",
+        url: "/ArejengLogo.png",
         width: 800,
         height: 600,
         alt: "Arejeng Recipe App",
       },
     ],
   },
-  twitter: {
-    card: "summary_large_image",
-    site: "@YourTwitterHandle",
-    title: "Arejeng Recipe App",
-    description: "Discover a variety of recipes with ArejengRecipeApp",
-    image: "https://yourwebsite.com/twitter-image.jpg",
-  },
   keywords: ["recipes", "cooking", "food", "ArejengRecipeApp"],
-  author: "Name of author", // Add the name of the author here
+  author: "Group_B", // Add the name of the author here
 };
 
 /**
