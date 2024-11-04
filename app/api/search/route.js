@@ -21,7 +21,12 @@ export async function GET(req) {
       .toArray();
 
     
-    
+    let regexResults = [];
+    if (textResults.length === 0) {
+      regexResults = await db.collection("recipes")
+        .find({ title: { $regex: searchTerm, $options: 'i' } })
+        .toArray();
+    }
 
     const results = [...new Set([...textResults, ...regexResults])];
 
@@ -36,7 +41,11 @@ export async function GET(req) {
   } catch (error) {
     console.error('Failed to perform search:', error);
     return new Response(
-      
+      JSON.stringify({
+        success: false,
+        error: "Failed to perform search",
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
