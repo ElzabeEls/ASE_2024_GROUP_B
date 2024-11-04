@@ -1,5 +1,17 @@
 import clientPromise from "../../../lib/mongodb";
 
+/**
+ * Handles the GET request to search for recipes in the database.
+ * 
+ * This function searches for recipes in the MongoDB `recipes` collection using a provided search term.
+ * It first performs a full-text search. If no results are found, it falls back to a case-insensitive 
+ * regex search on the `title` field.
+ *
+ * @async
+ * @function GET
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - A Response object containing the search results or an error message.
+ */
 export async function GET(req) {
   try {
     const url = new URL(req.url);
@@ -15,7 +27,7 @@ export async function GET(req) {
     const client = await clientPromise;
     const db = client.db("devdb");
 
-  
+    
     const textResults = await db.collection("recipes")
       .find({ $text: { $search: searchTerm } })
       .toArray();
@@ -28,6 +40,7 @@ export async function GET(req) {
         .toArray();
     }
 
+  
     const results = [...new Set([...textResults, ...regexResults])];
 
     return new Response(
