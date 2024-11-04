@@ -20,8 +20,8 @@ const CategoryFilter = ({ categories, onCategoryChange }) => {
           <option value="">Select Category</option>
           {categories && categories.length > 0 ? (
             categories.map((category) => (
-              <option key={category.id} value={category.name}>
-                {category.name}
+              <option key={category} value={category}>
+                {category}
               </option>
             ))
           ) : (
