@@ -10,7 +10,7 @@ export default function RecipeCard({ recipe }) {
 
   const totalTime = (recipe.prep || 0) + (recipe.cook || 0);
   return (
-    <div className=" bg-peach rounded-lg overflow-hidden shadow-md hover:shadow-2xl hover:shadow-orange-700 p-4">
+    <div className=" bg-gray rounded-lg overflow-hidden shadow-md hover:shadow-2xl hover:shadow-orange-700 p-4">
       <Carousel
         images={recipe.images}
         alt={recipe.title}
