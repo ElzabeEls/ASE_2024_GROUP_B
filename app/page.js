@@ -19,7 +19,7 @@ export default async function Home({ searchParams }) {
   const selectedFilter = searchParams.filter || "none";
 
   // Fetch recipes based on the current page
-  const data = await fetchRecipes(page, limit);
+  const data = await fetchRecipes(page, limit, searchQuery);
 
   return (
     <main>
