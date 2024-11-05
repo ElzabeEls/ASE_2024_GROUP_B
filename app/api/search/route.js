@@ -1,5 +1,7 @@
 import clientPromise from "../../../lib/mongodb";
 
+import clientPromise from "../../../lib/mongodb";
+
 /**
  * Handles a GET request to search for recipes in MongoDB using both full-text search and partial matching.
  * @param {Request} req - The incoming request, expected to contain a searchTerm query parameter.
@@ -54,6 +56,18 @@ export async function GET(req) {
     );
 
   } catch (error) {
+    console.error('Failed to perform search:', error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Failed to perform search",
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
     console.error('Failed to perform search:', error);
     return new Response(
       JSON.stringify({
