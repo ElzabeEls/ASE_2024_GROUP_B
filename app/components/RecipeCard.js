@@ -111,7 +111,7 @@ export default function RecipeCard({ recipe }) {
               stroke="#000000"
             >
               <circle cx="32" cy="32" r="24" />
-              <polyline points="40 44 32 32 32 16" stroke-width="4px" />
+              <polyline points="40 44 32 32 32 16" strokeWidth="4px" />
             </svg>
             {totalTime} Mins Total
           </p>
