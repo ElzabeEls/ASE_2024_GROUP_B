@@ -100,7 +100,9 @@ export default async function Home({ searchParams }) {
           name="steps"
           placeholder="Enter steps"
           defaultValue={stepsFilter || ""}
+
           className="p-2 border rounded text-black"
+
         />
 
         <button
