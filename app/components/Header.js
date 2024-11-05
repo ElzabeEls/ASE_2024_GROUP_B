@@ -4,8 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { fetchCategories } from "../../lib/api";
 import CategoryFilter from "./CategoryFilter";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
+  const router = useRouter();
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -25,8 +27,11 @@ const Header = () => {
   }, []);
 
   const handleCategoryChange = (selectedCategory) => {
+    if (router.isReady) {
+    router.push(`/?category=${selectedCategory}`);
     console.log("Selected Category:", selectedCategory);
     // Add any logic to filter items based on the selected category if needed
+    }
   };
 
   return (
