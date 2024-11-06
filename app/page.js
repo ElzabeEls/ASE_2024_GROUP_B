@@ -19,7 +19,7 @@ export default async function Home({ searchParams }) {
 
   // Get selected filters from search params
   const selectedFilter = searchParams.filter || "none";
-  const stepsFilter = parseInt(searchParams.steps, 10) || null;
+  const stepsFilter = searchParams.steps ? parseInt(searchParams.steps, 10) : null; // Allow steps to be null if not provided
   const selectedTags = searchParams.tags ? searchParams.tags.split(",") : [];
 
   // Fetch recipes based on filters and pagination
@@ -49,9 +49,7 @@ export default async function Home({ searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${
-            stepsFilter || ""
-          }&tags=${selectedTags.join(",")}`}
+          href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${stepsFilter || ""}&tags=${selectedTags.join(",")}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             page === 1
               ? "bg-gray-300 pointer-events-none opacity-50"

@@ -2,24 +2,18 @@
 
 import { useEffect, useState } from "react";
 
-export default function AdvancedFiltering({ selectedFilter, stepsFilter, page }) {
+export default function AdvancedFiltering({ selectedFilter, stepsFilter, selectedTags, page }) {
   const [tags, setTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags);
 
-  // Fetch tags from the API on component mount
   useEffect(() => {
     async function fetchTags() {
       try {
-        const response = await fetch("/api/Tags");
+        const response = await fetch("/api/Tags"); // Fetch all tags
         const data = await response.json();
-        console.log("Fetched data:", data); // Log the entire response data for debugging
-    
+
         if (data.success) {
-          // Extract unique tags from all recipes
-          const allTags = data.recipes.flatMap(recipe => recipe.tags);
-          const uniqueTags = [...new Set(allTags)]; // Remove duplicates
-          setTags(uniqueTags);
-          console.log("Updated tags state:", uniqueTags); // Confirm the tags array state update
+          setTags(data.tags); // Set the tags to the state
         } else {
           console.error("Failed to fetch tags:", data.error);
         }
@@ -29,19 +23,25 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, page })
     }
 
     fetchTags();
-  }, []); // Empty dependency array means this will run only on mount
+  }, []); // Empty dependency ensures this effect only runs once
 
-  // Handle tag selection
+  // Handle tag selection (check/uncheck)
   const handleTagChange = (tag) => {
-    setSelectedTags((prevSelectedTags) =>
-      prevSelectedTags.includes(tag)
-        ? prevSelectedTags.filter((t) => t !== tag) // Remove tag if already selected
-        : [...prevSelectedTags, tag] // Add tag if not selected
-    );
+    const updatedTags = localSelectedTags.includes(tag)
+      ? localSelectedTags.filter((t) => t !== tag)
+      : [...localSelectedTags, tag];
+
+    setLocalSelectedTags(updatedTags);
+  };
+
+  // Handle form submit (apply filters)
+  const handleApplyFilters = () => {
+    // Redirect to the same page with updated filters in the URL
+    window.location.search = `?page=${page}&filter=${selectedFilter}&steps=${stepsFilter || ""}&tags=${localSelectedTags.join(",")}`;
   };
 
   return (
-    <form action={`/?page=${page}`} method="GET" className="mb-4">
+    <form className="mb-4">
       <label htmlFor="filter" className="block text-lg font-semibold mb-2">
         Advanced Filters:
       </label>
@@ -50,14 +50,15 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, page })
         name="filter"
         defaultValue={selectedFilter}
         className="p-2 border rounded"
+        onChange={(e) => window.location.search = `?page=${page}&filter=${e.target.value}&steps=${stepsFilter || ""}&tags=${localSelectedTags.join(",")}`}
       >
         <option value="none">Select a filter</option>
-        {/* Add more filter options here */}
+        {/* Add other filter options if necessary */}
       </select>
 
-      {/* Filter by Number of Steps */}
+      {/* Filter by Number of Steps (optional) */}
       <label htmlFor="steps" className="block text-lg font-semibold mt-4 mb-2">
-        Filter by Number of Steps:
+        Filter by Number of Steps (Optional):
       </label>
       <input
         type="number"
@@ -66,6 +67,7 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, page })
         placeholder="Enter steps"
         defaultValue={stepsFilter || ""}
         className="p-2 border rounded"
+        onChange={(e) => window.location.search = `?page=${page}&filter=${selectedFilter}&steps=${e.target.value || ""}&tags=${localSelectedTags.join(",")}`}
       />
 
       {/* Tag Selection */}
@@ -79,7 +81,7 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, page })
                 name="tags"
                 value={tag}
                 onChange={() => handleTagChange(tag)}
-                checked={selectedTags.includes(tag)}
+                checked={localSelectedTags.includes(tag)}
                 className="mr-2"
               />
               {tag}
@@ -90,11 +92,13 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, page })
         )}
       </fieldset>
 
+      {/* Apply Button */}
       <button
-        type="submit"
-        className="ml-2 px-4 py-2 bg-blue-500 text-white rounded mt-4"
+        type="button"
+        onClick={handleApplyFilters}
+        className="mt-4 p-2 bg-blue-500 text-white rounded"
       >
-        Apply
+        Apply Filters
       </button>
     </form>
   );
