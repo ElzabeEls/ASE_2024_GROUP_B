@@ -20,11 +20,18 @@ export async function GET(req) {
     const client = await clientPromise;
     const db = client.db("devdb");
 
-    // Perform a full-text search and a regex search simultaneously
+    /**
+     * @description Executes a full-text search for the specified searchTerm.
+     * @type {Promise<Array<Object>>} - Promise resolving to an array of matching recipes from the full-text search.
+     */
     const textSearchPromise = db.collection("recipes")
       .find({ $text: { $search: searchTerm } })
       .toArray();
 
+    /**
+     * @description Executes a regex search on the title field for partial matches of the searchTerm, case-insensitive.
+     * @type {Promise<Array<Object>>} - Promise resolving to an array of matching recipes from the regex search.
+     */
     const regexSearchPromise = db.collection("recipes")
       .find({ title: { $regex: searchTerm, $options: 'i' } })
       .toArray();
@@ -32,7 +39,10 @@ export async function GET(req) {
     // Await both search results
     const [textResults, regexResults] = await Promise.all([textSearchPromise, regexSearchPromise]);
 
-    
+    /**
+     * @description Combines and deduplicates results from both full-text and regex searches based on unique _id values.
+     * @type {Array<Object>} - Array of unique recipe objects from combined search results.
+     */
     const allResults = [...new Map([...textResults, ...regexResults].map(item => [item._id.toString(), item])).values()];
 
     return new Response(
