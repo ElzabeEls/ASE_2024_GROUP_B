@@ -6,20 +6,15 @@ import { fetchRecipes } from "../lib/api";
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
- * The `page` prop is derived from the URL query.
- *
- * @param {Object} props - The component props.
- * @param {Array} props.recipes - Array of recipe data for the current page.
- * @param {number} props.page - Current page number.
- * @returns {JSX.Element} A React component displaying a grid of recipe cards with pagination controls.
+ * It fetches data from the server side by querying the backend via API.
  */
 export default async function Home({ searchParams }) {
   const page = parseInt(searchParams.page, 10) || 1;
   const limit = 20;
 
-  // Get selected filters from search params
+  // Get selected filters from the search params
   const selectedFilter = searchParams.filter || "none";
-  const stepsFilter = searchParams.steps ? parseInt(searchParams.steps, 10) : null; // Allow steps to be null if not provided
+  const stepsFilter = parseInt(searchParams.steps, 10) || null;
   const selectedTags = searchParams.tags ? searchParams.tags.split(",") : [];
 
   // Fetch recipes based on filters and pagination

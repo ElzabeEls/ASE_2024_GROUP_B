@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter for navigation
 
 export default function AdvancedFiltering({ selectedFilter, stepsFilter, selectedTags, page }) {
   const [tags, setTags] = useState([]);
   const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags);
+  const router = useRouter(); // Hook for programmatic navigation
 
+  // Fetch tags when the component mounts
   useEffect(() => {
     async function fetchTags() {
       try {
@@ -36,8 +39,10 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
 
   // Handle form submit (apply filters)
   const handleApplyFilters = () => {
-    // Redirect to the same page with updated filters in the URL
-    window.location.search = `?page=${page}&filter=${selectedFilter}&steps=${stepsFilter || ""}&tags=${localSelectedTags.join(",")}`;
+    // Update the query parameters and trigger a page refresh
+    router.push(
+      `/?page=${page}&filter=${selectedFilter}&steps=${stepsFilter || ""}&tags=${localSelectedTags.join(",")}`
+    );
   };
 
   return (
@@ -48,9 +53,9 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
       <select
         id="filter"
         name="filter"
-        defaultValue={selectedFilter}
+        value={selectedFilter}
         className="p-2 border rounded"
-        onChange={(e) => window.location.search = `?page=${page}&filter=${e.target.value}&steps=${stepsFilter || ""}&tags=${localSelectedTags.join(",")}`}
+        onChange={(e) => router.push(`/?page=${page}&filter=${e.target.value}&steps=${stepsFilter || ""}&tags=${localSelectedTags.join(",")}`)}
       >
         <option value="none">Select a filter</option>
         {/* Add other filter options if necessary */}
@@ -65,9 +70,9 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
         id="steps"
         name="steps"
         placeholder="Enter steps"
-        defaultValue={stepsFilter || ""}
+        value={stepsFilter || ""}
         className="p-2 border rounded"
-        onChange={(e) => window.location.search = `?page=${page}&filter=${selectedFilter}&steps=${e.target.value || ""}&tags=${localSelectedTags.join(",")}`}
+        onChange={(e) => router.push(`/?page=${page}&filter=${selectedFilter}&steps=${e.target.value || ""}&tags=${localSelectedTags.join(",")}`)}
       />
 
       {/* Tag Selection */}
