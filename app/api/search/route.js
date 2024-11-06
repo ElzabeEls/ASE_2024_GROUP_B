@@ -1,26 +1,70 @@
+import clientPromise from "../../../lib/mongodb";
+
 /**
- * Handles GET requests to search for recipes in the MongoDB collection.
- * 
- * @param {Request} request - The request object containing the search query.
- * @returns {Response} A response object containing the search results or an error message.
- * @throws {Error} If there is an error during the database search operation.
+ * Handles a GET request to search for recipes in MongoDB using both full-text search and partial matching.
+ * @param {Request} req - The incoming request, expected to contain a searchTerm query parameter.
+ * @returns {Response} - A JSON response with search results or an error message.
  */
-export async function GET(request) {
+export async function GET(req) {
   try {
-    const { searchParams } = new URL(request.url);
-    const searchQuery = searchParams.get('q') || '';
+    const url = new URL(req.url);
+    const searchTerm = url.searchParams.get('searchTerm');
 
-    // Use a more complex search query here if needed
-    const results = await collection.find({ $text: { $search: searchQuery } }).toArray();
+    if (!searchTerm) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Search term is required" }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
-    return new Response(JSON.stringify({ results }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const client = await clientPromise;
+    const db = client.db("devdb");
+
+    /**
+     * @description Executes a full-text search for the specified searchTerm.
+     * @type {Promise<Array<Object>>} - Promise resolving to an array of matching recipes from the full-text search.
+     */
+    const textSearchPromise = db.collection("recipes")
+      .find({ $text: { $search: searchTerm } })
+      .toArray();
+
+    /**
+     * @description Executes a regex search on the title field for partial matches of the searchTerm, case-insensitive.
+     * @type {Promise<Array<Object>>} - Promise resolving to an array of matching recipes from the regex search.
+     */
+    const regexSearchPromise = db.collection("recipes")
+      .find({ title: { $regex: searchTerm, $options: 'i' } })
+      .toArray();
+
+    // Await both search results
+    const [textResults, regexResults] = await Promise.all([textSearchPromise, regexSearchPromise]);
+
+    /**
+     * @description Combines and deduplicates results from both full-text and regex searches based on unique _id values.
+     * @type {Array<Object>} - Array of unique recipe objects from combined search results.
+     */
+    const allResults = [...new Map([...textResults, ...regexResults].map(item => [item._id.toString(), item])).values()];
+
+    return new Response(
+      JSON.stringify({ success: true, results: allResults, total: allResults.length }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+
   } catch (error) {
-    console.error('Search error:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    console.error('Failed to perform search:', error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Failed to perform search",
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 }
