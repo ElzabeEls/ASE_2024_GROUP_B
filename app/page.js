@@ -1,6 +1,7 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
-import FilterIndicator from "./components/FilterIndicator"; // Import the new component
+import FilterIndicator from "./components/FilterIndicator";
+import AdvancedFiltering from "./components/AdvancedFiltering";
 import { fetchRecipes } from "../lib/api";
 
 /**
@@ -71,45 +72,12 @@ export default async function Home({ searchParams }) {
         </Link>
       </div>
 
-      {/* Filter Form */}
-      <form action={`/?page=${page}`} method="GET" className="mb-4">
-        <label htmlFor="filter" className="block text-lg font-semibold mb-2">
-          Advanced Filters:
-        </label>
-        <select
-          id="filter"
-          name="filter"
-          defaultValue={selectedFilter}
-          className="p-2 border rounded"
-        >
-          <option value="none">Select a filter</option>
-          {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
-          {/* Add more options as needed */}
-        </select>
-
-        {/* Filter by Number of Steps */}
-        <label
-          htmlFor="steps"
-          className="block text-lg font-semibold mt-4 mb-2"
-        >
-          Filter by Number of Steps:
-        </label>
-        <input
-          type="number"
-          id="steps"
-          name="steps"
-          placeholder="Enter steps"
-          defaultValue={stepsFilter || ""}
-          className="p-2 border rounded"
-        />
-
-        <button
-          type="submit"
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Apply
-        </button>
-      </form>
+       {/* Advanced Filtering Form */}
+       <AdvancedFiltering
+        selectedFilter={selectedFilter}
+        stepsFilter={stepsFilter}
+        page={page}
+      />
     </main>
   );
 }
