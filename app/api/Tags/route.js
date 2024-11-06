@@ -1,8 +1,10 @@
 import clientPromise from "../../../lib/mongodb";
 
 /**
+
  * API route handler for fetching recipes filtered by multiple tags with pagination.
  * Supports "match any" (OR) and "match all" (AND) filtering, along with limit and page for pagination.
+
  *
  * @async
  * @function
@@ -44,6 +46,7 @@ export async function GET(req) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
+
   } catch (error) {
     // Log and return error response
     console.error("Failed to fetch filtered recipes:", error);
@@ -53,7 +56,9 @@ export async function GET(req) {
         error: "Failed to fetch filtered recipes",
         details: process.env.NODE_ENV === "development" ? error.message : undefined,
       }),
+
       { status: 500, headers: { "Content-Type": "application/json" } }
+
     );
   }
 }

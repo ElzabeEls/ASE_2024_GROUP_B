@@ -1,5 +1,6 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
+import FilterIndicator from "./components/FilterIndicator"; // Import the new component
 import { fetchRecipes } from "../lib/api";
 
 /**
@@ -12,19 +13,29 @@ import { fetchRecipes } from "../lib/api";
  * @returns {JSX.Element} A React component displaying a grid of recipe cards with pagination controls.
  */
 export default async function Home({ searchParams }) {
-  const page = parseInt(searchParams.page, 10) || 1; // Get the page number from search params
+  const page = parseInt(searchParams.page, 10) || 1;
   const limit = 20;
 
-  // Get selected filter option from search params
+  // Get selected filters from search params
   const selectedFilter = searchParams.filter || "none";
+  const stepsFilter = parseInt(searchParams.steps, 10) || null;
 
-  // Fetch recipes based on the current page
-  const data = await fetchRecipes(page, limit);
-  
+  // Fetch recipes based on filters and pagination
+  const data = await fetchRecipes(page, limit, {
+    filter: selectedFilter,
+    steps: stepsFilter,
+  });
+
   return (
     <main>
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
-      
+
+      {/* Display the selected filters */}
+      <FilterIndicator
+        selectedFilter={selectedFilter}
+        stepsFilter={stepsFilter}
+      />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.recipes.map((recipe) => (
           <RecipeCard key={recipe._id} recipe={recipe} />
@@ -33,12 +44,16 @@ export default async function Home({ searchParams }) {
 
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
-        <Link 
-          href={`/?page=${page - 1}&filter=${selectedFilter}`} 
+        <Link
+          href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${
+            stepsFilter || ""
+          }`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
-            page === 1 ? "bg-gray-300 pointer-events-none opacity-50" : "bg-orange-500 hover:bg-orange-600"
-          }`} 
-          aria-label="Previous page" 
+            page === 1
+              ? "bg-gray-300 pointer-events-none opacity-50"
+              : "bg-orange-500 hover:bg-orange-600"
+          }`}
+          aria-label="Previous page"
           title="Previous page"
         >
           ←
@@ -71,7 +86,29 @@ export default async function Home({ searchParams }) {
           {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
           {/* Add more options as needed */}
         </select>
-        <button type="submit" className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
+
+        {/* Filter by Number of Steps */}
+        <label
+          htmlFor="steps"
+          className="block text-lg font-semibold mt-4 mb-2"
+        >
+          Filter by Number of Steps:
+        </label>
+        <input
+          type="number"
+          id="steps"
+          name="steps"
+          placeholder="Enter steps"
+          defaultValue={stepsFilter || ""}
+
+          className="p-2 border rounded text-black"
+
+        />
+
+        <button
+          type="submit"
+          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
+        >
           Apply
         </button>
       </form>
