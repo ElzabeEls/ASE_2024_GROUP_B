@@ -1,16 +1,9 @@
 import clientPromise from "../../../lib/mongodb";
 
 /**
- * Handles the GET request to search for recipes in the database.
- * 
- * This function searches for recipes in the MongoDB `recipes` collection using a provided search term.
- * It first performs a full-text search. If no results are found, it falls back to a case-insensitive 
- * regex search on the `title` field.
- *
- * @async
- * @function GET
- * @param {Request} req - The incoming request object.
- * @returns {Promise<Response>} - A Response object containing the search results or an error message.
+ * Handles a GET request to search for recipes in MongoDB using both full-text search and partial matching.
+ * @param {Request} req - The incoming request, expected to contain a searchTerm query parameter.
+ * @returns {Response} - A JSON response with search results or an error message.
  */
 export async function GET(req) {
   try {
@@ -27,24 +20,33 @@ export async function GET(req) {
     const client = await clientPromise;
     const db = client.db("devdb");
 
-    
-    const textResults = await db.collection("recipes")
+    /**
+     * @description Executes a full-text search for the specified searchTerm.
+     * @type {Promise<Array<Object>>} - Promise resolving to an array of matching recipes from the full-text search.
+     */
+    const textSearchPromise = db.collection("recipes")
       .find({ $text: { $search: searchTerm } })
       .toArray();
 
-    
-    let regexResults = [];
-    if (textResults.length === 0) {
-      regexResults = await db.collection("recipes")
-        .find({ title: { $regex: searchTerm, $options: 'i' } })
-        .toArray();
-    }
+    /**
+     * @description Executes a regex search on the title field for partial matches of the searchTerm, case-insensitive.
+     * @type {Promise<Array<Object>>} - Promise resolving to an array of matching recipes from the regex search.
+     */
+    const regexSearchPromise = db.collection("recipes")
+      .find({ title: { $regex: searchTerm, $options: 'i' } })
+      .toArray();
 
-  
-    const results = [...new Set([...textResults, ...regexResults])];
+    // Await both search results
+    const [textResults, regexResults] = await Promise.all([textSearchPromise, regexSearchPromise]);
+
+    /**
+     * @description Combines and deduplicates results from both full-text and regex searches based on unique _id values.
+     * @type {Array<Object>} - Array of unique recipe objects from combined search results.
+     */
+    const allResults = [...new Map([...textResults, ...regexResults].map(item => [item._id.toString(), item])).values()];
 
     return new Response(
-      JSON.stringify({ success: true, results, total: results.length }),
+      JSON.stringify({ success: true, results: allResults, total: allResults.length }),
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' }
