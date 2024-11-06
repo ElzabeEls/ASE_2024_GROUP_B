@@ -31,7 +31,18 @@ export default function RecipeCard({ recipe }) {
   // Calculate total time by adding prep and cook times
   const totalTime = (recipe.prep || 0) + (recipe.cook || 0);
   return (
-    <div className=" bg-gray rounded-lg overflow-hidden shadow-md hover:shadow-2xl hover:shadow-orange-700 p-4">
+    <div className=" bg-peach rounded-lg overflow-hidden shadow-md hover:shadow-2xl hover:shadow-orange-700 p-4">
+    <Head>
+      <title>{recipe.title} | Recipe Details</title>
+      <meta name="description" content={`Learn to make ${recipe.title} with this detailed recipe. Prep time: ${recipe.prep} mins, Cook time: ${recipe.cook} mins.`} />
+      <meta property="og:title" content={recipe.title} />
+      <meta property="og:description" content={`Recipe for ${recipe.title}. Total time: ${totalTime} mins.`} />
+      <meta property="og:image" content={recipe.images[0]} />
+      {/* <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={recipe.title} />
+      <meta name="twitter:description" content={`Detailed recipe for ${recipe.title}.`} />
+      <meta name="twitter:image" content={recipe.images[0]} /> */}
+    </Head>
       <Carousel
         images={recipe.images}
         alt={recipe.title}
