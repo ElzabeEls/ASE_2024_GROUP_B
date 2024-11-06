@@ -41,6 +41,8 @@ export default async function Home({ params, searchParams }) {
     searchParamsToInclude.category
   );
 
+  const stepsFilter = searchParams.steps || "";
+
   return (
     <main>
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
