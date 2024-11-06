@@ -2,38 +2,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { fetchCategories } from "../../lib/api";
 import CategoryFilter from "./CategoryFilter";
-import { useRouter } from "next/navigation";
 
 const Header = () => {
-  const router = useRouter();
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        // Fetch categories and directly set if it's an array or data structure
-        const categoriesData = await fetchCategories();
-
-        // Check if categoriesData is an array or has categories property, adjust as needed
-        setCategories(Array.isArray(categoriesData) ? categoriesData : categoriesData.categories);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    loadCategories();
-  }, []);
-
-  const handleCategoryChange = (selectedCategory) => {
-    if (router.isReady) {
-    router.push(`/?category=${selectedCategory}`);
-    console.log("Selected Category:", selectedCategory);
-    // Add any logic to filter items based on the selected category if needed
-    }
-  };
-
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-gray-300 bg-opacity-80 shadow-md backdrop-blur-lg">
       {/* Top Row - Navigation Bar */}
@@ -79,12 +50,6 @@ const Header = () => {
 
         {/* Filter and Sort */}
         <div className="flex items-center space-x-4">
-          {/* Filter by Category */}
-          <CategoryFilter
-            categories={categories}
-            onCategoryChange={handleCategoryChange}
-          />
-
           {/* Sort by */}
           <div className="flex items-center space-x-2">
             <label htmlFor="sort" className="text-gray-700">

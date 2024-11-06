@@ -86,9 +86,9 @@ export default function RootLayout({ children }) {
         <meta name="author" content={metadata.author} />
         <link rel="manifest" href={metadata.manifest} />
         
-      </Head>
+      </Head >
       <body className="flex flex-col min-h-screen">
-        <Header />
+        <Header/>
         <main className="flex-grow pt-16">{children}</main>
         <Footer />
       </body>
