@@ -13,7 +13,6 @@ import clientPromise from "../../../lib/mongodb";
  */
 export async function GET(req) {
   try {
-    // Await MongoDB client connection
     const client = await clientPromise;
     const db = client.db("devdb");
 
@@ -21,44 +20,37 @@ export async function GET(req) {
     const url = new URL(req.url);
     const tags = url.searchParams.get("tags")?.split(",").map((tag) => tag.trim()) || [];
     const matchAll = url.searchParams.get("matchAll") === "true";
-    const limit = parseInt(url.searchParams.get("limit")) || 20; // Default limit of 10
-    const page = parseInt(url.searchParams.get("page")) || 1;    // Default to first page
+    const limit = parseInt(url.searchParams.get("limit")) || 20;
+    const page = parseInt(url.searchParams.get("page")) || 1;
 
-    // Construct the filter for exact string matching
+    // Construct the filter for matching tags
     const filter = tags.length > 0
       ? matchAll
-        ? { tags: { $all: tags } } // Match all tags exactly
-        : { tags: { $in: tags } }  // Match any tag exactly
-      : {}; // No filter if no tags
+        ? { tags: { $all: tags } }
+        : { tags: { $in: tags } }
+      : {};
 
-    // Log the constructed filter for debugging
-    console.log("Filter being used:", filter);
-
-    // Fetch recipes with the filter, limit, and skip for pagination
+    // Fetch recipes with filter, limit, and skip (pagination)
     const recipes = await db.collection("recipes")
-      .find(filter)
+      .find(filter, { projection: { tags: 1 } }) // Ensure 'tags' are included
       .limit(limit)
-      .skip((page - 1) * limit) // Calculate skip based on page
+      .skip((page - 1) * limit)
       .toArray();
 
-    // Return successful response with filtered and paginated recipes
+    // Return the filtered and paginated recipes
     return new Response(JSON.stringify({ success: true, recipes, page, limit }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
-    // Log and return error response
-    console.error("Failed to fetch filtered recipes:", error);
+    console.error("Error fetching recipes:", error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: "Failed to fetch filtered recipes",
+        error: "Failed to fetch recipes",
         details: process.env.NODE_ENV === "development" ? error.message : undefined,
       }),
-
       { status: 500, headers: { "Content-Type": "application/json" } }
-
     );
   }
 }

@@ -20,11 +20,13 @@ export default async function Home({ searchParams }) {
   // Get selected filters from search params
   const selectedFilter = searchParams.filter || "none";
   const stepsFilter = parseInt(searchParams.steps, 10) || null;
+  const selectedTags = searchParams.tags ? searchParams.tags.split(",") : [];
 
   // Fetch recipes based on filters and pagination
   const data = await fetchRecipes(page, limit, {
     filter: selectedFilter,
     steps: stepsFilter,
+    tags: selectedTags,
   });
 
   return (
@@ -35,6 +37,7 @@ export default async function Home({ searchParams }) {
       <FilterIndicator
         selectedFilter={selectedFilter}
         stepsFilter={stepsFilter}
+        selectedTags={selectedTags}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -48,7 +51,7 @@ export default async function Home({ searchParams }) {
         <Link
           href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${
             stepsFilter || ""
-          }`}
+          }&tags=${selectedTags.join(",")}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             page === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
@@ -59,13 +62,13 @@ export default async function Home({ searchParams }) {
         >
           ←
         </Link>
-        
+
         <span className="px-4 text-lg font-semibold text-orange-700">Page {page}</span>
-        
-        <Link 
-          href={`/?page=${page + 1}&filter=${selectedFilter}`} 
-          className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600" 
-          aria-label="Next page" 
+
+        <Link
+          href={`/?page=${page + 1}&filter=${selectedFilter}&steps=${stepsFilter || ""}&tags=${selectedTags.join(",")}`}
+          className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
+          aria-label="Next page"
           title="Next page"
         >
           →
@@ -73,46 +76,12 @@ export default async function Home({ searchParams }) {
       </div>
 
       {/* Filter Form */}
-      <form action={`/?page=${page}`} method="GET" className="mb-4">
-        <label htmlFor="filter" className="block text-lg font-semibold mb-2">
-          Advanced Filters:
-        </label>
-        <select
-          id="filter"
-          name="filter"
-          defaultValue={selectedFilter}
-          className="p-2 border rounded"
-        >
-          <option value="none">Select a filter</option>
-          {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
-          {/* Add more options as needed */}
-        </select>
-
-        {/* Filter by Number of Steps */}
-        <label
-          htmlFor="steps"
-          className="block text-lg font-semibold mt-4 mb-2"
-        >
-          Filter by Number of Steps:
-        </label>
-        <input
-          type="number"
-          id="steps"
-          name="steps"
-          placeholder="Enter steps"
-          defaultValue={stepsFilter || ""}
-
-          className="p-2 border rounded text-black"
-
-        />
-
-        <button
-          type="submit"
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Apply
-        </button>
-      </form>
+      <AdvancedFiltering
+        selectedFilter={selectedFilter}
+        stepsFilter={stepsFilter}
+        selectedTags={selectedTags}
+        page={page}
+      />
     </main>
   );
 }

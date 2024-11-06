@@ -12,9 +12,14 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, page })
       try {
         const response = await fetch("/api/Tags");
         const data = await response.json();
-
+        console.log("Fetched data:", data); // Log the entire response data for debugging
+    
         if (data.success) {
-          setTags(data.tags || []);
+          // Extract unique tags from all recipes
+          const allTags = data.recipes.flatMap(recipe => recipe.tags);
+          const uniqueTags = [...new Set(allTags)]; // Remove duplicates
+          setTags(uniqueTags);
+          console.log("Updated tags state:", uniqueTags); // Confirm the tags array state update
         } else {
           console.error("Failed to fetch tags:", data.error);
         }
@@ -24,7 +29,7 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, page })
     }
 
     fetchTags();
-  }, []);
+  }, []); // Empty dependency array means this will run only on mount
 
   // Handle tag selection
   const handleTagChange = (tag) => {
@@ -47,8 +52,7 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, page })
         className="p-2 border rounded"
       >
         <option value="none">Select a filter</option>
-        {/* Example options */}
-        {/* <option value="low-calories">Low Calories</option> */}
+        {/* Add more filter options here */}
       </select>
 
       {/* Filter by Number of Steps */}
