@@ -20,22 +20,21 @@ export default async function Home({ searchParams }) {
   const selectedFilter = searchParams.filter || "none";
   const stepsFilter = parseInt(searchParams.steps, 10) || null;
 
-  // Fetch recipes based on the current page
-  const data = await fetchRecipes(page, limit);
+  // Fetch recipes based on filters and pagination
+  const data = await fetchRecipes(page, limit, {
+    filter: selectedFilter,
+    steps: stepsFilter,
+  });
 
   return (
     <main>
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
-      {/* Display applied filters */}
-      {selectedFilter !== "none" && (
-        <div className="mb-4 text-center">
-          <span className="text-md font-semibold">Applied Filter:</span>{" "}
-          <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
-            {selectedFilter}
-          </span>
-        </div>
-      )}
+      {/* Display the selected filters */}
+      <FilterIndicator
+        selectedFilter={selectedFilter}
+        stepsFilter={stepsFilter}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.recipes.map((recipe) => (
@@ -46,7 +45,9 @@ export default async function Home({ searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${page - 1}&filter=${selectedFilter}`}
+          href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${
+            stepsFilter || ""
+          }`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             page === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
@@ -57,15 +58,13 @@ export default async function Home({ searchParams }) {
         >
           ←
         </Link>
-
-        <span className="px-4 text-lg font-semibold text-orange-700">
-          Page {page}
-        </span>
-
-        <Link
-          href={`/?page=${page + 1}&filter=${selectedFilter}`}
-          className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
-          aria-label="Next page"
+        
+        <span className="px-4 text-lg font-semibold text-orange-700">Page {page}</span>
+        
+        <Link 
+          href={`/?page=${page + 1}&filter=${selectedFilter}`} 
+          className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600" 
+          aria-label="Next page" 
           title="Next page"
         >
           →
@@ -85,6 +84,7 @@ export default async function Home({ searchParams }) {
         >
           <option value="none">Select a filter</option>
           {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
+          {/* Add more options as needed */}
         </select>
 
         {/* Filter by Number of Steps */}
@@ -100,7 +100,9 @@ export default async function Home({ searchParams }) {
           name="steps"
           placeholder="Enter steps"
           defaultValue={stepsFilter || ""}
-          className="p-2 border rounded"
+
+          className="p-2 border rounded text-black"
+
         />
 
         <button
