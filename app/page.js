@@ -1,9 +1,8 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
 import FilterIndicator from "./components/FilterIndicator"; // Import the new component
-
-
 import { fetchRecipes, fetchCategories } from "../lib/api";
+
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
  * The `page` prop is derived from the URL query.
@@ -22,18 +21,11 @@ export default async function Home({ searchParams }) {
   const stepsFilter = parseInt(searchParams.steps, 10) || null;
   const selectedCategory = searchParams.category || "";
 
-  // Fetch recipes based on filters and pagination
-  const data = await fetchRecipes(page, limit, {
-    filter: selectedFilter,
-    steps: stepsFilter,
-  });
-
   // Fetch recipes based on the current page
   const data = await fetchRecipes(page, limit, selectedCategory);
-
   const categories = await fetchCategories();
   console.log("Categories fetched:", categories);
-  
+
   return (
     <main>
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
@@ -44,7 +36,6 @@ export default async function Home({ searchParams }) {
         stepsFilter={stepsFilter}
       />
 
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.recipes.map((recipe) => (
           <RecipeCard key={recipe._id} recipe={recipe} />
@@ -54,19 +45,8 @@ export default async function Home({ searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${
-            stepsFilter || ""
-          }`}
-        <Link
-          href={`/?page=${
-            page - 1
-          }&filter=${selectedFilter}&category=${selectedCategory}`}
+          href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${stepsFilter || ""}&category=${selectedCategory}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
-            page === 1
-              ? "bg-gray-300 pointer-events-none opacity-50"
-              : "bg-orange-500 hover:bg-orange-600"
-          }`}
-          aria-label="Previous page"
             page === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
               : "bg-orange-500 hover:bg-orange-600"
@@ -82,9 +62,7 @@ export default async function Home({ searchParams }) {
         </span>
 
         <Link
-          href={`/?page=${
-            page + 1
-          }&filter=${selectedFilter}&category=${selectedCategory}`}
+          href={`/?page=${page + 1}&filter=${selectedFilter}&category=${selectedCategory}`}
           className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
           aria-label="Next page"
           title="Next page"
@@ -105,7 +83,6 @@ export default async function Home({ searchParams }) {
           className="p-2 border rounded"
         >
           <option value="none">Select a filter</option>
-          {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
           {/* Add more options as needed */}
         </select>
 
@@ -125,10 +102,6 @@ export default async function Home({ searchParams }) {
           className="p-2 border rounded"
         />
 
-        <button
-          type="submit"
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
-        >
         <button
           type="submit"
           className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
