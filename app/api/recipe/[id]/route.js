@@ -11,14 +11,14 @@ export async function GET(_req, { params }) {
 
   try {
     // Convert the id to a MongoDB ObjectId
-    const objectId = new ObjectId(id);
+    // const objectId = new ObjectId(id);
 
     // Connect to the MongoDB client
     const client = await clientPromise;
     const db = client.db("devdb");
 
     // Fetch the recipe document by its _id
-    const recipe = await db.collection("recipes").findOne({ _id: objectId });
+    const recipe = await db.collection("recipes").findOne({ _id: id});
 
     if (!recipe) {
       // If the recipe is not found, return a 404 response using NextResponse

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 const SearchBar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState({});
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,7 +14,13 @@ const SearchBar = () => {
   // Initialize searchQuery state from URL search parameters
   useEffect(() => {
     const query = searchParams.get("search") || "";
+
+    console.log("query")
+    console.log(query)
+
     setSearchQuery(query);
+    console.log("searchQuery")
+    console.log(searchQuery)
   }, [searchParams]);
 
   const handleSearch = async (e) => {
@@ -81,7 +87,6 @@ const SearchBar = () => {
               <li key={recipe._id} className="border-b py-2">
                 <h3 className="text-md font-semibold">{recipe.title}</h3>
                 <p>{recipe.description}</p>{" "}
-                {/* Adjust based on your recipe structure */}
               </li>
             ))}
           </ul>

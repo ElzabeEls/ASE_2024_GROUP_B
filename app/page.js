@@ -1,6 +1,8 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
 import { fetchRecipes } from "../lib/api";
+import SearchBar from "./components/SearchBar";
+
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
