@@ -45,6 +45,11 @@ export default async function Home({ params, searchParams }) {
 
   return (
     <main>
+
+        {/* Search Bar */}
+        <SearchBar />
+      <CategoryFilter />
+      
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
       {/* Display applied filters */}
@@ -141,9 +146,7 @@ export default async function Home({ params, searchParams }) {
         </button>
       </form>
 
-      {/* Search Bar */}
-      <SearchBar />
-      <CategoryFilter />
+    
     </main>
   );
 }
