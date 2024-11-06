@@ -1,6 +1,9 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
-import { fetchRecipes, fetchCategories } from "../lib/api";
+import { fetchRecipes } from "../lib/api";
+import SearchBar from "./components/SearchBar";
+import CategoryFilter from "./components/CategoryFilter";
+
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
  * The `page` prop is derived from the URL query.
@@ -10,26 +13,50 @@ import { fetchRecipes, fetchCategories } from "../lib/api";
  * @param {number} props.page - Current page number.
  * @returns {JSX.Element} A React component displaying a grid of recipe cards with pagination controls.
  */
-export default async function Home({ searchParams }) {
-  const page = parseInt(searchParams.page, 10) || 1; // Get the page number from search params
-  const limit = 20;
+export default async function Home({ params, searchParams }) {
+  console.log("params", params);
+  console.log("searchParams", searchParams);
 
-  // Get selected filter option from search params
-  const selectedFilter = searchParams.filter || "none";
-  const selectedCategory = searchParams.category || "";
+  // Construct the search parameters object dynamically
+  const searchParamsToInclude = {};
 
-  // Fetch recipes based on the current page
-  const data = await fetchRecipes(page, limit, selectedCategory);
+  if (searchParams.page) {
+    searchParamsToInclude.page = searchParams.page;
+  }
+  if (searchParams.limit) {
+    searchParamsToInclude.limit = searchParams.limit;
+  }
+  if (searchParams.search) {
+    searchParamsToInclude.search = searchParams.search;
+  }
+  if (searchParams.category) {
+    searchParamsToInclude.category = searchParams.category;
+  }
 
-  const categories = await fetchCategories();
-  console.log("Categories fetched:", categories);
-  
+  // Fetch recipes with only the necessary parameters
+  const data = await fetchRecipes(
+    searchParamsToInclude.page,
+    searchParamsToInclude.limit,
+    searchParamsToInclude.search,
+    searchParamsToInclude.category
+  );
+
   return (
     <main>
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
+      {/* Display applied filters */}
+      {searchParams.search !== "none" && (
+        <div className="mb-4 text-center">
+          <span className="text-md font-semibold">Applied Filter:</span>{" "}
+          <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
+            {searchParams.search}
+          </span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {data.recipes.map((recipe) => (
+        {data.map((recipe) => (
           <RecipeCard key={recipe._id} recipe={recipe} />
         ))}
       </div>
@@ -37,11 +64,11 @@ export default async function Home({ searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${
-            page - 1
-          }&filter=${selectedFilter}&category=${selectedCategory}`}
+          href={`/?page=${searchParams.page - 1}&search=${
+            searchParams.search
+          }&filter=${searchParams.search}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
-            page === 1
+            searchParams.page === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
               : "bg-orange-500 hover:bg-orange-600"
           }`}
@@ -52,13 +79,13 @@ export default async function Home({ searchParams }) {
         </Link>
 
         <span className="px-4 text-lg font-semibold text-orange-700">
-          Page {page}
+          Page {searchParams.page}
         </span>
 
         <Link
-          href={`/?page=${
-            page + 1
-          }&filter=${selectedFilter}&category=${selectedCategory}`}
+          href={`/?page=${searchParams.page + 1}&search=${
+            searchParams.search
+          }&filter=${searchParams.search}`}
           className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
           aria-label="Next page"
           title="Next page"
@@ -68,19 +95,22 @@ export default async function Home({ searchParams }) {
       </div>
 
       {/* Filter Form */}
-      <form action={`/?page=${page}`} method="GET" className="mb-4">
+      <form
+        action={`/?page=${searchParams.page}`}
+        method="GET"
+        className="mb-4"
+      >
         <label htmlFor="filter" className="block text-lg font-semibold mb-2">
           Advanced Filters:
         </label>
         <select
           id="filter"
           name="filter"
-          defaultValue={selectedFilter}
+          defaultValue={searchParams.search}
           className="p-2 border rounded"
         >
           <option value="none">Select a filter</option>
           {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
-          {/* Add more options as needed */}
         </select>
         <button
           type="submit"
@@ -89,6 +119,10 @@ export default async function Home({ searchParams }) {
           Apply
         </button>
       </form>
+
+      {/* Search Bar */}
+      <SearchBar />
+      <CategoryFilter />
     </main>
   );
 }
