@@ -1,9 +1,7 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
-import FilterIndicator from "./components/FilterIndicator"; // Import the new component
 import { fetchRecipes, searchRecipes } from "../lib/api";
 import SearchBar from "./components/SearchBar";
-
 
 
 /**
@@ -15,19 +13,6 @@ import SearchBar from "./components/SearchBar";
  * @param {number} props.page - Current page number.
  * @returns {JSX.Element} A React component displaying a grid of recipe cards with pagination controls.
  */
-export default async function Home({ searchParams }) {
-  const page = parseInt(searchParams.page, 10) || 1;
-  const limit = 20;
-
-  // Get selected filters from search params
-  const selectedFilter = searchParams.filter || "none";
-  const stepsFilter = parseInt(searchParams.steps, 10) || null;
-
-  // Fetch recipes based on filters and pagination
-  const data = await fetchRecipes(page, limit, {
-    filter: selectedFilter,
-    steps: stepsFilter,
-  });
 export default async function Home( {params, searchParams} ) {
 
 console.log("params");
@@ -44,7 +29,6 @@ console.log(searchParams);
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
      
-
       {/* Display applied filters */}
       {searchParams.search !== "none" && (
         <div className="mb-4 text-center">
@@ -54,11 +38,6 @@ console.log(searchParams);
           </span>
         </div>
       )}
-      {/* Display the selected filters */}
-      <FilterIndicator
-        selectedFilter={selectedFilter}
-        stepsFilter={stepsFilter}
-      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.map((recipe) => (
@@ -70,9 +49,6 @@ console.log(searchParams);
       <div className="flex justify-center mt-8 items-center">
         <Link
           href={`/?page=${searchParams.page- 1}&search=${searchParams.search}&filter=${searchParams.search}`}
-          href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${
-            stepsFilter || ""
-          }`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             searchParams.page === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
@@ -89,12 +65,12 @@ console.log(searchParams);
         </span>
 
         <Link
-          href={`/?page=${searchParams.page + 1}&search=${searchParams.search}&filter=${selectedFilter}`}
+          href={`/?page=${searchParams.page + 1}&search=${searchParams.search}&filter=${searchParams.search}`}
           className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
           aria-label="Next page"
-        
-        <span className="px-4 text-lg font-semibold text-orange-700">Page {page}</span>
-        
+          title="Next page"
+        >
+          →
         </Link>
       </div>
 
@@ -111,35 +87,11 @@ console.log(searchParams);
         >
           <option value="none">Select a filter</option>
           {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
-          {/* Add more options as needed */}
         </select>
-
-        {/* Filter by Number of Steps */}
-        <label
-          htmlFor="steps"
-          className="block text-lg font-semibold mt-4 mb-2"
-        >
-          Filter by Number of Steps:
-        </label>
-        <input
-          type="number"
-          id="steps"
-          name="steps"
-          placeholder="Enter steps"
-          defaultValue={stepsFilter || ""}
-
-          className="p-2 border rounded text-black"
-
-        />
-
-        <button
-          type="submit"
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
-        >
+        <button type="submit" className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
           Apply
         </button>
       </form>
-
   {/* Search Bar */}
   <SearchBar/>
     </main>
