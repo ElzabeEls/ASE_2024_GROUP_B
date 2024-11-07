@@ -40,9 +40,14 @@ export default async function Home({ params, searchParams }) {
 
   return (
     <main>
-      {/* Search Bar */}
-      <SearchBar />
-      <CategoryFilter />
+        <div className="flex space-x-20 items-center mb-8">
+    {/* Search Bar */}
+    <SearchBar />
+    <div className="mt-8"> {/* Add margin-top here to move CategoryFilter down */}
+    {/* Category Filter */}
+    <CategoryFilter />
+    </div>
+  </div>
 
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
