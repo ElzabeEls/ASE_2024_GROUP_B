@@ -48,7 +48,7 @@ export async function GET(req) {
    
     if (allResults.length === 0) {
       return new Response(
-        JSON.stringify({ message: "There are no matches", data: [] }),
+        JSON.stringify({ message: "No matches found", data: [] }),
         {
           status: 200,
           headers: { 'Content-Type': 'application/json' }
