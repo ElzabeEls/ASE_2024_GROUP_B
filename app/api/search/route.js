@@ -45,6 +45,17 @@ export async function GET(req) {
      */
     const allResults = [...new Map([...textResults, ...regexResults].map(item => [item._id.toString(), item])).values()];
 
+   
+    if (allResults.length === 0) {
+      return new Response(
+        JSON.stringify({ message: "There are no matches", data: [] }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     return new Response(
       JSON.stringify({ success: true, results: allResults, total: allResults.length }),
       {
