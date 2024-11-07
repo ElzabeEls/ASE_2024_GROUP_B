@@ -1,8 +1,8 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
-import { fetchRecipes, searchRecipes } from "../lib/api";
+import { fetchRecipes } from "../lib/api";
 import SearchBar from "./components/SearchBar";
-
+import CategoryFilter from "./components/CategoryFilter";
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
@@ -13,24 +13,41 @@ import SearchBar from "./components/SearchBar";
  * @param {number} props.page - Current page number.
  * @returns {JSX.Element} A React component displaying a grid of recipe cards with pagination controls.
  */
-export default async function Home( {params, searchParams} ) {
+export default async function Home({ params, searchParams }) {
+  console.log("params", params);
+  console.log("searchParams", searchParams);
 
-console.log("params");
-console.log(params);
-console.log("searchParams");
-console.log(searchParams);
-   
- 
+  // Get current page or set default to 1
+  const currentPage = parseInt(searchParams.page) || 1;
 
-   const data = await fetchRecipes(searchParams.page, searchParams.limit, searchParams.search);
+  // Construct the search parameters object dynamically
+  const searchParamsToInclude = {
+    page: currentPage,
+    limit: searchParams.limit || 20,
+    search: searchParams.search || "",
+    category: searchParams.category || "",
+  };
+
+  // Fetch recipes with only the necessary parameters
+  const data = await fetchRecipes(
+    searchParamsToInclude.page,
+    searchParamsToInclude.limit,
+    searchParamsToInclude.search,
+    searchParamsToInclude.category
+  );
+
+  const stepsFilter = searchParams.steps || "";
 
   return (
     <main>
+      {/* Search Bar */}
+      <SearchBar />
+      <CategoryFilter />
+
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
-     
       {/* Display applied filters */}
-      {searchParams.search !== "none" && (
+      {searchParams.search && searchParams.search !== "none" && (
         <div className="mb-4 text-center">
           <span className="text-md font-semibold">Applied Filter:</span>{" "}
           <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
@@ -48,9 +65,9 @@ console.log(searchParams);
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${searchParams.page- 1}&search=${searchParams.search}&filter=${searchParams.search}`}
+          href={`/?page=${currentPage - 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
-            searchParams.page === 1
+            currentPage === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
               : "bg-orange-500 hover:bg-orange-600"
           }`}
@@ -61,11 +78,11 @@ console.log(searchParams);
         </Link>
 
         <span className="px-4 text-lg font-semibold text-orange-700">
-          Page {searchParams.page}
+          Page {currentPage}
         </span>
 
         <Link
-          href={`/?page=${searchParams.page + 1}&search=${searchParams.search}&filter=${searchParams.search}`}
+          href={`/?page=${currentPage + 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
           className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
           aria-label="Next page"
           title="Next page"
@@ -75,7 +92,11 @@ console.log(searchParams);
       </div>
 
       {/* Filter Form */}
-      <form action={`/?page=${searchParams.page}`} method="GET" className="mb-4">
+      <form
+        action={`/?page=${currentPage}`}
+        method="GET"
+        className="mb-4"
+      >
         <label htmlFor="filter" className="block text-lg font-semibold mb-2">
           Advanced Filters:
         </label>
@@ -88,7 +109,27 @@ console.log(searchParams);
           <option value="none">Select a filter</option>
           {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
         </select>
-        <button type="submit" className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
+
+        {/* Filter by Number of Steps */}
+        <label
+          htmlFor="steps"
+          className="block text-lg font-semibold mt-4 mb-2"
+        >
+          Filter by Number of Steps:
+        </label>
+        <input
+          type="number"
+          id="steps"
+          name="steps"
+          placeholder="Enter steps"
+          defaultValue={stepsFilter || ""}
+          className="p-2 border rounded text-black"
+        />
+
+        <button
+          type="submit"
+          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
+        >
           Apply
         </button>
       </form>

@@ -6,12 +6,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 const SearchBar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTextQuery, setTextSearchQuery] = useState("");
+  const [searchCategoryQuery, setCategorySearchQuery] = useState("");
 
   // Initialize searchQuery state from URL search parameters
   useEffect(() => {
-    const query = searchParams.get("search") || "";
-    setSearchQuery(query);
+    const search = searchParams.get("search") || "";
+    setTextSearchQuery(search);
+    const category = searchParams.get("category") || "";
+    setCategorySearchQuery(category);
   }, [searchParams]);
 
   const handleSearch = (e) => {
@@ -21,15 +24,25 @@ const SearchBar = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
 
     // Update the search parameter
-    if (searchQuery.trim()) {
-      newSearchParams.set("search", encodeURIComponent(searchQuery));
+    if (searchTextQuery.trim()) {
+      newSearchParams.set("search", encodeURIComponent(searchTextQuery));
     } else {
       newSearchParams.delete("search"); // Remove if empty
     }
 
-    // Redirect to the new URL with updated search parameters
-    router.push(`?page=1&limit=20&${newSearchParams.toString()}`);
 
+    let url = `/?page=1&limit=20`;
+
+    if (searchTextQuery && searchTextQuery.trim() !== "") {
+      url += `&search=${encodeURIComponent(searchTextQuery)}`;
+    }
+
+    if (searchCategoryQuery && searchCategoryQuery.trim() !== "") {
+      url += `&category=${encodeURIComponent(searchCategoryQuery)}`;
+    }
+
+    // Redirect to the new URL with updated search parameters
+    router.push(url);
   };
 
   return (
@@ -37,8 +50,8 @@ const SearchBar = () => {
       <input
         type="text"
         placeholder="Search for recipes..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        value={searchTextQuery}
+        onChange={(e) => setTextSearchQuery(e.target.value)}
         className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
       />
       <button
