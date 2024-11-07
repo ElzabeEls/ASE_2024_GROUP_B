@@ -33,7 +33,7 @@ export const metadata = {
   description: "Arejeng Recipe App is your ultimate culinary companion, offering an extensive collection of easy-to-follow recipes that cater to every taste and occasion.",
   icons: {
     icon: [
-      { rel: "icon", url: "/favicon-192x192.png", sizes: "192x192" },
+      { rel: "icon", url: "/favicon-48x48.png", sizes: "48x48" },
       { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
       { rel: "shortcut icon", url: "/favicon.ico" },
     ],
@@ -86,9 +86,9 @@ export default function RootLayout({ children }) {
         <meta name="author" content={metadata.author} />
         <link rel="manifest" href={metadata.manifest} />
         
-      </Head>
+      </Head >
       <body className="flex flex-col min-h-screen">
-        <Header />
+        <Header/>
         <main className="flex-grow pt-16">{children}</main>
         <Footer />
       </body>

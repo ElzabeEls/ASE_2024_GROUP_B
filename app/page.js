@@ -1,7 +1,8 @@
 import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
-import FilterIndicator from "./components/FilterIndicator"; // Import the new component
 import { fetchRecipes } from "../lib/api";
+import SearchBar from "./components/SearchBar";
+import CategoryFilter from "./components/CategoryFilter";
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
@@ -12,32 +13,51 @@ import { fetchRecipes } from "../lib/api";
  * @param {number} props.page - Current page number.
  * @returns {JSX.Element} A React component displaying a grid of recipe cards with pagination controls.
  */
-export default async function Home({ searchParams }) {
-  const page = parseInt(searchParams.page, 10) || 1;
-  const limit = 20;
+export default async function Home({ params, searchParams }) {
+  console.log("params", params);
+  console.log("searchParams", searchParams);
 
-  // Get selected filters from search params
-  const selectedFilter = searchParams.filter || "none";
-  const stepsFilter = parseInt(searchParams.steps, 10) || null;
+  // Get current page or set default to 1
+  const currentPage = parseInt(searchParams.page) || 1;
 
-  // Fetch recipes based on filters and pagination
-  const data = await fetchRecipes(page, limit, {
-    filter: selectedFilter,
-    steps: stepsFilter,
-  });
+  // Construct the search parameters object dynamically
+  const searchParamsToInclude = {
+    page: currentPage,
+    limit: searchParams.limit || 20,
+    search: searchParams.search || "",
+    category: searchParams.category || "",
+  };
+
+  // Fetch recipes with only the necessary parameters
+  const data = await fetchRecipes(
+    searchParamsToInclude.page,
+    searchParamsToInclude.limit,
+    searchParamsToInclude.search,
+    searchParamsToInclude.category
+  );
+
+  const stepsFilter = searchParams.steps || "";
 
   return (
     <main>
+      {/* Search Bar */}
+      <SearchBar />
+      <CategoryFilter />
+
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
-      {/* Display the selected filters */}
-      <FilterIndicator
-        selectedFilter={selectedFilter}
-        stepsFilter={stepsFilter}
-      />
+      {/* Display applied filters */}
+      {searchParams.search && searchParams.search !== "none" && (
+        <div className="mb-4 text-center">
+          <span className="text-md font-semibold">Applied Filter:</span>{" "}
+          <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
+            {searchParams.search}
+          </span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {data.recipes.map((recipe) => (
+        {data.map((recipe) => (
           <RecipeCard key={recipe._id} recipe={recipe} />
         ))}
       </div>
@@ -45,11 +65,9 @@ export default async function Home({ searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${page - 1}&filter=${selectedFilter}&steps=${
-            stepsFilter || ""
-          }`}
+          href={`/?page=${currentPage - 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
-            page === 1
+            currentPage === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
               : "bg-orange-500 hover:bg-orange-600"
           }`}
@@ -58,13 +76,15 @@ export default async function Home({ searchParams }) {
         >
           ←
         </Link>
-        
-        <span className="px-4 text-lg font-semibold text-orange-700">Page {page}</span>
-        
-        <Link 
-          href={`/?page=${page + 1}&filter=${selectedFilter}`} 
-          className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600" 
-          aria-label="Next page" 
+
+        <span className="px-4 text-lg font-semibold text-orange-700">
+          Page {currentPage}
+        </span>
+
+        <Link
+          href={`/?page=${currentPage + 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
+          className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
+          aria-label="Next page"
           title="Next page"
         >
           →
@@ -72,19 +92,22 @@ export default async function Home({ searchParams }) {
       </div>
 
       {/* Filter Form */}
-      <form action={`/?page=${page}`} method="GET" className="mb-4">
+      <form
+        action={`/?page=${currentPage}`}
+        method="GET"
+        className="mb-4"
+      >
         <label htmlFor="filter" className="block text-lg font-semibold mb-2">
           Advanced Filters:
         </label>
         <select
           id="filter"
           name="filter"
-          defaultValue={selectedFilter}
+          defaultValue={searchParams.search}
           className="p-2 border rounded"
         >
           <option value="none">Select a filter</option>
           {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
-          {/* Add more options as needed */}
         </select>
 
         {/* Filter by Number of Steps */}
@@ -100,9 +123,7 @@ export default async function Home({ searchParams }) {
           name="steps"
           placeholder="Enter steps"
           defaultValue={stepsFilter || ""}
-
           className="p-2 border rounded text-black"
-
         />
 
         <button
