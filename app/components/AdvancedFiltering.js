@@ -1,22 +1,22 @@
-"use client";
+"use client"; 
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import { useRouter } from "next/navigation";
 
 export default function AdvancedFiltering({ selectedFilter, stepsFilter, selectedTags, page }) {
   const [tags, setTags] = useState([]);
-  const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags);
-  const router = useRouter(); // Hook for programmatic navigation
+  const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags || []);
+  const router = useRouter();
 
   // Fetch tags when the component mounts
   useEffect(() => {
     async function fetchTags() {
       try {
-        const response = await fetch("/api/Tags"); // Fetch all tags
+        const response = await fetch("/api/Tags");
         const data = await response.json();
 
         if (data.success) {
-          setTags(data.tags); // Set the tags to the state
+          setTags(data.tags);
         } else {
           console.error("Failed to fetch tags:", data.error);
         }
@@ -26,9 +26,9 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
     }
 
     fetchTags();
-  }, []); // Empty dependency ensures this effect only runs once
+  }, []);
 
-  // Handle tag selection (check/uncheck)
+  // Handle tag selection (check/uncheck multiple tags)
   const handleTagChange = (tag) => {
     const updatedTags = localSelectedTags.includes(tag)
       ? localSelectedTags.filter((t) => t !== tag)
@@ -39,9 +39,12 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
 
   // Handle form submit (apply filters)
   const handleApplyFilters = () => {
-    // Update the query parameters and trigger a page refresh
+    const tagsParam = localSelectedTags.join(","); // Join selected tags into a comma-separated string
+    const filterParam = selectedFilter ? `&filter=${selectedFilter}` : '';
+    const stepsParam = stepsFilter ? `&steps=${stepsFilter}` : '';
+
     router.push(
-      `/?page=${page}&filter=${selectedFilter}&steps=${stepsFilter || ""}&tags=${localSelectedTags.join(",")}`
+      `/?page=${page}${filterParam}${stepsParam}&tags=${tagsParam}`
     );
   };
 
@@ -50,20 +53,10 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
       <label htmlFor="filter" className="block text-lg font-semibold mb-2">
         Advanced Filters:
       </label>
-      <select
-        id="filter"
-        name="filter"
-        value={selectedFilter}
-        className="p-2 border rounded"
-        onChange={(e) => router.push(`/?page=${page}&filter=${e.target.value}&steps=${stepsFilter || ""}&tags=${localSelectedTags.join(",")}`)}
-      >
-        <option value="none">Select a filter</option>
-        {/* Add other filter options if necessary */}
-      </select>
 
       {/* Filter by Number of Steps (optional) */}
       <label htmlFor="steps" className="block text-lg font-semibold mt-4 mb-2">
-        Filter by Number of Steps (Optional):
+        Filter by Number of Steps:
       </label>
       <input
         type="number"
