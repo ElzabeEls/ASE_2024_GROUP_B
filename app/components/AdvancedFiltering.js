@@ -109,10 +109,11 @@ export default function AdvancedFiltering({
           <button
             type="button"
             onClick={handleApplyFilters}
-            className="w-full p-2 text-center text-sm font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 mt-auto"
+            className="mt-4 block text-center text-white bg-brown rounded-full px-4 py-2 hover:bg-green-800 transition duration-200"
           >
             Apply
           </button>
+
         </div>
       )}
     </div>
