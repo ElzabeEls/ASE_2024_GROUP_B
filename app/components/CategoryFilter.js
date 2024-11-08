@@ -53,12 +53,12 @@ const CategoryFilter = () => {
 
   return (
     <div className="flex items-center space-x-2">
-      <label htmlFor="category" className="text-gray-700">
+      <label htmlFor="category" className="text-gray-700 font-bold">
         Categories:
       </label>
       <select
         id="categories"
-        className="px-4 py-2 border border-gray-300 rounded-lg bg-white"
+        className="px-4 py-2 border-2 border-gray-400 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600"
         onChange={handleChange}
       >
         <option value="">Select Category</option>
