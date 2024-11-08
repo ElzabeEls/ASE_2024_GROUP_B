@@ -3,6 +3,7 @@ import RecipeCard from "./components/RecipeCard";
 import { fetchRecipes } from "../lib/api";
 import SearchBar from "./components/SearchBar";
 import CategoryFilter from "./components/CategoryFilter";
+import StepsFilter from "./components/StepsFilter";
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
@@ -26,6 +27,7 @@ export default async function Home({ params, searchParams }) {
     limit: searchParams.limit || 20,
     search: searchParams.search || "",
     category: searchParams.category || "",
+    steps: searchParams.steps || "", // Include steps parameter
   };
 
   // Fetch recipes with only the necessary parameters
@@ -33,33 +35,46 @@ export default async function Home({ params, searchParams }) {
     searchParamsToInclude.page,
     searchParamsToInclude.limit,
     searchParamsToInclude.search,
-    searchParamsToInclude.category
+    searchParamsToInclude.category,
+    searchParamsToInclude.steps
   );
-
-  const stepsFilter = searchParams.steps || "";
 
   return (
     <main>
-        <div className="flex space-x-20 items-center mb-8">
-    {/* Search Bar */}
-    <SearchBar />
-    <div className="mt-8"> {/* Add margin-top here to move CategoryFilter down */}
-    {/* Category Filter */}
-    <CategoryFilter />
-    </div>
-  </div>
+      <div className="flex space-x-20 items-center mb-8">
+        {/* Search Bar */}
+        <SearchBar />
+        {/* Category Filter */}
+        <div className="mt-8">
+          <CategoryFilter />
+        </div>
+        {/* Steps Filter */}
+        <div className="mt-8">
+          <StepsFilter />
+        </div>
+      </div>
 
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
       {/* Display applied filters */}
-      {searchParams.search && searchParams.search !== "none" && (
-        <div className="mb-4 text-center">
-          <span className="text-md font-semibold">Applied Filter:</span>{" "}
-          <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
-            {searchParams.search}
+      <div className="text-center mb-4">
+        {searchParams.search && searchParams.search !== "none" && (
+          <span className="text-md font-semibold">
+            Search:{" "}
+            <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
+              {searchParams.search}
+            </span>
           </span>
-        </div>
-      )}
+        )}
+        {searchParams.steps && (
+          <span className="text-md font-semibold ml-4">
+            Steps:{" "}
+            <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
+              {searchParams.steps}
+            </span>
+          </span>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.map((recipe) => (
@@ -70,7 +85,11 @@ export default async function Home({ params, searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${currentPage - 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
+          href={`/?page=${currentPage - 1}&search=${
+            searchParams.search || ""
+          }&category=${searchParams.category || ""}&steps=${
+            searchParams.steps || ""
+          }`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             currentPage === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
@@ -87,7 +106,11 @@ export default async function Home({ params, searchParams }) {
         </span>
 
         <Link
-          href={`/?page=${currentPage + 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
+          href={`/?page=${currentPage + 1}&search=${
+            searchParams.search || ""
+          }&category=${searchParams.category || ""}&steps=${
+            searchParams.steps || ""
+          }`}
           className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
           aria-label="Next page"
           title="Next page"
@@ -96,12 +119,8 @@ export default async function Home({ params, searchParams }) {
         </Link>
       </div>
 
-      {/* Filter Form */}
-      <form
-        action={`/?page=${currentPage}`}
-        method="GET"
-        className="mb-4"
-      >
+      {/* Advanced Filter Form (optional) */}
+      <form action={`/?page=${currentPage}`} method="GET" className="mb-4">
         <label htmlFor="filter" className="block text-lg font-semibold mb-2">
           Advanced Filters:
         </label>
@@ -114,22 +133,6 @@ export default async function Home({ params, searchParams }) {
           <option value="none">Select a filter</option>
           {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
         </select>
-
-        {/* Filter by Number of Steps */}
-        <label
-          htmlFor="steps"
-          className="block text-lg font-semibold mt-4 mb-2"
-        >
-          Filter by Number of Steps:
-        </label>
-        <input
-          type="number"
-          id="steps"
-          name="steps"
-          placeholder="Enter steps"
-          defaultValue={stepsFilter || ""}
-          className="p-2 border rounded text-black"
-        />
 
         <button
           type="submit"
