@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const SearchBar = () => {
@@ -8,7 +8,7 @@ const SearchBar = () => {
   const searchParams = useSearchParams();
   const [searchTextQuery, setTextSearchQuery] = useState("");
   const [searchCategoryQuery, setCategorySearchQuery] = useState("");
-  const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const debounceTimeout = useRef(null); // Use useRef for debounceTimeout
 
   // Initialize searchQuery state from URL search parameters
   useEffect(() => {
@@ -19,49 +19,53 @@ const SearchBar = () => {
   }, [searchParams]);
 
   // Define handleSearch using useCallback
-  const handleSearch = useCallback((e) => {
-    if (e) e.preventDefault();
+  const handleSearch = useCallback(
+    (e) => {
+      if (e) e.preventDefault();
 
-    // Construct the new search query
-    const newSearchParams = new URLSearchParams(searchParams.toString());
+      // Construct the new search query
+      const newSearchParams = new URLSearchParams(searchParams.toString());
 
-    // Update the search parameter
-    if (searchTextQuery.trim()) {
-      newSearchParams.set("search", encodeURIComponent(searchTextQuery));
-    } else {
-      newSearchParams.delete("search"); // Remove if empty
-    }
+      // Update the search parameter
+      if (searchTextQuery.trim()) {
+        newSearchParams.set("search", encodeURIComponent(searchTextQuery));
+      } else {
+        newSearchParams.delete("search"); // Remove if empty
+      }
 
-    let url = `/?page=1&limit=20`;
+      let url = `/?page=1&limit=20`;
 
-    if (searchTextQuery && searchTextQuery.trim() !== "") {
-      url += `&search=${encodeURIComponent(searchTextQuery)}`;
-    }
+      if (searchTextQuery && searchTextQuery.trim() !== "") {
+        url += `&search=${encodeURIComponent(searchTextQuery)}`;
+      }
 
-    if (searchCategoryQuery && searchCategoryQuery.trim() !== "") {
-      url += `&category=${encodeURIComponent(searchCategoryQuery)}`;
-    }
+      if (searchCategoryQuery && searchCategoryQuery.trim() !== "") {
+        url += `&category=${encodeURIComponent(searchCategoryQuery)}`;
+      }
 
-    // Redirect to the new URL with updated search parameters
-    router.push(url);
-  }, [router, searchCategoryQuery, searchTextQuery, searchParams]); // Add dependencies as needed
+      // Redirect to the new URL with updated search parameters
+      router.push(url);
+    },
+    [router, searchCategoryQuery, searchTextQuery, searchParams]
+  );
 
   // Debounce logic for auto-submission of short queries
   useEffect(() => {
-    if (debounceTimeout) {
-      clearTimeout(debounceTimeout); // Clear the previous timer
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current); // Clear the previous timer
     }
 
-    // Only debounce for short queries ( 1-3 characters)
-    if (searchTextQuery.trim().length > 0 && searchTextQuery.trim().length <= 3) {
-      const timeout = setTimeout(() => {
+    // Only debounce for short queries (1-3 characters)
+    if (
+      searchTextQuery.trim().length > 0 &&
+      searchTextQuery.trim().length <= 3
+    ) {
+      debounceTimeout.current = setTimeout(() => {
         handleSearch(); // Auto-submit the search
       }, 300); // Delay of 300ms
 
-      setDebounceTimeout(timeout);
-
       // Cleanup function to clear the timeout
-      return () => clearTimeout(timeout);
+      return () => clearTimeout(debounceTimeout.current);
     }
   }, [searchTextQuery, handleSearch]); // Add handleSearch to dependencies
 
