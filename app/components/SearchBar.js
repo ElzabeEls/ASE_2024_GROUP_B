@@ -3,14 +3,27 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+/**
+ * A search bar component that allows users to search for recipes by title and category.
+ * It handles query debouncing, search parameter updates, and redirects based on user input.
+ *
+ * @component
+ * @example
+ * return (
+ *   <SearchBar />
+ * )
+ */
 const SearchBar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchTextQuery, setTextSearchQuery] = useState("");
-  const [searchCategoryQuery, setCategorySearchQuery] = useState("");
-  const debounceTimeout = useRef(null); // Use useRef for debounceTimeout
+  const [searchTextQuery, setTextSearchQuery] = useState(""); // State for the search text input
+  const [searchCategoryQuery, setCategorySearchQuery] = useState(""); // State for the category input
+  const debounceTimeout = useRef(null); // Ref to hold the debounce timer
 
-  // Initialize searchQuery state from URL search parameters
+  /**
+   * Initializes the search query state from the URL search parameters.
+   * Runs once on component mount and when `searchParams` changes.
+   */
   useEffect(() => {
     const search = searchParams.get("search") || "";
     setTextSearchQuery(search);
@@ -18,7 +31,12 @@ const SearchBar = () => {
     setCategorySearchQuery(category);
   }, [searchParams]);
 
-  // Define handleSearch using useCallback
+  /**
+   * Handles the search form submission, constructs a new search URL,
+   * and redirects the user to the updated URL with query parameters.
+   *
+   * @param {Event} [e] - The form submission event. Prevents default form behavior if provided.
+   */
   const handleSearch = useCallback(
     (e) => {
       if (e) e.preventDefault();
@@ -49,7 +67,10 @@ const SearchBar = () => {
     [router, searchCategoryQuery, searchTextQuery, searchParams]
   );
 
-  // Debounce logic for auto-submission of short queries
+  /**
+   * Sets up a debounce effect to auto-submit the search for short queries (1-3 characters).
+   * Clears the previous debounce timer when `searchTextQuery` changes.
+   */
   useEffect(() => {
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current); // Clear the previous timer
