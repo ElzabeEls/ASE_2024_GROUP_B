@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const SearchBar = () => {
@@ -10,7 +10,6 @@ const SearchBar = () => {
   const [searchCategoryQuery, setCategorySearchQuery] = useState("");
   const [debounceTimeout, setDebounceTimeout] = useState(null);
 
-
   // Initialize searchQuery state from URL search parameters
   useEffect(() => {
     const search = searchParams.get("search") || "";
@@ -19,28 +18,9 @@ const SearchBar = () => {
     setCategorySearchQuery(category);
   }, [searchParams]);
 
-
-// Debounce logic for auto-submission of short queries
-useEffect(() => {
-  if (debounceTimeout) {
-    clearTimeout(debounceTimeout); // Clear the previous timer
-  }
-
-  // Only debounce for short queries (e.g., 1-2 characters)
-  if (searchTextQuery.trim().length > 0 && searchTextQuery.trim().length <= 2) {
-    const timeout = setTimeout(() => {
-      handleSearch(); // Auto-submit the search
-    }, 300); // Delay of 300ms
-
-    setDebounceTimeout(timeout);
-
-    // Cleanup function to clear the timeout
-    return () => clearTimeout(timeout);
-  }
-}, [searchTextQuery, ]);
-
-const handleSearch = (e) => {
-  if (e) e.preventDefault();
+  // Define handleSearch using useCallback
+  const handleSearch = useCallback((e) => {
+    if (e) e.preventDefault();
 
     // Construct the new search query
     const newSearchParams = new URLSearchParams(searchParams.toString());
@@ -51,7 +31,6 @@ const handleSearch = (e) => {
     } else {
       newSearchParams.delete("search"); // Remove if empty
     }
-
 
     let url = `/?page=1&limit=20`;
 
@@ -65,7 +44,26 @@ const handleSearch = (e) => {
 
     // Redirect to the new URL with updated search parameters
     router.push(url);
-  };
+  }, [router, searchCategoryQuery, searchTextQuery, searchParams]); // Add dependencies as needed
+
+  // Debounce logic for auto-submission of short queries
+  useEffect(() => {
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout); // Clear the previous timer
+    }
+
+    // Only debounce for short queries ( 1-3 characters)
+    if (searchTextQuery.trim().length > 0 && searchTextQuery.trim().length <= 3) {
+      const timeout = setTimeout(() => {
+        handleSearch(); // Auto-submit the search
+      }, 300); // Delay of 300ms
+
+      setDebounceTimeout(timeout);
+
+      // Cleanup function to clear the timeout
+      return () => clearTimeout(timeout);
+    }
+  }, [searchTextQuery, handleSearch]); // Add handleSearch to dependencies
 
   return (
     <form onSubmit={handleSearch} className="flex justify-center mt-8">
