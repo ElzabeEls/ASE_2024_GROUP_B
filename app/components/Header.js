@@ -10,11 +10,15 @@ import Sort from "./sort.js"; // Import the Sort component
 
 const Header = ({ onSortChange }) => {
   const [sortOptions, setSortOptions] = useState([
-    { label: "Default", value: "" },
-    { label: "Title", value: "title" },
-    { label: "Prep time", value: "prep" },
-    { label: "Cook time", value: "cook" },
-    { label: "Date", value: "published" },
+    
+  { label: "Preptime: Ascending", value: "prep-asc" },
+  { label: "Preptime: Descending", value: "prep-desc" },
+  { label: "Cooktime: Ascending", value: "cook-asc" },
+  { label: "Cooktime: Descending", value: "cook-desc" },
+  { label: "Steps: Ascending", value: "steps-asc" },
+  { label: "Steps: Descending", value: "steps-desc" },
+  { label: "Date: Ascending", value: "date-asc" },
+  { label: "Date: Descending", value: "date-desc" }
   ]); // Default sort options
   const [selectedSortOption, setSelectedSortOption] = useState("");
 
