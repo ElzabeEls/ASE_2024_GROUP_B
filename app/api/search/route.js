@@ -54,7 +54,7 @@ export async function GET(req) {
     // Checks if there are no matching results and return the required empty response
     if (allResults.length === 0) {
       return new Response(
-        JSON.stringify({  message: "No matches found", results: [],  }),
+        JSON.stringify({ success: true, message: "No matches found", results: [], total: 0, page, limit }),
         {
           status: 200,
           headers: { 'Content-Type': 'application/json' }
@@ -62,13 +62,14 @@ export async function GET(req) {
       );
     }
 
-    
+    // Apply pagination to the combined results
+    const paginatedResults = allResults.slice(skip, skip + limit);
 
     // Return paginated response
     return new Response(
       JSON.stringify({
-        
-      
+        success: true,
+        results: paginatedResults,
         total: allResults.length,
         page,
         limit
