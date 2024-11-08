@@ -31,8 +31,8 @@ export default async function Home({ params, searchParams }) {
   return (
     <main>
       <SearchBar />
-      {/* Add a flex container for CategoryFilter and AdvancedFiltering */}
-      <div className="flex items-center space-x-4 mb-6">
+      {/* Add margin-top to the flex container to separate it from the SearchBar */}
+      <div className="flex items-center space-x-4 mb-6 mt-2">
         <CategoryFilter />
         <AdvancedFiltering
           selectedFilter={searchParams.filter || "none"}
