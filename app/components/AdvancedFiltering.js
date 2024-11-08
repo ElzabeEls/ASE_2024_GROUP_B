@@ -4,10 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchTags } from "../../lib/api";
 
-export default function AdvancedFiltering({ selectedFilter, stepsFilter, selectedTags = [], page }) {
+export default function AdvancedFiltering({
+  selectedFilter,
+  stepsFilter,
+  selectedTags = [],
+  page,
+}) {
   const [tags, setTags] = useState([]);
   const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags);
   const [localStepsFilter, setLocalStepsFilter] = useState(stepsFilter || "");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -49,55 +55,66 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
   };
 
   return (
-    <form className="mb-4">
-      <label htmlFor="filter" className="block text-lg font-semibold mb-2">
-        Advanced Filters:
-      </label>
-
-      {/* Filter by Number of Steps */}
-      <label htmlFor="steps" className="block text-lg font-semibold mt-4 mb-2">
-        Filter by Number of Steps:
-      </label>
-      <input
-        type="number"
-        id="steps"
-        name="steps"
-        placeholder="Enter steps"
-        value={localStepsFilter}
-        className="p-2 border rounded"
-        onChange={(e) => setLocalStepsFilter(e.target.value)}
-      />
-
-      {/* Tag Selection */}
-      <fieldset className="mt-4">
-        <legend className="text-lg font-semibold mb-2">Filter by Tags:</legend>
-        {tags.length > 0 ? (
-          tags.map((tag) => (
-            <label key={tag} className="block">
-              <input
-                type="checkbox"
-                name="tags"
-                value={tag}
-                onChange={() => handleTagChange(tag)}
-                checked={localSelectedTags.includes(tag)}
-                className="mr-2"
-              />
-              {tag}
-            </label>
-          ))
-        ) : (
-          <p>Loading tags...</p>
-        )}
-      </fieldset>
-
-      {/* Apply Button */}
+    <div className="relative">
+      {/* Advanced Filters Dropdown Button */}
       <button
-        type="button"
-        onClick={handleApplyFilters}
-        className="mt-4 p-2 bg-blue-500 text-white rounded"
+        onClick={() => setIsFilterOpen(!isFilterOpen)}
+        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
       >
-        Apply Filters
+        <span>Advanced Filters</span>
+        <span className="ml-2">{isFilterOpen ? "▲" : "▼"}</span>
       </button>
-    </form>
+
+      {/* Dropdown Menu */}
+      {isFilterOpen && (
+        <div className="absolute right-0 w-72 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 space-y-4 z-10 max-h-[500px] overflow-y-auto flex flex-col">
+          {/* Steps Filter */}
+          <div>
+            <label htmlFor="steps" className="block text-sm text-gray-600">Steps:</label>
+            <input
+              type="number"
+              id="steps"
+              value={localStepsFilter}
+              placeholder="Enter steps"
+              className="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-300"
+              onChange={(e) => setLocalStepsFilter(e.target.value)}
+            />
+          </div>
+
+          {/* Tag Selection */}
+          <fieldset>
+            <legend className="text-sm text-gray-600">Tags:</legend>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {tags.length > 0 ? (
+                tags.map((tag) => (
+                  <label key={tag} className="flex items-center text-sm">
+                    <input
+                      type="checkbox"
+                      name="tags"
+                      value={tag}
+                      onChange={() => handleTagChange(tag)}
+                      checked={localSelectedTags.includes(tag)}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-300 mr-2"
+                    />
+                    <span className="text-gray-700">{tag}</span>
+                  </label>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">Loading tags...</p>
+              )}
+            </div>
+          </fieldset>
+
+          {/* Apply Button */}
+          <button
+            type="button"
+            onClick={handleApplyFilters}
+            className="w-full p-2 text-center text-sm font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 mt-auto"
+          >
+            Apply
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

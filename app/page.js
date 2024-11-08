@@ -31,13 +31,16 @@ export default async function Home({ params, searchParams }) {
   return (
     <main>
       <SearchBar />
-      <CategoryFilter />
-      <AdvancedFiltering
-        selectedFilter={searchParams.filter || "none"}
-        stepsFilter={stepsFilter}
-        selectedTags={selectedTags}
-        page={currentPage}
-      />
+      {/* Add a flex container for CategoryFilter and AdvancedFiltering */}
+      <div className="flex items-center space-x-4 mb-6">
+        <CategoryFilter />
+        <AdvancedFiltering
+          selectedFilter={searchParams.filter || "none"}
+          stepsFilter={stepsFilter}
+          selectedTags={selectedTags}
+          page={currentPage}
+        />
+      </div>
 
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
