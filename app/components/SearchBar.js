@@ -8,6 +8,8 @@ const SearchBar = () => {
   const searchParams = useSearchParams();
   const [searchTextQuery, setTextSearchQuery] = useState("");
   const [searchCategoryQuery, setCategorySearchQuery] = useState("");
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+
 
   // Initialize searchQuery state from URL search parameters
   useEffect(() => {
@@ -17,8 +19,28 @@ const SearchBar = () => {
     setCategorySearchQuery(category);
   }, [searchParams]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+
+// Debounce logic for auto-submission of short queries
+useEffect(() => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout); // Clear the previous timer
+  }
+
+  // Only debounce for short queries (e.g., 1-2 characters)
+  if (searchTextQuery.trim().length > 0 && searchTextQuery.trim().length <= 2) {
+    const timeout = setTimeout(() => {
+      handleSearch(); // Auto-submit the search
+    }, 300); // Delay of 300ms
+
+    setDebounceTimeout(timeout);
+
+    // Cleanup function to clear the timeout
+    return () => clearTimeout(timeout);
+  }
+}, [searchTextQuery, ]);
+
+const handleSearch = (e) => {
+  if (e) e.preventDefault();
 
     // Construct the new search query
     const newSearchParams = new URLSearchParams(searchParams.toString());
