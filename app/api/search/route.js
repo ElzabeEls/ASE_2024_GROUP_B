@@ -1,14 +1,17 @@
 import clientPromise from "../../../lib/mongodb";
 
 /**
- * Handles a GET request to search for recipes in MongoDB using both full-text search and partial matching.
- * @param {Request} req - The incoming request, expected to contain a searchTerm query parameter.
- * @returns {Response} - A JSON response with search results or an error message.
+ * Handles a GET request to search for recipes in MongoDB using both full-text search and partial matching,
+ * with server-side pagination.
+ * @param {Request} req - The incoming request, expected to contain searchTerm, page, and limit query parameters.
+ * @returns {Response} - A JSON response with paginated search results or an error message.
  */
 export async function GET(req) {
   try {
     const url = new URL(req.url);
     const searchTerm = url.searchParams.get('searchTerm');
+    const page = parseInt(url.searchParams.get('page') || "1", 10);
+    const limit = parseInt(url.searchParams.get('limit') || "20", 10);
 
     if (!searchTerm) {
       return new Response(
@@ -19,6 +22,9 @@ export async function GET(req) {
 
     const client = await clientPromise;
     const db = client.db("devdb");
+
+    // Calculate the number of documents to skip based on the page and limit
+    const skip = (page - 1) * limit;
 
     /**
      * @description Executes a full-text search for the specified searchTerm.
@@ -45,8 +51,29 @@ export async function GET(req) {
      */
     const allResults = [...new Map([...textResults, ...regexResults].map(item => [item._id.toString(), item])).values()];
 
+    // Checks if there are no matching results and return the required empty response
+    if (allResults.length === 0) {
+      return new Response(
+        JSON.stringify({ success: true, message: "No matches found", results: [], total: 0, page, limit }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Apply pagination to the combined results
+    const paginatedResults = allResults.slice(skip, skip + limit);
+
+    // Return paginated response
     return new Response(
-      JSON.stringify({ success: true, results: allResults, total: allResults.length }),
+      JSON.stringify({
+        success: true,
+        results: paginatedResults,
+        total: allResults.length,
+        page,
+        limit
+      }),
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' }
