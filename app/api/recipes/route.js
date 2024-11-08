@@ -14,7 +14,7 @@ export async function GET(req) {
   try {
     // Await the MongoDB client connection
     const client = await clientPromise;
-    const db = client.db("devdb"); // Connect to the 'devdb' database
+    const db = client.db("devdb");
 
     // Parse the 'page', 'limit', 'search', 'category', and 'steps' query parameters from the URL
     const url = new URL(req.url);
@@ -22,7 +22,7 @@ export async function GET(req) {
     const limit = parseInt(url.searchParams.get("limit") || "20", 10);
     const search = url.searchParams.get("search") || "";
     const category = url.searchParams.get("category") || "";
-    const steps = parseInt(url.searchParams.get("steps") || "", 10); // Parse steps if provided
+    const steps = parseInt(url.searchParams.get("steps") || "", 10);
 
     // Calculate the number of documents to skip for pagination
     const skip = (page - 1) * limit;
@@ -34,7 +34,7 @@ export async function GET(req) {
     if (search.trim() !== "") {
       pipeline.push({
         $match: {
-          title: new RegExp(search, "i"), // Case-insensitive regex match
+          title: new RegExp(search, "i"),
         },
       });
     }
@@ -43,7 +43,7 @@ export async function GET(req) {
     if (category.trim() !== "") {
       pipeline.push({
         $match: {
-          category: new RegExp(category, "i"), // Case-insensitive regex match
+          category: new RegExp(category, "i"),
         },
       });
     }
@@ -52,7 +52,7 @@ export async function GET(req) {
     if (!isNaN(steps)) {
       pipeline.push({
         $match: {
-          instructions: { $size: steps }, // Filter by the exact number of steps
+          instructions: { $size: steps },
         },
       });
     }
@@ -69,7 +69,13 @@ export async function GET(req) {
     // Convert the cursor to an array
     const recipes = await recipesCursor.toArray();
 
-    // Return the filtered and paginated recipes as a JSON response
+    if (recipes.length === 0) {
+      return NextResponse.json(
+        { message: "No recipes found with the specified filters." },
+        { status: 200 }
+      );
+    }
+
     return NextResponse.json({ recipes }, { status: 200 });
   } catch (error) {
     // Handle any errors during the process

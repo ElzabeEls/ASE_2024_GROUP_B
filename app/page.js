@@ -39,6 +39,13 @@ export default async function Home({ params, searchParams }) {
     searchParamsToInclude.steps
   );
 
+  // Ensure data is always an array to prevent errors
+  const recipes = Array.isArray(data) ? data : [];
+
+  // Check if no recipes are returned and set a message accordingly
+  const noRecipesFound =
+    recipes.length === 0 && searchParams.steps && searchParams.steps !== "";
+
   return (
     <main>
       <div className="flex space-x-20 items-center mb-8">
@@ -76,8 +83,15 @@ export default async function Home({ params, searchParams }) {
         )}
       </div>
 
+      {/* Handle case when no recipes are found */}
+      {noRecipesFound && (
+        <p className="text-center text-lg text-red-500 mb-8">
+          No recipes found with the specified number of steps.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {data.map((recipe) => (
+        {recipes.map((recipe) => (
           <RecipeCard key={recipe._id} recipe={recipe} />
         ))}
       </div>
