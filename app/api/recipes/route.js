@@ -16,24 +16,30 @@ export async function GET(req) {
     const client = await clientPromise;
     const db = client.db("devdb"); // Connect to the 'devdb' database
 
-    // Parse the 'page', 'limit', and 'search' query parameters from the URL, with defaults
+    // Parse the 'page', 'limit', 'search', 'category', 'sortBy', and 'sortOrder' query parameters from the URL, with defaults
     const url = new URL(req.url);
     const page = parseInt(url.searchParams.get("page") || "1", 10);
     const limit = parseInt(url.searchParams.get("limit") || "20", 10);
     const search = url.searchParams.get("search") || "";
     const category = url.searchParams.get("category") || "";
+    const sortBy = url.searchParams.get("sortBy") || "title"; // Default sort field
+    const sortOrder = url.searchParams.get("sortOrder") === "desc" ? -1 : 1; // Default to ascending
 
     console.log('url');
     console.log(url);
 
     console.log('page');
     console.log(page);
-    console.log('limit' );
-    console.log(limit );
+    console.log('limit');
+    console.log(limit);
     console.log("search");
     console.log(search);
     console.log("category");
     console.log(category);
+    console.log("sortBy");
+    console.log(sortBy);
+    console.log("sortOrder");
+    console.log(sortOrder);
 
     // Calculate the number of documents to skip for pagination
     const skip = (page - 1) * limit;
@@ -58,6 +64,9 @@ export async function GET(req) {
         },
       });
     }
+
+    // Include the $sort stage based on 'sortBy' and 'sortOrder' parameters
+    pipeline.push({ $sort: { [sortBy]: sortOrder } });
 
     // Add pagination stages
     pipeline.push({ $skip: skip }, { $limit: limit });
