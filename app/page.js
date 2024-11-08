@@ -26,6 +26,8 @@ export default async function Home({ params, searchParams }) {
     limit: searchParams.limit || 20,
     search: searchParams.search || "",
     category: searchParams.category || "",
+    sortBy: searchParams.sortBy || "",
+    sortOrder: searchParams.sortOrder || ""
   };
 
   // Fetch recipes with only the necessary parameters
@@ -33,7 +35,9 @@ export default async function Home({ params, searchParams }) {
     searchParamsToInclude.page,
     searchParamsToInclude.limit,
     searchParamsToInclude.search,
-    searchParamsToInclude.category
+    searchParamsToInclude.category,
+    searchParamsToInclude.sortBy,
+    searchParamsToInclude.sortOrder
   );
 
   const stepsFilter = searchParams.steps || "";
@@ -65,7 +69,7 @@ export default async function Home({ params, searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${currentPage - 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
+          href={`/?page=${currentPage - 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}&sortBy=${searchParams.sortBy || "title"}&sortOrder=${searchParams.sortOrder || "desc"}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             currentPage === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
@@ -82,7 +86,7 @@ export default async function Home({ params, searchParams }) {
         </span>
 
         <Link
-          href={`/?page=${currentPage + 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
+          href={`/?page=${currentPage + 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}&sortBy=${searchParams.sortBy || "title"}&sortOrder=${searchParams.sortOrder || "desc"}`}
           className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
           aria-label="Next page"
           title="Next page"
