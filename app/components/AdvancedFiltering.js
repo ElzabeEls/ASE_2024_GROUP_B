@@ -1,50 +1,50 @@
 "use client"; 
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { fetchTags } from "../../lib/api";
 
-export default function AdvancedFiltering({ selectedFilter, stepsFilter, selectedTags, page }) {
+export default function AdvancedFiltering({ selectedFilter, stepsFilter, selectedTags = [], page }) {
   const [tags, setTags] = useState([]);
-  const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags || []);
+  const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags);
+  const [localStepsFilter, setLocalStepsFilter] = useState(stepsFilter || "");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // Fetch tags when the component mounts
+  const search = searchParams.get("search");
+
   useEffect(() => {
-    async function fetchTags() {
+    async function loadTags() {
       try {
-        const response = await fetch("/api/Tags");
-        const data = await response.json();
-
-        if (data.success) {
-          setTags(data.tags);
+        const tagsData = await fetchTags();
+        if (tagsData && !tagsData.error) {
+          setTags(tagsData);
         } else {
-          console.error("Failed to fetch tags:", data.error);
+          console.error("Failed to fetch tags:", tagsData.error);
         }
       } catch (error) {
         console.error("Error fetching tags:", error);
       }
     }
-
-    fetchTags();
+    loadTags();
   }, []);
 
-  // Handle tag selection (check/uncheck multiple tags)
   const handleTagChange = (tag) => {
-    const updatedTags = localSelectedTags.includes(tag)
-      ? localSelectedTags.filter((t) => t !== tag)
-      : [...localSelectedTags, tag];
-
-    setLocalSelectedTags(updatedTags);
+    setLocalSelectedTags((prevSelectedTags) =>
+      prevSelectedTags.includes(tag)
+        ? prevSelectedTags.filter((t) => t !== tag)
+        : [...prevSelectedTags, tag]
+    );
   };
 
-  // Handle form submit (apply filters)
   const handleApplyFilters = () => {
-    const tagsParam = localSelectedTags.join(","); // Join selected tags into a comma-separated string
+    const tagsParam = localSelectedTags.join(",");
     const filterParam = selectedFilter ? `&filter=${selectedFilter}` : '';
-    const stepsParam = stepsFilter ? `&steps=${stepsFilter}` : '';
+    const stepsParam = localStepsFilter ? `&steps=${localStepsFilter}` : '';
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
 
     router.push(
-      `/?page=${page}${filterParam}${stepsParam}&tags=${tagsParam}`
+      `/?page=${page}${filterParam}${stepsParam}${searchParam}&tags=${tagsParam}`
     );
   };
 
@@ -54,7 +54,7 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
         Advanced Filters:
       </label>
 
-      {/* Filter by Number of Steps (optional) */}
+      {/* Filter by Number of Steps */}
       <label htmlFor="steps" className="block text-lg font-semibold mt-4 mb-2">
         Filter by Number of Steps:
       </label>
@@ -63,9 +63,9 @@ export default function AdvancedFiltering({ selectedFilter, stepsFilter, selecte
         id="steps"
         name="steps"
         placeholder="Enter steps"
-        value={stepsFilter || ""}
+        value={localStepsFilter}
         className="p-2 border rounded"
-        onChange={(e) => router.push(`/?page=${page}&filter=${selectedFilter}&steps=${e.target.value || ""}&tags=${localSelectedTags.join(",")}`)}
+        onChange={(e) => setLocalStepsFilter(e.target.value)}
       />
 
       {/* Tag Selection */}
