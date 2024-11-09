@@ -1,3 +1,6 @@
+import { NextResponse } from 'next/server';
+import clientPromise from '../../../lib/mongodb';
+
 export async function GET(request) {
   try {
     
@@ -8,10 +11,10 @@ export async function GET(request) {
     
     const url = new URL(request.url);
     const sortField = url.searchParams.get('sortField') || 'rating'; 
-    
+    const sortOrder = url.searchParams.get('sortOrder') === 'asc' ? 1 : -1;
 
     
-   
+  
 
     return NextResponse.json({ success: true, data: reviews });
   } catch (error) {
