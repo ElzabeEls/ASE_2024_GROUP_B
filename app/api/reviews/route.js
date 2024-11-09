@@ -9,19 +9,24 @@ import clientPromise from '../../../lib/mongodb';
  */
 export async function GET(request) {
   try {
-    // Connect to MongoDB
+    // Connects to MongoDB
     const client = await clientPromise;
-    const db = client.db('devdb'); 
-    const collection = db.collection('recipes'); 
+    const db = client.db('devdb');
+    const collection = db.collection('recipes');
 
-    // Parse query parameters for sorting
+    // Parse and validate query parameters for sorting
     const url = new URL(request.url);
-    const sortField = url.searchParams.get('sortField') || 'rating'; // Default to 'rating'
-    const sortOrder = url.searchParams.get('sortOrder') === 'asc' ? 1 : -1; // Default to descending
+    let sortField = url.searchParams.get('sortField') || 'rating';
+    const sortOrder = url.searchParams.get('sortOrder') === 'asc' ? 1 : -1;
 
-    // Fetch sorted reviews
-    const reviews = await collection.find({})
-      .sort({ [sortField]: sortOrder, submission_date: -1 }) // Sort by the chosen field and submission date
+    // Validate sortField to prevent unintended values
+    if (!['rating', 'submission_date'].includes(sortField)) {
+      sortField = 'rating';
+    }
+
+    // Fetch sorted reviews, ensuring only documents with the specified fields are returned
+    const reviews = await collection.find({ [sortField]: { $exists: true } })
+      .sort({ [sortField]: sortOrder, submission_date: -1 }) // Secondary sort by submission date if needed
       .toArray();
 
     return NextResponse.json({ success: true, data: reviews });
