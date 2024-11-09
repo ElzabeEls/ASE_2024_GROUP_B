@@ -14,7 +14,9 @@ export async function GET(request) {
     const sortOrder = url.searchParams.get('sortOrder') === 'asc' ? 1 : -1;
 
     
-  
+    const reviews = await collection.find({})
+      .sort({ [sortField]: sortOrder, submission_date: -1 })
+      .toArray();
 
     return NextResponse.json({ success: true, data: reviews });
   } catch (error) {
