@@ -1,12 +1,13 @@
-"use client"
+"use client";
 import { useRouter } from "next/navigation";
-import { fetchCategories } from "../../lib/api";
+import { fetchCategories, fetchRecipes } from "../../lib/api";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 const CategoryFilter = () => {
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState([]);
+  const [noRecipesFound, setNoRecipesFound] = useState(false);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -28,13 +29,14 @@ const CategoryFilter = () => {
 
     loadCategories();
   }, []);
+  
   const router = useRouter();
   console.log("searchParams");
   console.log(searchParams);
 
   const search = searchParams.get("search");
 
-  const handleChange = (event) => {
+  const handleChange = async (event) => {
     const selectedCategory = event.target.value;
     let url = `/?page=1&limit=20`;
 
@@ -46,9 +48,17 @@ const CategoryFilter = () => {
       url += `&category=${encodeURIComponent(selectedCategory)}`;
     }
 
+    try {
+      // Fetch recipes based on selected category
+      const recipes = await fetchRecipes(1, 20, search || "", selectedCategory, [], "");
+      setNoRecipesFound(recipes.length === 0); // Set noRecipesFound if no recipes are returned
+    } catch (error) {
+      console.error("Error fetching recipes:", error);
+      setNoRecipesFound(true); // Show message in case of fetch error
+    }
+
     router.push(url);
     console.log("Selected Category:", selectedCategory);
-    // Add any logic to filter items based on the selected category if needed
   };
 
   return (
@@ -61,7 +71,7 @@ const CategoryFilter = () => {
         className="px-4 py-2 border-2 border-gray-400 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600"
         onChange={handleChange}
       >
-        <option value="">Select Category</option>
+        <option value=""> Default</option>
         {categories && categories.length > 0 ? (
           categories.map((category) => (
             <option key={category} value={category}>
@@ -77,3 +87,4 @@ const CategoryFilter = () => {
 };
 
 export default CategoryFilter;
+
