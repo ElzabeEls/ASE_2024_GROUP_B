@@ -17,7 +17,6 @@ import AdvancedFiltering from "./components/AdvancedFiltering";
 export default async function Home({ params, searchParams }) {
   const currentPage = parseInt(searchParams.page) || 1;
   const selectedTags = searchParams.tags ? searchParams.tags.split(",") : [];
-  const stepsFilter = searchParams.steps || "";
 
   // Fetch recipes with necessary parameters
   const data = await fetchRecipes(
@@ -36,7 +35,6 @@ export default async function Home({ params, searchParams }) {
         <CategoryFilter />
         <AdvancedFiltering
           selectedFilter={searchParams.filter || "none"}
-          stepsFilter={stepsFilter}
           selectedTags={selectedTags}
           page={currentPage}
         />

@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -6,13 +6,11 @@ import { fetchTags } from "../../lib/api";
 
 export default function AdvancedFiltering({
   selectedFilter,
-  stepsFilter,
   selectedTags = [],
   page,
 }) {
   const [tags, setTags] = useState([]);
   const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags);
-  const [localStepsFilter, setLocalStepsFilter] = useState(stepsFilter || "");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -46,11 +44,10 @@ export default function AdvancedFiltering({
   const handleApplyFilters = () => {
     const tagsParam = localSelectedTags.join(",");
     const filterParam = selectedFilter ? `&filter=${selectedFilter}` : '';
-    const stepsParam = localStepsFilter ? `&steps=${localStepsFilter}` : '';
     const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
 
     router.push(
-      `/?page=${page}${filterParam}${stepsParam}${searchParam}&tags=${tagsParam}`
+      `/?page=${page}${filterParam}${searchParam}&tags=${tagsParam}`
     );
   };
 
@@ -68,19 +65,6 @@ export default function AdvancedFiltering({
       {/* Dropdown Menu */}
       {isFilterOpen && (
         <div className="absolute right-0 w-72 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 space-y-4 z-10 max-h-[500px] overflow-y-auto flex flex-col">
-          {/* Steps Filter */}
-          <div>
-            <label htmlFor="steps" className="block text-sm text-gray-600">Steps:</label>
-            <input
-              type="number"
-              id="steps"
-              value={localStepsFilter}
-              placeholder="Enter steps"
-              className="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-300"
-              onChange={(e) => setLocalStepsFilter(e.target.value)}
-            />
-          </div>
-
           {/* Tag Selection */}
           <fieldset>
             <legend className="text-sm text-gray-600">Tags:</legend>
