@@ -1,12 +1,15 @@
-"use client"; 
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchTags } from "../../lib/api";
+import CategoryFilter from "./CategoryFilter";
+import StepsFilter from "./StepsFilter";
 
 export default function AdvancedFiltering({
-  selectedFilter,
-  selectedTags = [],
+  selectedCategoties,
+  selectedSteps,
+  selectedTags,
   page,
 }) {
   const [tags, setTags] = useState([]);
@@ -43,12 +46,9 @@ export default function AdvancedFiltering({
 
   const handleApplyFilters = () => {
     const tagsParam = localSelectedTags.join(",");
-    const filterParam = selectedFilter ? `&filter=${selectedFilter}` : '';
-    const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
 
-    router.push(
-      `/?page=${page}${filterParam}${searchParam}&tags=${tagsParam}`
-    );
+    router.push(`/?page=${page}${searchParam}&tags=${tagsParam}&category=${slectedCategory}&steps=${selectedSteps}`);
   };
 
   return (
@@ -67,25 +67,33 @@ export default function AdvancedFiltering({
         <div className="absolute right-0 w-72 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 space-y-4 z-10 max-h-[500px] overflow-y-auto flex flex-col">
           {/* Tag Selection */}
           <fieldset>
-            <legend className="text-sm text-gray-600">Tags:</legend>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto">
-              {tags.length > 0 ? (
-                tags.map((tag) => (
-                  <label key={tag} className="flex items-center text-sm">
-                    <input
-                      type="checkbox"
-                      name="tags"
-                      value={tag}
-                      onChange={() => handleTagChange(tag)}
-                      checked={localSelectedTags.includes(tag)}
-                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-300 mr-2"
-                    />
-                    <span className="text-gray-700">{tag}</span>
-                  </label>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">Loading tags...</p>
-              )}
+            <div>
+              <CategoryFilter />
+            </div>
+            <div>
+              <legend className="text-sm text-gray-600">Tags:</legend>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {tags.length > 0 ? (
+                  tags.map((tag) => (
+                    <label key={tag} className="flex items-center text-sm">
+                      <input
+                        type="checkbox"
+                        name="tags"
+                        value={tag}
+                        onChange={() => handleTagChange(tag)}
+                        checked={localSelectedTags.includes(tag)}
+                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-300 mr-2"
+                      />
+                      <span className="text-gray-700">{tag}</span>
+                    </label>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">Loading tags...</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <StepsFilter />
             </div>
           </fieldset>
 

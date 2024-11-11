@@ -2,8 +2,6 @@ import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
 import { fetchRecipes } from "../lib/api";
 import SearchBar from "./components/SearchBar";
-import CategoryFilter from "./components/CategoryFilter";
-import StepsFilter from "./components/StepsFilter";
 import AdvancedFiltering from "./components/AdvancedFiltering";
 
 /**
@@ -24,7 +22,8 @@ export default async function Home({ params, searchParams }) {
     limit: searchParams.limit || 20,
     search: searchParams.search || "",
     category: searchParams.category || "",
-    selectedTags: searchParams.tags ? searchParams.tags.split(",") : []
+    selectedTags: searchParams.tags ? searchParams.tags.split(",") : [],
+    selectedSteps: searchParams.steps || "",
   };
 
   // Fetch recipes with necessary parameters
@@ -33,25 +32,31 @@ export default async function Home({ params, searchParams }) {
     searchParamsToInclude.limit,
     searchParamsToInclude.search,
     searchParamsToInclude.category,
-    searchParamsToInclude.selectedTags
+    searchParamsToInclude.selectedTags,
+    searchParamsToInclude.selectedSteps
   );
 
-  const stepsFilter = searchParams.steps || "";
+  // Ensure data is always an array to prevent errors
+  const recipes = Array.isArray(data) ? data : [];
+
+  // Check if no recipes are returned and set a message accordingly
+  const noRecipesFound =
+    recipes.length === 0 && searchParams.steps && searchParams.steps !== "";
 
   return (
     <main>
-<div className="flex space-x-20 items-center mb-8">
+      <div className="flex space-x-20 items-center mb-8">
         {/* Search Bar */}
         <SearchBar />
-      {/* Add margin-top to the flex container to separate it from the SearchBar */}
-      <div className="flex items-center space-x-4 mb-6 mt-2">
-        <CategoryFilter />
-        <AdvancedFiltering
-          selectedFilter={searchParams.filter || "none"}
-          selectedTags={selectedTags}
-          page={currentPage}
-        />
-      </div>
+        {/* Add margin-top to the flex container to separate it from the SearchBar */}
+        <div className="flex items-center space-x-4 mb-6 mt-2">
+          <AdvancedFiltering
+            selectedCategory={searchParamsToInclude.category}
+            selectedSteps={searchParamsToInclude.selectedSteps}
+            selectedTags={searchParamsToInclude.selectedTags}
+            page={currentPage}
+          />
+        </div>
       </div>
 
       <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
@@ -92,15 +97,23 @@ export default async function Home({ params, searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${currentPage - 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}`}
-          className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${currentPage === 1 ? "bg-gray-300 pointer-events-none opacity-50" : "bg-orange-500 hover:bg-orange-600"}`}
+          href={`/?page=${currentPage - 1}&search=${
+            searchParams.search || ""
+          }&filter=${searchParams.search || ""}`}
+          className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
+            currentPage === 1
+              ? "bg-gray-300 pointer-events-none opacity-50"
+              : "bg-orange-500 hover:bg-orange-600"
+          }`}
           aria-label="Previous page"
           title="Previous page"
         >
           ←
         </Link>
 
-        <span className="px-4 text-lg font-semibold text-orange-700">Page {currentPage}</span>
+        <span className="px-4 text-lg font-semibold text-orange-700">
+          Page {currentPage}
+        </span>
 
         <Link
           href={`/?page=${currentPage + 1}&search=${
