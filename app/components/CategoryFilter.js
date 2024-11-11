@@ -4,11 +4,26 @@ import { fetchCategories, fetchRecipes } from "../../lib/api";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
+/**
+ * CategoryFilter component allows users to select a category from a dropdown and filters recipes based on the selected category.
+ * It fetches the available categories from an API, displays them in a dropdown, and updates the URL and fetches recipes based on user selection.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered component for filtering categories.
+ */
 const CategoryFilter = () => {
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [noRecipesFound, setNoRecipesFound] = useState(false);
 
+  /**
+   * Effect hook to fetch categories on component mount.
+   * It calls the fetchCategories function and sets the categories state.
+   * 
+   * @async
+   * @function
+   * @returns {void}
+   */
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -16,7 +31,7 @@ const CategoryFilter = () => {
         const categoriesData = await fetchCategories();
         console.log("categoriesData");
         console.log(categoriesData);
-        // Check if categoriesData is an array or has categories property, adjust as needed
+        // Check if categoriesData is an array or has categories property.
         setCategories(
           Array.isArray(categoriesData)
             ? categoriesData
@@ -29,13 +44,22 @@ const CategoryFilter = () => {
 
     loadCategories();
   }, []);
-  
+
   const router = useRouter();
   console.log("searchParams");
   console.log(searchParams);
 
   const search = searchParams.get("search");
 
+  /**
+   * Handles the category change event. It updates the URL with the selected category and search query,
+   * fetches recipes based on the selected category, and updates the state for `noRecipesFound` accordingly.
+   * 
+   * @async
+   * @function
+   * @param {Event} event - The change event triggered by selecting a category from the dropdown.
+   * @returns {void}
+   */
   const handleChange = async (event) => {
     const selectedCategory = event.target.value;
     let url = `/?page=1&limit=20`;
