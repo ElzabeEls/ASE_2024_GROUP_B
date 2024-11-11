@@ -28,7 +28,7 @@ export default async function Home({ params, searchParams }) {
     search: searchParams.search || "",
     category: searchParams.category || "",
     sortBy: searchParams.sortBy || "",
-    sortOrder: searchParams.sortOrder || ""
+    sortOrder: searchParams.sortOrder || "",
     steps: searchParams.steps || "", // Include steps parameter
 
   };
@@ -40,7 +40,7 @@ export default async function Home({ params, searchParams }) {
     searchParamsToInclude.search,
     searchParamsToInclude.category,
     searchParamsToInclude.sortBy,
-    searchParamsToInclude.sortOrder
+    searchParamsToInclude.sortOrder,
     searchParamsToInclude.steps
   );
 
@@ -106,7 +106,7 @@ export default async function Home({ params, searchParams }) {
         <Link
           href={`/?page=${currentPage - 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}&category=${searchParams.category || ""}&steps=${
             searchParams.steps || ""
-          }`&sortBy=${searchParams.sortBy || "title"}&sortOrder=${searchParams.sortOrder || "desc"}`}
+          }&sortBy=${searchParams.sortBy || "title"}&sortOrder=${searchParams.sortOrder || "desc"}`}
 
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             currentPage === 1
