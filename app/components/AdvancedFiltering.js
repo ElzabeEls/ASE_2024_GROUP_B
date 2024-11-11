@@ -18,7 +18,7 @@ export default function AdvancedFiltering({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showCategoryFilter, setShowCategoryFilter] = useState(true);
   const [showStepsFilter, setShowStepsFilter] = useState(true);
-  const [showTagsFilter, setShowTagsFilter] = useState(true); // Add state for showing tags
+  const [showTagsFilter, setShowTagsFilter] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -46,6 +46,16 @@ export default function AdvancedFiltering({
         ? prevSelectedTags.filter((t) => t !== tag)
         : [...prevSelectedTags, tag]
     );
+  };
+
+  const handleClearTags = () => {
+    setLocalSelectedTags([]); // Clear the selected tags
+    const tagsParam = ""; // Remove tags from the query
+    const categoryParam = selectedCategory ? `&category=${selectedCategory}` : '';
+    const stepsParam = localSelectedSteps ? `&steps=${localSelectedSteps}` : '';
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+
+    router.push(`/?page=${page}${searchParam}${categoryParam}${stepsParam}`); // Update URL with cleared tags
   };
 
   const handleApplyFilters = () => {
@@ -108,7 +118,18 @@ export default function AdvancedFiltering({
           {showTagsFilter && (
             <div className="space-y-4 max-h-[200px] overflow-y-auto">
               <fieldset>
-                <legend className="text-sm text-gray-600">Tags:</legend>
+                <legend className="flex items-center justify-between text-sm text-gray-600 font-medium">
+                  <span>Tags:</span>
+                  {/* Conditionally render the "Clear All Tags" button */}
+                  {localSelectedTags.length > 0 && (
+                    <button
+                      onClick={handleClearTags}
+                      className="text-sm text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </legend>
                 <div className="space-y-2">
                   {tags.length > 0 ? (
                     tags.map((tag) => (
