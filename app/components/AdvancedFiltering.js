@@ -7,14 +7,18 @@ import CategoryFilter from "./CategoryFilter";
 import StepsFilter from "./StepsFilter";
 
 export default function AdvancedFiltering({
-  selectedCategoties,
-  selectedSteps,
-  selectedTags,
+  selectedSteps = "",
+  selectedTags = [],
   page,
 }) {
   const [tags, setTags] = useState([]);
   const [localSelectedTags, setLocalSelectedTags] = useState(selectedTags);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [localSelectedSteps, setLocalSelectedSteps] = useState(selectedSteps);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [showCategoryFilter, setShowCategoryFilter] = useState(true);
+  const [showStepsFilter, setShowStepsFilter] = useState(true);
+  const [showTagsFilter, setShowTagsFilter] = useState(true); // Add state for showing tags
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -46,9 +50,11 @@ export default function AdvancedFiltering({
 
   const handleApplyFilters = () => {
     const tagsParam = localSelectedTags.join(",");
-    const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
+    const categoryParam = selectedCategory ? `&category=${selectedCategory}` : '';
+    const stepsParam = localSelectedSteps ? `&steps=${localSelectedSteps}` : '';
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
 
-    router.push(`/?page=${page}${searchParam}&tags=${tagsParam}&category=${slectedCategory}&steps=${selectedSteps}`);
+    router.push(`/?page=${page}${searchParam}&tags=${tagsParam}${categoryParam}${stepsParam}`);
   };
 
   return (
@@ -64,38 +70,74 @@ export default function AdvancedFiltering({
 
       {/* Dropdown Menu */}
       {isFilterOpen && (
-        <div className="absolute right-0 w-72 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 space-y-4 z-10 max-h-[500px] overflow-y-auto flex flex-col">
-          {/* Tag Selection */}
-          <fieldset>
-            <div>
-              <CategoryFilter />
+        <div className="absolute right-0 min-w-[280px] max-w-xs md:max-w-sm lg:max-w-md mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-4 space-y-4 z-10 max-h-[500px] flex flex-col origin-top-right">
+          
+          {/* Toggle Buttons for Filters */}
+          <div className="flex justify-between mb-4">
+            <button
+              onClick={() => setShowCategoryFilter((prev) => !prev)}
+              className="text-sm font-medium text-blue-600"
+            >
+              {showCategoryFilter ? "Hide" : "Show"} Category Filter
+            </button>
+            <button
+              onClick={() => setShowStepsFilter((prev) => !prev)}
+              className="text-sm font-medium text-blue-600"
+            >
+              {showStepsFilter ? "Hide" : "Show"} Steps Filter
+            </button>
+            <button
+              onClick={() => setShowTagsFilter((prev) => !prev)} // Show/Hide Tags Filter
+              className="text-sm font-medium text-blue-600"
+            >
+              {showTagsFilter ? "Hide" : "Show"} Tags Filter
+            </button>
+          </div>
+
+          {/* Conditionally Render Category Filter */}
+          {showCategoryFilter && (
+            <div className="space-y-4">
+              <CategoryFilter
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+              />
             </div>
-            <div>
-              <legend className="text-sm text-gray-600">Tags:</legend>
-              <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                {tags.length > 0 ? (
-                  tags.map((tag) => (
-                    <label key={tag} className="flex items-center text-sm">
-                      <input
-                        type="checkbox"
-                        name="tags"
-                        value={tag}
-                        onChange={() => handleTagChange(tag)}
-                        checked={localSelectedTags.includes(tag)}
-                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-300 mr-2"
-                      />
-                      <span className="text-gray-700">{tag}</span>
-                    </label>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500">Loading tags...</p>
-                )}
-              </div>
+          )}
+
+          {/* Conditionally Render Tags Filter */}
+          {showTagsFilter && (
+            <div className="space-y-4 max-h-[200px] overflow-y-auto">
+              <fieldset>
+                <legend className="text-sm text-gray-600">Tags:</legend>
+                <div className="space-y-2">
+                  {tags.length > 0 ? (
+                    tags.map((tag) => (
+                      <label key={tag} className="flex items-center text-sm">
+                        <input
+                          type="checkbox"
+                          name="tags"
+                          value={tag}
+                          onChange={() => handleTagChange(tag)}
+                          checked={localSelectedTags.includes(tag)}
+                          className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-300 mr-2"
+                        />
+                        <span className="text-gray-700">{tag}</span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">Loading tags...</p>
+                  )}
+                </div>
+              </fieldset>
             </div>
-            <div>
-              <StepsFilter />
+          )}
+
+          {/* Conditionally Render Steps Filter */}
+          {showStepsFilter && (
+            <div className="space-y-4 max-h-[200px] overflow-y-auto">
+              <StepsFilter selectedSteps={localSelectedSteps} setSelectedSteps={setLocalSelectedSteps} />
             </div>
-          </fieldset>
+          )}
 
           {/* Apply Button */}
           <button
