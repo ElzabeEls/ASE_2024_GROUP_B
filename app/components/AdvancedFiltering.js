@@ -41,13 +41,18 @@ export default function AdvancedFiltering({
     );
   };
 
+  const handleClearAllTags = () => {
+    setLocalSelectedTags([]); // Clear all selected tags
+  };
+
   const handleApplyFilters = () => {
     const tagsParam = localSelectedTags.join(",");
     const filterParam = selectedFilter ? `&filter=${selectedFilter}` : '';
     const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
 
+    // Update the URL, with or without the tags parameter
     router.push(
-      `/?page=${page}${filterParam}${searchParam}&tags=${tagsParam}`
+      `/?page=${page}${filterParam}${searchParam}${tagsParam ? `&tags=${tagsParam}` : ''}`
     );
   };
 
@@ -89,6 +94,15 @@ export default function AdvancedFiltering({
             </div>
           </fieldset>
 
+          {/* Clear All Tags Button */}
+          <button
+            type="button"
+            onClick={handleClearAllTags}
+            className="block text-sm text-red-500 hover:text-red-700"
+          >
+            Clear All Tags
+          </button>
+
           {/* Apply Button */}
           <button
             type="button"
@@ -97,7 +111,6 @@ export default function AdvancedFiltering({
           >
             Apply
           </button>
-
         </div>
       )}
     </div>
