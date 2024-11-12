@@ -22,7 +22,10 @@ export async function GET(req) {
     const limit = parseInt(url.searchParams.get("limit") || "20", 10);
     const search = url.searchParams.get("search") || "";
     const category = url.searchParams.get("category") || "";
+    const tags = url.searchParams.get("tags") ? url.searchParams.get("tags").split(",").map(tag => tag.trim()) : [];
     const steps = parseInt(url.searchParams.get("steps") || "", 10);
+    console.log("tags");
+    console.log(tags);
 
     // Calculate the number of documents to skip for pagination
     const skip = (page - 1) * limit;
@@ -43,19 +46,19 @@ export async function GET(req) {
     if (category.trim() !== "") {
       pipeline.push({
         $match: {
-          category: new RegExp(category, "i"),
+          category: new RegExp(`.*${category}.*`, "i"), // Case-insensitive regex match
         },
       });
     }
 
-    // Add the step filter if 'steps' is provided and valid
-    if (!isNaN(steps)) {
-      pipeline.push({
-        $match: {
-          instructions: { $size: steps },
-        },
-      });
-    }
+    // Include the $match stage for tags if any tags are provided
+    if (tags.length > 0) {
+  pipeline.push({
+    $match: {
+      tags: { $in: tags.map(tag => new RegExp(tag, 'i')) }, // Case-insensitive match
+    },
+  });
+}
 
     // Add pagination to the pipeline
     pipeline.push({ $skip: skip }, { $limit: limit });
