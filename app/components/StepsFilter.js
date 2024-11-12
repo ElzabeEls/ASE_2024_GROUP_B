@@ -1,21 +1,28 @@
 "use client";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-const StepsFilter = () => {
-  const [steps, setSteps] = useState("");
+/**
+ * StepsFilter component allows users to input a number for steps
+ * and filters results based on the input value.
+ *
+ * @component
+ * @param {Object} props
+ * @param {string} props.selectedSteps - The current steps value.
+ * @param {function} props.setSelectedSteps - Function to update steps.
+ * @returns {JSX.Element} The rendered component for filtering by steps.
+ */
+const StepsFilter = ({ selectedSteps, setSelectedSteps }) => {
   const router = useRouter();
 
   const handleInputChange = (event) => {
-    setSteps(event.target.value);
+    setSelectedSteps(event.target.value);
   };
 
   const handleSearch = (event) => {
     event.preventDefault();
-
-    if (steps && !isNaN(steps)) {
-      // Update URL with the steps parameter
-      const url = `/?page=1&steps=${steps}`;
+    if (selectedSteps && !isNaN(selectedSteps)) {
+      const url = `/?page=1&steps=${selectedSteps}`;
       router.push(url);
     } else {
       alert("Please enter a valid number for steps.");
@@ -29,18 +36,18 @@ const StepsFilter = () => {
       </label>
       <input
         type="number"
-        id="steps"
-        value={steps}
+        value={selectedSteps || ""}
         onChange={handleInputChange}
         className="px-4 py-2 border-2 border-gray-400 rounded-lg"
         placeholder="Enter steps"
       />
       <button
-        type="submit"
-        className="px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600"
-      >
-        Search
-      </button>
+  type="submit"
+  className="px-4 py-2 text-sm text-white bg-brown rounded-full hover:bg-green-800 transition duration-200"
+>
+  Filter
+</button>
+
     </form>
   );
 };

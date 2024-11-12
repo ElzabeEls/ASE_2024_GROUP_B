@@ -5,8 +5,7 @@ import React, { useEffect, useState } from "react";
 //import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-
-
+import CategoryFilter from "./CategoryFilter";
 
 const Header = () => {
   
@@ -32,6 +31,12 @@ const Header = () => {
           <Link href="/">
             <span className="hover:text-gray-500 cursor-pointer">Home</span>
           </Link>
+          <Link href="/recipes">
+            <span className="hover:text-gray-500 cursor-pointer">Recipes</span>
+          </Link>
+          <Link href="/recipes">
+            <span className="hover:text-gray-500 cursor-pointer">Recipes</span>
+          </Link>
           <Link href="/favourites">
             <span className="hover:text-gray-500 cursor-pointer">Favourites</span>
           </Link>
@@ -41,7 +46,25 @@ const Header = () => {
         </div>
 
         {/* Filter and Sort */}
-    
+        <div className="flex items-center space-x-4">
+          {/* Sort by */}
+          <div className="flex items-center space-x-2">
+            <label htmlFor="sort" className="text-gray-700">
+              Sort:
+            </label>
+            <select
+              id="sort"
+              className="px-3 py-2 border border-gray-300 rounded-lg bg-white"
+            >
+              <option value="">Select Sort Option</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="rating">Rating</option>
+              <option value="newest">Newest Arrivals</option>
+            </select>
+          </div>
+        </div>
+
         {/* Search Bar */}
         <div className="flex items-center space-x-2">
           <input

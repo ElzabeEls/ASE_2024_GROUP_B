@@ -2,8 +2,7 @@ import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
 import { fetchRecipes } from "../lib/api";
 import SearchBar from "./components/SearchBar";
-// import AdvancedFiltering from "./components/AdvancedFiltering";
-import Sort from "./components/sort"; // Add Sort component
+import AdvancedFiltering from "./components/AdvancedFiltering";
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
@@ -56,14 +55,13 @@ export default async function Home({ params, searchParams }) {
           <SearchBar />
         </div>
         {/* Right-aligned Advanced Filtering, lowered even further with mt-6 */}
-        <div className="ml-4 flex items-center mt-6">
-          {/* <AdvancedFiltering
+        <div className="ml-4 flex items-center mt-6"> {/* Increased margin-top to mt-6 */}
+          <AdvancedFiltering
             selectedCategory={searchParamsToInclude.category}
             selectedSteps={searchParamsToInclude.selectedSteps}
             selectedTags={searchParamsToInclude.selectedTags}
             page={currentPage}
-          /> */}
-        </div>
+          />
         {/* Sort Component */}
         <div className="ml-4 flex items-center mt-6">
           <Sort 
@@ -115,7 +113,7 @@ export default async function Home({ params, searchParams }) {
             searchParams.search || ""
           }&category=${searchParams.category || ""}&steps=${
             searchParams.steps || ""
-          }&sortBy=${searchParams.sortBy || ""}&sortOrder=${searchParams.sortOrder || ""}`}
+          }`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             currentPage === 1
               ? "bg-gray-300 pointer-events-none opacity-50"

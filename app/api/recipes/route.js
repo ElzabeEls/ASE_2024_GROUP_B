@@ -21,9 +21,13 @@ export async function GET(req) {
     const limit = parseInt(url.searchParams.get("limit") || "20", 10);
     const search = url.searchParams.get("search") || "";
     const category = url.searchParams.get("category") || "";
+    const tags = url.searchParams.get("tags") ? url.searchParams.get("tags").split(",").map(tag => tag.trim()) : [];
+    const steps = parseInt(url.searchParams.get("steps") || "", 10);
+    console.log("tags");
+    console.log(tags);
     const sortBy = url.searchParams.get("sortBy") || "title";
     const sortOrder = url.searchParams.get("sortOrder") === "desc" ? -1 : 1;
-    const steps = parseInt(url.searchParams.get("steps"), 10);
+  
 
     // Calculate pagination offsets
     const skip = (page - 1) * limit;
@@ -42,18 +46,19 @@ export async function GET(req) {
     if (category.trim()) {
       pipeline.push({
         $match: {
-          category: new RegExp(category, "i"), // Case-insensitive category match
+          category: new RegExp(`.*${category}.*`, "i"), // Case-insensitive regex match
         },
       });
     }
 
-    if (!isNaN(steps)) {
-      pipeline.push({
-        $match: {
-          instructions: { $size: steps },
-        },
-      });
-    }
+    // Include the $match stage for tags if any tags are provided
+    if (tags.length > 0) {
+  pipeline.push({
+    $match: {
+      tags: { $in: tags.map(tag => new RegExp(tag, 'i')) }, // Case-insensitive match
+    },
+  });
+}
 
     pipeline.push(
       { $sort: { [sortBy]: sortOrder } }, // Apply sorting
