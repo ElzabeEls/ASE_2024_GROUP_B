@@ -3,6 +3,7 @@ import RecipeCard from "./components/RecipeCard";
 import { fetchRecipes } from "../lib/api";
 import SearchBar from "./components/SearchBar";
 import AdvancedFiltering from "./components/AdvancedFiltering";
+import Sort from "./components/sort"; // Import the Sort component
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
@@ -54,7 +55,7 @@ export default async function Home({ params, searchParams }) {
         <div className="flex-1 flex justify-center">
           <SearchBar />
         </div>
-        {/* Right-aligned Advanced Filtering, lowered even further with mt-6 */}
+        {/* Right-aligned Advanced Filtering */}
         <div className="ml-4 flex items-center mt-6"> {/* Increased margin-top to mt-6 */}
           <AdvancedFiltering
             selectedCategory={searchParamsToInclude.category}
@@ -62,11 +63,12 @@ export default async function Home({ params, searchParams }) {
             selectedTags={searchParamsToInclude.selectedTags}
             page={currentPage}
           />
+        </div>
         {/* Sort Component */}
         <div className="ml-4 flex items-center mt-6">
-          <Sort 
-            selectedSortBy={searchParamsToInclude.sortBy} 
-            selectedSortOrder={searchParamsToInclude.sortOrder} 
+          <Sort
+            selectedSortBy={searchParamsToInclude.sortBy}
+            selectedSortOrder={searchParamsToInclude.sortOrder}
           />
         </div>
       </div>
