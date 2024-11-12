@@ -2,8 +2,8 @@ import Link from "next/link";
 import RecipeCard from "./components/RecipeCard";
 import { fetchRecipes } from "../lib/api";
 import SearchBar from "./components/SearchBar";
-import CategoryFilter from "./components/CategoryFilter";
-import StepsFilter from "./components/StepsFilter";
+// import AdvancedFiltering from "./components/AdvancedFiltering";
+import Sort from "./components/sort"; // Add Sort component
 
 /**
  * The Home component fetches paginated recipes and displays them in a grid layout.
@@ -15,10 +15,6 @@ import StepsFilter from "./components/StepsFilter";
  * @returns {JSX.Element} A React component displaying a grid of recipe cards with pagination controls.
  */
 export default async function Home({ params, searchParams }) {
-  console.log("params", params);
-  console.log("searchParams", searchParams);
-
-  // Get current page or set default to 1
   const currentPage = parseInt(searchParams.page) || 1;
 
   // Construct the search parameters object dynamically
@@ -27,21 +23,22 @@ export default async function Home({ params, searchParams }) {
     limit: searchParams.limit || 20,
     search: searchParams.search || "",
     category: searchParams.category || "",
-    sortBy: searchParams.sortBy || "",
-    sortOrder: searchParams.sortOrder || "",
-    steps: searchParams.steps || "", // Include steps parameter
-
+    selectedTags: searchParams.tags ? searchParams.tags.split(",") : [],
+    selectedSteps: searchParams.steps || "",
+    sortBy: searchParams.sortBy || "", // Include sortBy
+    sortOrder: searchParams.sortOrder || "", // Include sortOrder
   };
 
-  // Fetch recipes with only the necessary parameters
+  // Fetch recipes with necessary parameters
   const data = await fetchRecipes(
     searchParamsToInclude.page,
     searchParamsToInclude.limit,
     searchParamsToInclude.search,
     searchParamsToInclude.category,
+    searchParamsToInclude.selectedTags,
+    searchParamsToInclude.selectedSteps,
     searchParamsToInclude.sortBy,
-    searchParamsToInclude.sortOrder,
-    searchParamsToInclude.steps
+    searchParamsToInclude.sortOrder
   );
 
   // Ensure data is always an array to prevent errors
@@ -53,16 +50,26 @@ export default async function Home({ params, searchParams }) {
 
   return (
     <main>
-      <div className="flex space-x-20 items-center mb-8">
-        {/* Search Bar */}
-        <SearchBar />
-        {/* Category Filter */}
-        <div className="mt-8">
-          <CategoryFilter />
+      <div className="flex justify-between items-center mb-8">
+        {/* Center Search Bar */}
+        <div className="flex-1 flex justify-center">
+          <SearchBar />
         </div>
-        {/* Steps Filter */}
-        <div className="mt-8">
-          <StepsFilter />
+        {/* Right-aligned Advanced Filtering, lowered even further with mt-6 */}
+        <div className="ml-4 flex items-center mt-6">
+          {/* <AdvancedFiltering
+            selectedCategory={searchParamsToInclude.category}
+            selectedSteps={searchParamsToInclude.selectedSteps}
+            selectedTags={searchParamsToInclude.selectedTags}
+            page={currentPage}
+          /> */}
+        </div>
+        {/* Sort Component */}
+        <div className="ml-4 flex items-center mt-6">
+          <Sort 
+            selectedSortBy={searchParamsToInclude.sortBy} 
+            selectedSortOrder={searchParamsToInclude.sortOrder} 
+          />
         </div>
       </div>
 
@@ -104,10 +111,11 @@ export default async function Home({ params, searchParams }) {
       {/* Pagination controls */}
       <div className="flex justify-center mt-8 items-center">
         <Link
-          href={`/?page=${currentPage - 1}&search=${searchParams.search || ""}&filter=${searchParams.search || ""}&category=${searchParams.category || ""}&steps=${
+          href={`/?page=${currentPage - 1}&search=${
+            searchParams.search || ""
+          }&category=${searchParams.category || ""}&steps=${
             searchParams.steps || ""
-          }&sortBy=${searchParams.sortBy || "title"}&sortOrder=${searchParams.sortOrder || "desc"}`}
-
+          }&sortBy=${searchParams.sortBy || ""}&sortOrder=${searchParams.sortOrder || ""}`}
           className={`w-10 h-10 flex items-center justify-center rounded-full text-white ${
             currentPage === 1
               ? "bg-gray-300 pointer-events-none opacity-50"
@@ -124,13 +132,11 @@ export default async function Home({ params, searchParams }) {
         </span>
 
         <Link
-
           href={`/?page=${currentPage + 1}&search=${
             searchParams.search || ""
           }&category=${searchParams.category || ""}&steps=${
             searchParams.steps || ""
-          }&sortBy=${searchParams.sortBy || "title"}&sortOrder=${searchParams.sortOrder || "desc"}`}
-
+          }&sortBy=${searchParams.sortBy || ""}&sortOrder=${searchParams.sortOrder || ""}`}
           className="w-10 h-10 flex items-center justify-center rounded-full text-white bg-orange-500 hover:bg-orange-600"
           aria-label="Next page"
           title="Next page"
@@ -138,29 +144,6 @@ export default async function Home({ params, searchParams }) {
           →
         </Link>
       </div>
-
-      {/* Advanced Filter Form (optional) */}
-      <form action={`/?page=${currentPage}`} method="GET" className="mb-4">
-        <label htmlFor="filter" className="block text-lg font-semibold mb-2">
-          Advanced Filters:
-        </label>
-        <select
-          id="filter"
-          name="filter"
-          defaultValue={searchParams.search}
-          className="p-2 border rounded"
-        >
-          <option value="none">Select a filter</option>
-          {/* EXAMPLE <option value="low-calories">Low Calories</option> */}
-        </select>
-
-        <button
-          type="submit"
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Apply
-        </button>
-      </form>
     </main>
   );
 }

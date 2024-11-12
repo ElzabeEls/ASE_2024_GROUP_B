@@ -7,6 +7,7 @@ const Sort = () => {
   const router = useRouter();
 
   const sortOptions = [
+    { label: "Default ", value: "default" },
     { label: "Preptime: Ascending", value: "prep-asc" },
     { label: "Preptime: Descending", value: "prep-desc" },
     { label: "Cooktime: Ascending", value: "cook-asc" },

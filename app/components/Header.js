@@ -5,32 +5,11 @@ import React, { useEffect, useState } from "react";
 //import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Sort from "./sort.js"; // Import the Sort component
 
 
-const Header = ({ onSortChange }) => {
-  const [sortOptions, setSortOptions] = useState([
-    
-  { label: "Preptime: Ascending", value: "prep-asc" },
-  { label: "Preptime: Descending", value: "prep-desc" },
-  { label: "Cooktime: Ascending", value: "cook-asc" },
-  { label: "Cooktime: Descending", value: "cook-desc" },
-  { label: "Steps: Ascending", value: "steps-asc" },
-  { label: "Steps: Descending", value: "steps-desc" },
-  { label: "Date: Ascending", value: "date-asc" },
-  { label: "Date: Descending", value: "date-desc" }
-  ]); // Default sort options
-  const [selectedSortOption, setSelectedSortOption] = useState("");
 
-  // Handle sort option change
-  const handleSortChange = (event) => {
-    const selectedOption = event.target.value;
-    setSelectedSortOption(selectedOption);
-    if (onSortChange) {
-      onSortChange(selectedOption); // Call the sort function passed from parent
-    }
-  };
-
+const Header = () => {
+  
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-gray-100 bg-opacity-80 shadow-md backdrop-blur-lg">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between space-x-4">
@@ -39,7 +18,7 @@ const Header = ({ onSortChange }) => {
         <Link href="/">
           <div className="h-25 cursor-pointer w-25">
             <Image
-              src="/NO BG.jpeg"
+              src="/ArejengLogo.png"
               alt="Logo"
               width={100}
               height={100}
@@ -62,15 +41,7 @@ const Header = ({ onSortChange }) => {
         </div>
 
         {/* Filter and Sort */}
-        <div className="flex items-center space-x-4">
-          {/* Sort by */}
-          <Sort 
-            selectedSortOption={selectedSortOption}
-            onSortChange={handleSortChange}
-            sortOptions={sortOptions}
-          />
-        </div>
-
+    
         {/* Search Bar */}
         <div className="flex items-center space-x-2">
           <input
