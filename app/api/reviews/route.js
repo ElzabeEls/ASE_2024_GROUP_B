@@ -53,6 +53,9 @@ export async function POST(request) {
     const { reviews } = body;
 
     
+    if (!Array.isArray(reviews) || reviews.length === 0) {
+      return NextResponse.json({ success: false, error: 'Invalid reviews data' }, { status: 400 });
+    }
 
     
     const result = await collection.insertMany(reviews);
