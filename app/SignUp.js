@@ -1,14 +1,32 @@
 "use client";
 
+/**
+ * @file SignUp.jsx
+ * @description A Sign Up form component that allows users to register with email and password. 
+ * Includes validation and error handling for mismatched passwords and required fields.
+ * Uses the `/api/authorisation/signup` API endpoint to register users.
+ */
+
 import React, { useState } from "react";
 
+/**
+ * SignUp Component
+ *
+ * @component
+ * @returns {JSX.Element} A sign-up form with email, password, and confirm password fields.
+ */
 export default function SignUp() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [email, setEmail] = useState(""); // State to store the email input
+  const [password, setPassword] = useState(""); // State to store the password input
+  const [confirmPassword, setConfirmPassword] = useState(""); // State to store the confirm password input
+  const [error, setError] = useState(""); // State to store error messages
+  const [success, setSuccess] = useState(""); // State to store success messages
 
+  /**
+   * Handles form submission and sends data to the backend.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submit event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
