@@ -1,24 +1,45 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchRecipes } from "../../lib/api"; // Adjust this import based on your project structure
 
+/**
+ * A search bar component that allows users to search for recipes by title and category.
+ * It handles query debouncing, search parameter updates, and redirects based on user input.
+ *
+ * @component
+ * @example
+ * return (
+ *   <SearchBar />
+ * )
+ */
 const SearchBar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchTextQuery, setTextSearchQuery] = useState("");
-  const [searchCategoryQuery, setCategorySearchQuery] = useState("");
+
+  const [searchTextQuery, setTextSearchQuery] = useState(""); // State for the search text input
+  const [searchCategoryQuery, setCategorySearchQuery] = useState(""); // State for the category input
+  let debounceTimeout = useRef(null); // Ref to hold the debounce timer
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  let debounceTimeout = null;
+  const [searchTagsQuery, setTagsSearchQuery] = useState(""); // State for the category input
+  const [searchStepsQuery, setStepsSearchQuery] = useState(""); // State for the category input
 
-  // Initialize search query from URL search parameters
+
+  /**
+   * Initializes the search query state from the URL search parameters.
+   * Runs once on component mount and when searchParams changes.
+   */
   useEffect(() => {
     const search = searchParams.get("search") || "";
     setTextSearchQuery(search);
     const category = searchParams.get("category") || "";
     setCategorySearchQuery(category);
+    const tags = searchParams.get("tags") || "";
+    setTagsSearchQuery(tags);
+    const steps = searchParams.get("steps") || "";
+    setStepsSearchQuery(steps);
   }, [searchParams]);
 
   // Handle debounce for fetching suggestions
@@ -29,7 +50,7 @@ const SearchBar = () => {
     }
 
     try {
-      const data = await fetchRecipes(1, 5, query); // Get limited suggestions
+      const data = await fetchRecipes(1, 5, query, searchCategoryQuery, searchTagsQuery, searchStepsQuery); // Get limited suggestions
       setSuggestions(data);
       setShowSuggestions(data.length > 0);
     } catch (error) {
@@ -37,6 +58,40 @@ const SearchBar = () => {
       setSuggestions([]);
     }
   };
+
+  /**
+   * Handles the search form submission, constructs a new search URL,
+   * and redirects the user to the updated URL with query parameters.
+   *
+   * @param {Event} [e] - The form submission event. Prevents default form behavior if provided.
+   */
+  const handleSearch = useCallback(
+    (event) => {
+      if (event) event.preventDefault();
+
+      // Construct the new search query
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      if (searchTextQuery.trim()) {
+        newSearchParams.set("search", encodeURIComponent(searchTextQuery));
+      } else {
+        newSearchParams.delete("search");
+      }
+
+      let url = `recipe/?page=1&limit=20`;
+
+      if (searchTextQuery && searchTextQuery.trim() !== "") {
+        url += `&search=${encodeURIComponent(searchTextQuery)}`;
+      }
+
+      if (searchCategoryQuery && searchCategoryQuery.trim() !== "") {
+        url += `&category=${encodeURIComponent(searchCategoryQuery)}`;
+      }
+
+      // Redirect to the new URL with updated search parameters
+      router.push(url);
+    },
+    [router, searchCategoryQuery, searchTextQuery, searchParams]
+  );
 
   // Debounced search input handler
   const handleInputChange = (e) => {
@@ -59,33 +114,39 @@ const SearchBar = () => {
     performSearch(title); // Fetch the full recipe details
   };
 
-  // Function to perform search and navigate to the result
-  const performSearch = (query) => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    if (query.trim()) {
-      newSearchParams.set("search", encodeURIComponent(query));
-    } else {
-      newSearchParams.delete("search");
-    }
-    
-    let url = `/?page=1&limit=20&search=${encodeURIComponent(query)}`;
-    
-    if (searchCategoryQuery && searchCategoryQuery.trim() !== "") {
-      url += `&category=${encodeURIComponent(searchCategoryQuery)}`;
+  /**
+   * Sets up a debounce effect to auto-submit the search for short queries (1-3 characters).
+   * Clears the previous debounce timer when searchTextQuery changes.
+   */
+  useEffect(() => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current); // Clear the previous timer
     }
 
-    // Redirect to the new URL with updated search parameters
-    router.push(url);
-  };
+    // Only debounce for short queries (1-3 characters)
+    if (
+      searchTextQuery.trim().length > 0 &&
+      searchTextQuery.trim().length <= 3
+    ) {
+      debounceTimeout.current = setTimeout(() => {
+        handleSearch(); // Auto-submit the search
+      }, 300); // Delay of 300ms
+
+      // Cleanup function to clear the timeout
+      return () => clearTimeout(debounceTimeout.current);
+    }
+  }, [searchTextQuery, handleSearch]); // Add handleSearch to dependencies
 
   return (
     <div className="relative flex justify-center mt-8">
-      <form onSubmit={(e) => { e.preventDefault(); performSearch(searchTextQuery); }} className="flex">
+      <form onSubmit={handleSearch} className="flex justify-center mt-8">
         <input
           type="text"
           placeholder="Search for recipes..."
           value={searchTextQuery}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+          }}
           className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
         />
         <button
@@ -116,5 +177,4 @@ const SearchBar = () => {
     </div>
   );
 };
-
 export default SearchBar;
