@@ -12,7 +12,7 @@ export async function GET(request) {
     // Connects to MongoDB
     const client = await clientPromise;
     const db = client.db('devdb');
-    const collection = db.collection('reviews');
+    const collection = db.collection('reviews'); 
 
     // Parse and validate query parameters for sorting
     const url = new URL(request.url);
@@ -43,5 +43,23 @@ export async function GET(request) {
  * @returns {Promise<Response>} - A JSON response indicating the success of the insertion or an error message.
  */
 export async function POST(request) {
-  
+  try {
+    const client = await clientPromise;
+    const db = client.db('devdb');
+    const collection = db.collection('reviews');
+
+    
+    const body = await request.json();
+    const { reviews } = body;
+
+    
+
+    
+    const result = await collection.insertMany(reviews);
+
+    return NextResponse.json({ success: true, insertedCount: result.insertedCount });
+  } catch (error) {
+    console.error("Error inserting reviews:", error);
+    return NextResponse.json({ success: false, error: 'Failed to insert reviews' }, { status: 500 });
+  }
 }
