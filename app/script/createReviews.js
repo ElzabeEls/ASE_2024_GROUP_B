@@ -17,15 +17,24 @@ async function createReviews() {
     const reviewsCollection = db.collection('reviews');
     const recipes = await db.collection('recipes').find().toArray();
 
-  
+    if (recipes.length === 0) {
+      console.log("No recipes found in the database.");
+      return;
+    }
 
   
 
     for (const recipe of recipes) {
     
-    
+      const existingReviews = await reviewsCollection.find({ recipeId: recipe._id }).count();
+      if (existingReviews > 0) {
+        console.log(`Reviews already exist for recipe: ${recipe._id}`);
+        continue;
+      }
 
-  
+     
+
+     
     }
 
     console.log("Reviews created successfully!");
