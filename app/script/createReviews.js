@@ -22,7 +22,7 @@ async function createReviews() {
       return;
     }
 
-  
+    const reviewCount = 3;
 
     for (const recipe of recipes) {
     
@@ -32,9 +32,15 @@ async function createReviews() {
         continue;
       }
 
-     
+      const reviews = [];
+      for (let i = 0; i < reviewCount; i++) {
+        reviews.push({
+          rating: faker.number.int({ min: 1, max: 5 }),
+          review: faker.lorem.sentences(faker.number.int({ min: 1, max: 3 })),
+        });
+      }
 
-     
+      
     }
 
     console.log("Reviews created successfully!");
