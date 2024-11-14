@@ -43,7 +43,8 @@ async function createReviews() {
         });
       }
 
-    
+      const result = await reviewsCollection.insertMany(reviews);
+      console.log(`Inserted ${result.insertedCount} reviews for recipe: ${recipe._id}`);
     }
 
     console.log("Reviews created successfully!");
