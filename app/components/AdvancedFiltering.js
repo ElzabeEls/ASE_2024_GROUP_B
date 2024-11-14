@@ -63,7 +63,9 @@ export default function AdvancedFiltering({
     setLocalSelectedTags([]);
     setSelectedCategory(null);
     setLocalSelectedSteps("");
-    router.push(`/?page=${page}`);
+
+    router.push(`/recipe?page=${page}`);
+
   };
 
   const handleClearTags = () => {
@@ -73,7 +75,9 @@ export default function AdvancedFiltering({
     const stepsParam = localSelectedSteps ? `&steps=${localSelectedSteps}` : '';
     const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
 
-    router.push(`/?page=${page}${searchParam}${categoryParam}${stepsParam}`); 
+
+    router.push(`/recipe?page=${page}${searchParam}${categoryParam}${stepsParam}`); 
+
   };
 
   const handleApplyFilters = () => {
@@ -82,7 +86,7 @@ export default function AdvancedFiltering({
     const stepsParam = localSelectedSteps ? `&steps=${localSelectedSteps}` : "";
     const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
 
-    router.push(`/?page=${page}${searchParam}&tags=${tagsParam}${categoryParam}${stepsParam}`);
+    router.push(`/recipe?page=${page}${searchParam}&tags=${tagsParam}${categoryParam}${stepsParam}`);
   };
 
   return (

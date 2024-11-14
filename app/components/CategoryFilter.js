@@ -37,7 +37,9 @@ const CategoryFilter = ({ selectedCategory, setSelectedCategory }) => {
   const handleChange = async (event) => {
     const selectedCategory = event.target.value;
     setSelectedCategory(selectedCategory);
-    let url = `/?page=1&limit=20`;
+
+    let url = `/recipe?page=1&limit=20`;
+
     if (search && search.trim() !== "") {
       url += `&search=${encodeURIComponent(search)}`;
     }
