@@ -24,6 +24,7 @@ export async function GET(req) {
     const category = url.searchParams.get("category") || "";
     const tags = url.searchParams.get("tags") ? url.searchParams.get("tags").split(",").map(tag => tag.trim()) : [];
     const steps = parseInt(url.searchParams.get("steps") || "", 10);
+    const topRated = url.searchParams.get("top-rated") === "true"; // Check if requesting top-rated recipes
     console.log("tags");
     console.log(tags);
 
@@ -33,35 +34,75 @@ export async function GET(req) {
     // Build the aggregation pipeline conditionally based on the provided filters
     const pipeline = [];
 
-    // Add the search filter if a 'search' term is provided
-    if (search.trim() !== "") {
-      pipeline.push({
-        $match: {
-          title: new RegExp(search, "i"),
+    if (topRated) {
+      // Top-rated recipes aggregation
+      pipeline.push(
+        {
+          $lookup: {
+            from: "reviews",
+            localField: "_id",
+            foreignField: "recipeId",
+            as: "reviews",
+          },
         },
-      });
-    }
-
-    // Add the category filter if a 'category' is provided
-    if (category.trim() !== "") {
-      pipeline.push({
-        $match: {
-          category: new RegExp(`.*${category}.*`, "i"), // Case-insensitive regex match
+        {
+          $addFields: {
+            averageRating: { $avg: "$reviews.rating" },
+          },
         },
-      });
+        {
+          $sort: { averageRating: -1 }, // Sort by average rating in descending order
+        },
+        {
+          $limit: 10, // Limit to top 10 recipes
+        },
+        {
+          $project: {
+            title: 1,
+            category: 1,
+            averageRating: 1,
+            tags: 1,
+          },
+        }
+      );
+    } else {
+      // Regular paginated recipes with filters
+      if (search.trim() !== "") {
+        pipeline.push({
+          $match: {
+            title: new RegExp(search, "i"),
+          },
+        });
+      }
+      // Add the category filter if a 'category' is provided
+
+      if (category.trim() !== "") {
+        pipeline.push({
+          $match: {
+            category: new RegExp(`.*${category}.*`, "i"),
+          },
+        });
+      }
+      // Include the $match stage for tags if any tags are provided
+
+      if (tags.length > 0) {
+        pipeline.push({
+          $match: {
+            tags: { $in: tags.map(tag => new RegExp(tag, "i")) },
+          },
+        });
+      }
+      if (!isNaN(steps)) {
+        console.log("Adding steps filter:", steps)
+        pipeline.push({
+          $match: {
+            steps: steps,
+          },
+        });
+      }
+      // Add pagination to the pipeline
+      pipeline.push({ $skip: skip }, { $limit: limit });
     }
-
-    // Include the $match stage for tags if any tags are provided
-    if (tags.length > 0) {
-  pipeline.push({
-    $match: {
-      tags: { $in: tags.map(tag => new RegExp(tag, 'i')) }, // Case-insensitive match
-    },
-  });
-}
-
-    // Add pagination to the pipeline
-    pipeline.push({ $skip: skip }, { $limit: limit });
 
     // Execute the aggregation query to fetch recipes
     const recipesCursor = db.collection("recipes").aggregate(pipeline, {
