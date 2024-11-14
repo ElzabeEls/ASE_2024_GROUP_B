@@ -35,14 +35,14 @@ async function createReviews() {
     const reviewCount = 3;
 
     for (const recipe of recipes) {
-      
+      // Check if reviews already exist for the recipe
       const existingReviews = await reviewsCollection.find({ recipeId: recipe._id }).count();
       if (existingReviews > 0) {
         console.log(`Reviews already exist for recipe: ${recipe._id}`);
         continue;
       }
 
-    
+      // Generate fake reviews for the recipe
       const reviews = [];
       for (let i = 0; i < reviewCount; i++) {
         reviews.push({
@@ -54,7 +54,7 @@ async function createReviews() {
         });
       }
 
-      
+      // Insert the reviews into the collection
       const result = await reviewsCollection.insertMany(reviews);
       console.log(`Inserted ${result.insertedCount} reviews for recipe: ${recipe._id}`);
     }
