@@ -35,12 +35,15 @@ async function createReviews() {
       const reviews = [];
       for (let i = 0; i < reviewCount; i++) {
         reviews.push({
+          recipeId: recipe._id,
+          username: faker.internet.username(),
+          date: faker.date.recent(90),
           rating: faker.number.int({ min: 1, max: 5 }),
           review: faker.lorem.sentences(faker.number.int({ min: 1, max: 3 })),
         });
       }
 
-      
+    
     }
 
     console.log("Reviews created successfully!");
