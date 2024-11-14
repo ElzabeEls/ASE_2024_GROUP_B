@@ -10,6 +10,16 @@ if (!url) {
 
 const client = new MongoClient(url);
 
+/**
+ * Creates reviews for each recipe in the database that does not already have reviews.
+ * Connects to the MongoDB database, retrieves all recipes, and generates a set number of 
+ * fake reviews for each recipe without existing reviews. Inserts the generated reviews 
+ * into the 'reviews' collection.
+ *
+ * @async
+ * @function createReviews
+ * @returns {Promise<void>} A promise that resolves when the reviews are created.
+ */
 async function createReviews() {
   try {
     await client.connect();
@@ -25,13 +35,14 @@ async function createReviews() {
     const reviewCount = 3;
 
     for (const recipe of recipes) {
-    
+      
       const existingReviews = await reviewsCollection.find({ recipeId: recipe._id }).count();
       if (existingReviews > 0) {
         console.log(`Reviews already exist for recipe: ${recipe._id}`);
         continue;
       }
 
+    
       const reviews = [];
       for (let i = 0; i < reviewCount; i++) {
         reviews.push({
@@ -43,6 +54,7 @@ async function createReviews() {
         });
       }
 
+      
       const result = await reviewsCollection.insertMany(reviews);
       console.log(`Inserted ${result.insertedCount} reviews for recipe: ${recipe._id}`);
     }
@@ -55,4 +67,5 @@ async function createReviews() {
   }
 }
 
+// Execute the createReviews function to populate reviews
 createReviews();
