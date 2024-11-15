@@ -2,20 +2,10 @@ import { fetchProductById } from "../../../lib/api";
 import Image from "next/image";
 import { Clock, Users } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
+import RecipeReviews from "../../components/RecipeReviews";
 
 /**
  * The RecipeDetail component fetches and displays a specific recipe based on its ID.
- * It shows the recipe's details, including prep time, cooking time, total time, servings, tags, images, and reviews.
- *
- * @async
- * @function RecipeDetail
- * @param {Object} props - The props object.
- * @param {Object} props.params - The route parameters, containing the recipe ID.
- * @returns {JSX.Element} A React component that displays recipe details.
- *
- * @example
- * // Usage of RecipeDetail component
- * <RecipeDetail params={{ id: 'recipeId' }} />
  */
 export default async function RecipeDetail({ params }) {
   const { id } = params;
@@ -64,17 +54,10 @@ export default async function RecipeDetail({ params }) {
     ingredients,
     instructions,
     nutrition,
-    reviews = [], // Add reviews to destructuring
   } = recipe;
 
-  // Calculate total time
   const totalTime = (prep || 0) + (cook || 0);
 
-  /**
-   * Formats time in minutes to a readable string (e.g., "15 mins").
-   * @param {number} timeInMinutes - The time in minutes.
-   * @returns {string} The formatted time string.
-   */
   const formatTime = (timeInMinutes) => {
     return `${timeInMinutes} mins`;
   };
@@ -90,7 +73,6 @@ export default async function RecipeDetail({ params }) {
         >
           Back to Home
         </a>
-
       </div>
 
       {/* Tags */}
@@ -113,20 +95,25 @@ export default async function RecipeDetail({ params }) {
 
       {/* Recipe Overview */}
       <div className="flex flex-wrap gap-6 mb-6">
-        <div className="flex items-center gap-2">
-          <Clock className="w-5 h-5 text-gray-600" />
-          <div>
-            <p className="text-sm text-gray-600">Prep Time</p>
-            <p className="font-medium">{formatTime(prep)}</p>
+        {/* Time and Servings */}
+        {prep !== undefined && (
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-gray-600" />
+            <div>
+              <p className="text-sm text-gray-600">Prep Time</p>
+              <p className="font-medium">{formatTime(prep)}</p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock className="w-5 h-5 text-gray-600" />
-          <div>
-            <p className="text-sm text-gray-600">Cook Time</p>
-            <p className="font-medium">{formatTime(cook)}</p>
+        )}
+        {cook !== undefined && (
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-gray-600" />
+            <div>
+              <p className="text-sm text-gray-600">Cook Time</p>
+              <p className="font-medium">{formatTime(cook)}</p>
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex items-center gap-2">
           <Clock className="w-5 h-5 text-gray-600" />
           <div>
@@ -171,9 +158,9 @@ export default async function RecipeDetail({ params }) {
         </div>
       )}
 
-      {/* Recipe Content */}
+      {/* Content */}
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Ingredients Section */}
+        {/* Ingredients */}
         <Card>
           <CardContent className="pt-6">
             <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
@@ -196,7 +183,7 @@ export default async function RecipeDetail({ params }) {
           </CardContent>
         </Card>
 
-        {/* Instructions Section */}
+        {/* Instructions */}
         <Card>
           <CardContent className="pt-6">
             <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
@@ -218,71 +205,11 @@ export default async function RecipeDetail({ params }) {
         </Card>
       </div>
 
-      {/* Nutritional Information */}
-      {Object.keys(nutrition).length > 0 && (
-        <Card className="mt-8">
-          <CardContent className="pt-6">
-            <h2 className="text-2xl font-semibold mb-4">
-              Nutritional Information
-            </h2>
-            <div className="grid grid-cols-2 gap-4 text-gray-700">
-              {nutrition.calories && (
-                <div>
-                  <p className="text-sm">Calories</p>
-                  <p className="font-medium">{nutrition.calories} kcal</p>
-                </div>
-              )}
-              {nutrition.fats && (
-                <div>
-                  <p className="text-sm">Fats</p>
-                  <p className="font-medium">{nutrition.fats} g</p>
-                </div>
-              )}
-              {nutrition.carbohydrates && (
-                <div>
-                  <p className="text-sm">Carbohydrates</p>
-                  <p className="font-medium">{nutrition.carbohydrates} g</p>
-                </div>
-              )}
-              {nutrition.proteins && (
-                <div>
-                  <p className="text-sm">Proteins</p>
-                  <p className="font-medium">{nutrition.proteins} g</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Review Section */}
-      {reviews.length > 0 && (
-        <section className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
-          <div className="space-y-4">
-            {reviews.map((review, index) => (
-              <div key={index} className="border rounded-lg p-4 bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold">{review.username}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(review.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <p className="font-medium text-teal-600">
-                    Rating: {review.rating} / 5
-                  </p>
-                </div>
-                <p className="text-gray-700 mt-2">{review.comment}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-      {!reviews.length && (
-        <p className="text-gray-500 mt-8">
-          No reviews available for this recipe.
-        </p>
+      {/* Reviews */}
+      {id ? (
+        <RecipeReviews recipeId={id} />
+      ) : (
+        <p className="text-red-500">Loading recipe ID...</p>
       )}
     </main>
   );
