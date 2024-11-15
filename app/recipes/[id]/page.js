@@ -5,7 +5,7 @@ import { Card, CardContent } from "../../components/ui/card";
 
 /**
  * The RecipeDetail component fetches and displays a specific recipe based on its ID.
- * It shows the recipe's details, including prep time, cooking time, total time, servings, tags, and images.
+ * It shows the recipe's details, including prep time, cooking time, total time, servings, tags, images, and reviews.
  *
  * @async
  * @function RecipeDetail
@@ -53,7 +53,6 @@ export default async function RecipeDetail({ params }) {
     );
   }
 
-  // Destructure with the correct property names
   const {
     prep,
     cook,
@@ -64,7 +63,8 @@ export default async function RecipeDetail({ params }) {
     images,
     ingredients,
     instructions,
-    nutrition
+    nutrition,
+    reviews = [], // Add reviews to destructuring
   } = recipe;
 
   // Calculate total time
@@ -85,8 +85,8 @@ export default async function RecipeDetail({ params }) {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">{title}</h1>
         <a
-        href="/recipe"
-        className="mt-4 block text-center text-white bg-brown rounded-full px-4 py-2 hover:bg-green-800 transition duration-200"
+          href="/recipe"
+          className="mt-4 block text-center text-white bg-brown rounded-full px-4 py-2 hover:bg-green-800 transition duration-200"
         >
           Back to Home
         </a>
@@ -175,22 +175,26 @@ export default async function RecipeDetail({ params }) {
       <div className="grid md:grid-cols-2 gap-8">
         {/* Ingredients Section */}
         <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
-              <ul className="space-y-2">
-                {ingredients && Object.keys(ingredients).length > 0 ? (
-                  Object.entries(ingredients).map(([ingredient, quantity], index) => (
+          <CardContent className="pt-6">
+            <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
+            <ul className="space-y-2">
+              {ingredients && Object.keys(ingredients).length > 0 ? (
+                Object.entries(ingredients).map(
+                  ([ingredient, quantity], index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="mt-1.5 w-2 h-2 rounded-full bg-teal-500 flex-shrink-0" />
-                      <span className="text-gray-700">{quantity} {ingredient}</span> {/* unordered list */}
+                      <span className="text-gray-700">
+                        {quantity} {ingredient}
+                      </span>
                     </li>
-                  ))
-                ) : (
-                  <li className="text-gray-500">No ingredients available.</li>
-                )}
-              </ul>
-            </CardContent>
-          </Card>
+                  )
+                )
+              ) : (
+                <li className="text-gray-500">No ingredients available.</li>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
 
         {/* Instructions Section */}
         <Card>
@@ -218,7 +222,9 @@ export default async function RecipeDetail({ params }) {
       {Object.keys(nutrition).length > 0 && (
         <Card className="mt-8">
           <CardContent className="pt-6">
-            <h2 className="text-2xl font-semibold mb-4">Nutritional Information</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Nutritional Information
+            </h2>
             <div className="grid grid-cols-2 gap-4 text-gray-700">
               {nutrition.calories && (
                 <div>
@@ -247,6 +253,36 @@ export default async function RecipeDetail({ params }) {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Review Section */}
+      {reviews.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+          <div className="space-y-4">
+            {reviews.map((review, index) => (
+              <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold">{review.username}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(review.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <p className="font-medium text-teal-600">
+                    Rating: {review.rating} / 5
+                  </p>
+                </div>
+                <p className="text-gray-700 mt-2">{review.comment}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+      {!reviews.length && (
+        <p className="text-gray-500 mt-8">
+          No reviews available for this recipe.
+        </p>
       )}
     </main>
   );
