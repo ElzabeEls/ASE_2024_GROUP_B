@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import clientPromise from "../../../../lib/mongodb";
+import jwt from "jsonwebtoken";
 
+const JWT_SECRET = process.env.JWT_SECRET;
 /**
  * Handles the POST request for user login.
  *
@@ -44,11 +46,19 @@ export async function POST(req) {
       );
     }
 
+    // Generate a JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email }, // Payload
+      JWT_SECRET, // Secret key
+      { expiresIn: "1h" } // Token expiration
+    );
+  
     // If authentication is successful, respond with user details or a success message
 
     return new Response(
       JSON.stringify({
         message: "Login successful",
+        token,
         userId: user._id,
         email: user.email,
       }),
