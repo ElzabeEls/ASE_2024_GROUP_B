@@ -22,7 +22,6 @@ export default function Sort({ selectedSortBy = "", selectedSortOrder = "" }) {
   const searchParams = useSearchParams();
 
   const sortOptions = [
-    { label: "Default ", value: "default" },
     { label: "Preptime", value: "PREPTIME" },
     { label: "Cooktime", value: "COOKTIME" },
     { label: "Steps", value: "STEPS" },
