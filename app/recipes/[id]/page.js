@@ -85,7 +85,7 @@ export default async function RecipeDetail({ params }) {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">{title}</h1>
         <a
-        href="/"
+        href="/recipe"
         className="mt-4 block text-center text-white bg-brown rounded-full px-4 py-2 hover:bg-green-800 transition duration-200"
         >
           Back to Home
