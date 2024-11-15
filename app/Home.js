@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { fetchRecipes } from "../lib/api";
 import Loading from "./loading";
+import MockLogin from "./components/Login";
 
 const generateMockRating = () => {
   // Generate a random rating between 1 and 5
@@ -42,6 +43,7 @@ export default function Home({ searchParams }) {
   return (
     <main>
       <div className="flex justify-between items-center mb-8">
+        <MockLogin/>
         <h1 className="text-2xl font-bold text-center mb-8">Recommended Recipes</h1>
       </div>
 
