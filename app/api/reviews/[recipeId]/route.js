@@ -56,9 +56,21 @@ export async function POST(request, { params }) {
       date: new Date(), 
     });
 
-   
+    
+    const [aggregateData] = await reviewsCollection
+      .aggregate([
+        { $match: { recipeId } },
+        {
+          $group: {
+            _id: '$recipeId',
+            averageRating: { $avg: '$rating' },
+            reviewCount: { $sum: 1 },
+          },
+        },
+      ])
+      .toArray();
 
-  
+   
 
     
   } catch (error) {
