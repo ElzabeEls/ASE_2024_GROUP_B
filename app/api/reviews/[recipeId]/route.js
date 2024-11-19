@@ -36,7 +36,15 @@ export async function GET(request, { params }) {
   }
 }
 
-
+/**
+ * POST handler for adding a new review to a recipe.
+ * Automatically updates the recipe's `averageRating` and `reviewCount` in the database.
+ * 
+ * @param {Request} request - The HTTP request object containing review details.
+ * @param {Object} params - Parameters passed to the route.
+ * @param {string} params.recipeId - The ID of the recipe to which the review belongs.
+ * @returns {Promise<NextResponse>} - A JSON response indicating success or failure.
+ */
 export async function POST(request, { params }) {
   try {
     const client = await clientPromise;
@@ -53,10 +61,10 @@ export async function POST(request, { params }) {
       username,
       rating,
       review,
-      date: new Date(), 
+      date: new Date(), // Add the current date.
     });
 
-  
+    // Recalculate averageRating and reviewCount for the recipe.
     const [aggregateData] = await reviewsCollection
       .aggregate([
         { $match: { recipeId } },
@@ -73,6 +81,7 @@ export async function POST(request, { params }) {
     if (aggregateData) {
       const { averageRating, reviewCount } = aggregateData;
 
+      // Update the recipe document with the new values.
       await recipesCollection.updateOne(
         { _id: recipeId },
         { $set: { averageRating, reviewCount } }
