@@ -44,18 +44,24 @@ export async function POST(request, { params }) {
     const reviewsCollection = db.collection('reviews');
     const recipesCollection = db.collection('recipes');
 
-    
+    const { recipeId } = params;
+    const { username, rating, review } = await request.json();
+
     // Insert the new review into the reviews collection.
     await reviewsCollection.insertOne({
-     
+      recipeId,
+      username,
+      rating,
+      review,
+      date: new Date(), 
     });
 
    
 
-
-      // Update the recipe document with the new values.
-      
-    }
-
   
+
+    
+  } catch (error) {
+    
+  }
 }
