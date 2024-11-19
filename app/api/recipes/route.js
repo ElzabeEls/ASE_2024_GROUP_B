@@ -3,12 +3,13 @@ import { NextResponse } from "next/server";
 import handleApiError from "../../components/ApiErrorHandler"; // Assuming error handler is required
 
 /**
- * API route handler for fetching paginated recipes from the 'recipes' collection in MongoDB.
+ * API route handler for fetching paginated recipes with optional filtering by ingredients, category, tags, etc.
+ * Supports filtering by either all or any specified ingredients.
  *
  * @async
- * @function
+ * @function GET
  * @param {Object} req - The request object containing query parameters for pagination and filters.
- * @returns {Promise<void>} Sends a JSON response containing the paginated recipes or an error message.
+ * @returns {Promise<void>} - Sends a JSON response containing the filtered recipes or an error message.
  */
 export async function GET(req) {
   try {
@@ -24,6 +25,7 @@ export async function GET(req) {
     const steps = parseInt(url.searchParams.get("steps") || "", 10);
     const topRated = url.searchParams.get("top-rated") === "true"; // Check if requesting top-rated recipes
     const ingredients = url.searchParams.get("ingredients") ? url.searchParams.get("ingredients").split(",") : [];
+    const ingredientsMatchType = url.searchParams.get("ingredientsMatchType") || "all"; // Get the match type (either "all" or "any")
 
     const skip = (page - 1) * limit;
 
@@ -55,13 +57,13 @@ export async function GET(req) {
       }
 
       if (ingredients.length > 0) {
-        pipeline.push({ 
-          $match: { 
-            "ingredients.name": { $all: ingredients.map(ingredient => new RegExp(ingredient, "i")) }
-          } 
+        const operator = ingredientsMatchType === "all" ? "$all" : "$in";
+        pipeline.push({
+          $match: {
+            "ingredients.name": { [operator]: ingredients.map(ingredient => new RegExp(ingredient, "i")) }
+          }
         });
       }
-      
 
       pipeline.push({ $skip: skip }, { $limit: limit });
     }
