@@ -12,11 +12,9 @@ import handleApiError from "../../components/ApiErrorHandler"; // Assuming error
  */
 export async function GET(req) {
   try {
-    // Await the MongoDB client connection
     const client = await clientPromise;
     const db = client.db("devdb");
 
-    // Parse the 'page', 'limit', 'search', 'category', and 'steps' query parameters from the URL
     const url = new URL(req.url);
     const page = parseInt(url.searchParams.get("page") || "1", 10);
     const limit = parseInt(url.searchParams.get("limit") || "20", 10);
@@ -25,92 +23,54 @@ export async function GET(req) {
     const tags = url.searchParams.get("tags") ? url.searchParams.get("tags").split(",").map(tag => tag.trim()) : [];
     const steps = parseInt(url.searchParams.get("steps") || "", 10);
     const topRated = url.searchParams.get("top-rated") === "true"; // Check if requesting top-rated recipes
-    console.log("tags");
-    console.log(tags);
+    const ingredients = url.searchParams.get("ingredients") ? url.searchParams.get("ingredients").split(",") : [];
 
-    // Calculate the number of documents to skip for pagination
     const skip = (page - 1) * limit;
 
-    // Build the aggregation pipeline conditionally based on the provided filters
     const pipeline = [];
 
     if (topRated) {
-      // Top-rated recipes aggregation
       pipeline.push(
-        {
-          $lookup: {
-            from: "reviews",
-            localField: "_id",
-            foreignField: "recipeId",
-            as: "reviews",
-          },
-        },
-        {
-          $addFields: {
-            averageRating: { $avg: "$reviews.rating" },
-          },
-        },
-        {
-          $sort: { averageRating: -1 }, // Sort by average rating in descending order
-        },
-        {
-          $limit: 10, // Limit to top 10 recipes
-        },
-        {
-          $project: {
-            title: 1,
-            category: 1,
-            averageRating: 1,
-            tags: 1,
-          },
-        }
+        { $lookup: { from: "reviews", localField: "_id", foreignField: "recipeId", as: "reviews" } },
+        { $addFields: { averageRating: { $avg: "$reviews.rating" } } },
+        { $sort: { averageRating: -1 } },
+        { $limit: 10 },
+        { $project: { title: 1, category: 1, averageRating: 1, tags: 1 } }
       );
     } else {
-      // Regular paginated recipes with filters
       if (search.trim() !== "") {
-        pipeline.push({
-          $match: {
-            title: new RegExp(search, "i"),
-          },
-        });
+        pipeline.push({ $match: { title: new RegExp(search, "i") } });
       }
-      // Add the category filter if a 'category' is provided
 
       if (category.trim() !== "") {
-        pipeline.push({
-          $match: {
-            category: new RegExp(`.*${category}.*`, "i"),
-          },
-        });
+        pipeline.push({ $match: { category: new RegExp(`.*${category}.*`, "i") } });
       }
-      // Include the $match stage for tags if any tags are provided
 
       if (tags.length > 0) {
-        pipeline.push({
-          $match: {
-            tags: { $in: tags.map(tag => new RegExp(tag, "i")) },
-          },
-        });
+        pipeline.push({ $match: { tags: { $in: tags.map(tag => new RegExp(tag, "i")) } } });
       }
+
       if (!isNaN(steps)) {
-        console.log("Adding steps filter:", steps)
-        pipeline.push({
-          $match: {
-            steps: steps,
-          },
+        pipeline.push({ $match: { steps: steps } });
+      }
+
+      if (ingredients.length > 0) {
+        // Assuming the 'ingredients' field in each recipe is an array of strings
+        pipeline.push({ 
+          $match: { 
+            ingredients: { $all: ingredients.map(ingredient => new RegExp(ingredient, "i")) }
+          } 
         });
       }
-      // Add pagination to the pipeline
+
       pipeline.push({ $skip: skip }, { $limit: limit });
     }
 
-    // Execute the aggregation query to fetch recipes
     const recipesCursor = db.collection("recipes").aggregate(pipeline, {
       maxTimeMS: 60000,
       allowDiskUse: true,
     });
 
-    // Convert the cursor to an array
     const recipes = await recipesCursor.toArray();
 
     if (recipes.length === 0) {
@@ -122,7 +82,6 @@ export async function GET(req) {
 
     return NextResponse.json({ recipes }, { status: 200 });
   } catch (error) {
-    // Handle any errors during the process
     return handleApiError(NextResponse, error);
   }
 }
