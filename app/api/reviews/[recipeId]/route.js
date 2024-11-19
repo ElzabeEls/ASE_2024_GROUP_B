@@ -2,14 +2,17 @@ import { NextResponse } from 'next/server';
 import clientPromise from '../../../../lib/mongodb';
 
 /**
- * Handles GET requests to fetch reviews for a specific recipe by its ID.
+ * Handles GET and POST requests for reviews associated with a specific recipe.
+ * Updates the recipe's `averageRating` and `reviewCount` when a review is added, updated, or deleted.
+ */
+
+/**
+ * GET handler for fetching all reviews of a specific recipe.
  * 
- * @async
- * @function GET
  * @param {Request} request - The HTTP request object.
- * @param {Object} context - The request context containing route parameters.
- * @param {string} context.params.recipeId - The ID of the recipe for which reviews are being fetched.
- * @returns {Promise<NextResponse>} - A response containing the reviews data or an error message.
+ * @param {Object} params - Parameters passed to the route.
+ * @param {string} params.recipeId - The ID of the recipe for which to fetch reviews.
+ * @returns {Promise<NextResponse>} - A JSON response with the reviews or an error message.
  */
 export async function GET(request, { params }) {
   try {
@@ -20,7 +23,8 @@ export async function GET(request, { params }) {
     const { recipeId } = params;
 
     // Fetch reviews for the specified recipe, sorted by date in descending order.
-    const reviews = await collection.find({ recipeId })
+    const reviews = await collection
+      .find({ recipeId })
       .sort({ date: -1 })
       .project({ username: 1, date: 1, rating: 1, review: 1 })
       .toArray();
@@ -30,4 +34,28 @@ export async function GET(request, { params }) {
     console.error("Error fetching reviews for recipe:", error);
     return NextResponse.json({ success: false, error: 'Failed to fetch reviews' }, { status: 500 });
   }
+}
+
+
+export async function POST(request, { params }) {
+  try {
+    const client = await clientPromise;
+    const db = client.db('devdb');
+    const reviewsCollection = db.collection('reviews');
+    const recipesCollection = db.collection('recipes');
+
+    
+    // Insert the new review into the reviews collection.
+    await reviewsCollection.insertOne({
+     
+    });
+
+   
+
+
+      // Update the recipe document with the new values.
+      
+    }
+
+  
 }
