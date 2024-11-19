@@ -11,55 +11,33 @@ import clientPromise from "../../../lib/mongodb";
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db("devdb");  // Replace with your actual database name
+    const db = client.db("devdb");
 
-    // Fetch all recipes from the collection
-    const recipes = await db.collection("recipes").find({}).toArray();
+    // Aggregation query to get unique ingredient keys directly from the database
+    const ingredientsList = await db.collection("recipes")
+      .aggregate([
+        { $project: { ingredients: { $objectToArray: "$ingredients" } } }, // Convert ingredients object to array of key-value pairs
+        { $unwind: "$ingredients" }, // Unwind the array of ingredients
+        { $group: { _id: "$ingredients.k" } }, // Group by the ingredient key (ingredient name)
+        { $project: { _id: 0, ingredient: "$_id" } } // Format the output
+      ])
+      .toArray();
 
-    // Initialize a set to store unique ingredient names
-    const ingredientsSet = new Set();
-
-    // Loop through each recipe and extract the ingredient names
-    recipes.forEach(recipe => {
-      if (recipe.ingredients) {
-        // Add all ingredient names from the recipe to the set
-        Object.keys(recipe.ingredients).forEach(ingredient => {
-          ingredientsSet.add(ingredient);
-        });
-      }
-    });
-
-    // Convert the set to an array to return it in the response
-    const ingredientsList = Array.from(ingredientsSet);
-
-    // If no ingredients are found, return a meaningful message
     if (ingredientsList.length === 0) {
       return new Response(
-        JSON.stringify({
-          success: false,
-          message: "No ingredients found in the database",
-        }),
+        JSON.stringify({ success: false, message: "No ingredients found" }),
         { status: 404, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // Return the unique ingredients in a structured JSON response
     return new Response(
-      JSON.stringify({
-        success: true,
-        ingredients: ingredientsList,
-      }),
+      JSON.stringify({ success: true, ingredients: ingredientsList.map(i => i.ingredient) }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("Error fetching ingredients:", error);
-
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: "Failed to fetch ingredients",
-        details: process.env.NODE_ENV === "development" ? error.message : undefined,
-      }),
+      JSON.stringify({ success: false, error: "Failed to fetch ingredients" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
