@@ -53,10 +53,10 @@ export async function POST(request, { params }) {
       username,
       rating,
       review,
-      date: new Date(), 
+      date: new Date(),
     });
 
-    
+  
     const [aggregateData] = await reviewsCollection
       .aggregate([
         { $match: { recipeId } },
@@ -70,10 +70,17 @@ export async function POST(request, { params }) {
       ])
       .toArray();
 
-   
+    if (aggregateData) {
+      const { averageRating, reviewCount } = aggregateData;
+
+      await recipesCollection.updateOne(
+        { _id: recipeId },
+        { $set: { averageRating, reviewCount } }
+      );
+    }
 
     
   } catch (error) {
-    
+   
   }
 }
