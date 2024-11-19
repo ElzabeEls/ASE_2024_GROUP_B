@@ -53,7 +53,7 @@ export async function POST(request, { params }) {
       username,
       rating,
       review,
-      date: new Date(),
+      date: new Date(), 
     });
 
   
@@ -79,8 +79,9 @@ export async function POST(request, { params }) {
       );
     }
 
-    
+    return NextResponse.json({ success: true, message: 'Review added and recipe updated' });
   } catch (error) {
-   
+    console.error("Error adding review and updating recipe:", error);
+    return NextResponse.json({ success: false, error: 'Failed to add review' }, { status: 500 });
   }
 }
