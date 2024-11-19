@@ -55,13 +55,13 @@ export async function GET(req) {
       }
 
       if (ingredients.length > 0) {
-        // Assuming the 'ingredients' field in each recipe is an array of strings
         pipeline.push({ 
           $match: { 
-            ingredients: { $all: ingredients.map(ingredient => new RegExp(ingredient, "i")) }
+            "ingredients.name": { $all: ingredients.map(ingredient => new RegExp(ingredient, "i")) }
           } 
         });
       }
+      
 
       pipeline.push({ $skip: skip }, { $limit: limit });
     }
