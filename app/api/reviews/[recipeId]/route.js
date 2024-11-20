@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../../../lib/mongodb';
-import { ObjectId } from 'mongodb'; 
+import { ObjectId } from 'mongodb';
 
 /**
  * Handles GET, POST, PUT, and DELETE requests for reviews associated with a specific recipe.
@@ -96,7 +96,27 @@ export async function PUT(request, { params }) {
 
 
 export async function DELETE(request, { params }) {
+  try {
+    const client = await clientPromise;
+    const db = client.db('devdb');
+    const reviewsCollection = db.collection('reviews');
+
+   
+
+    
+    await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
+
   
+    await updateRecipeStats(recipeId, db);
+
+    return NextResponse.json({ success: true, message: 'Review deleted and recipe updated' });
+  } catch (error) {
+    console.error('Error deleting review and updating recipe:', error);
+    return NextResponse.json({ success: false, error: 'Failed to delete review' }, { status: 500 });
+  }
+}
+
+
 async function updateRecipeStats(recipeId, db) {
   const reviewsCollection = db.collection('reviews');
   const recipesCollection = db.collection('recipes');
