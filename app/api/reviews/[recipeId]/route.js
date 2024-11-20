@@ -73,8 +73,7 @@ export async function PUT(request, { params }) {
     const db = client.db('devdb');
     const reviewsCollection = db.collection('reviews');
 
-    const { recipeId } = params;
-    const { reviewId, updates } = await request.json();
+    
 
     if (!reviewId || !updates) {
       return NextResponse.json({ success: false, error: 'Review ID and updates are required' }, { status: 400 });
@@ -105,8 +104,7 @@ export async function DELETE(request, { params }) {
     const db = client.db('devdb');
     const reviewsCollection = db.collection('reviews');
 
-    const { recipeId } = params;
-    const { reviewId } = await request.json();
+   
 
     if (!reviewId) {
       return NextResponse.json({ success: false, error: 'Review ID is required' }, { status: 400 });
