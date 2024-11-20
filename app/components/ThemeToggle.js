@@ -1,21 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
 
+/**
+ * A component to toggle between dark and light themes.
+ *
+ * @function ThemeToggle
+ * @returns {JSX.Element} The button that switches between dark and light modes.
+ */
 const ThemeToggle = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Only attempt to access localStorage on the client
+    // Ensure that localStorage is only accessed on the client side.
     if (typeof window !== "undefined") {
       const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
-        setIsDarkMode(savedTheme === "dark");
-        document.documentElement.classList.toggle("dark", savedTheme === "dark");
-      }
+      const prefersDark = savedTheme ? savedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setIsDarkMode(prefersDark);
+      document.documentElement.classList.toggle("dark", prefersDark);
     }
   }, []);
 
   useEffect(() => {
+    // Update theme in localStorage and the document class.
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
       localStorage.setItem("theme", "dark");
@@ -30,7 +36,11 @@ const ThemeToggle = () => {
   };
 
   return (
-    <button onClick={toggleTheme} className="p-2 bg-gray-200 rounded dark:bg-gray-800">
+    <button
+      onClick={toggleTheme}
+      className="p-2 bg-gray-200 rounded dark:bg-gray-800"
+      aria-label={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"} // Accessible label
+    >
       {isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
     </button>
   );
