@@ -54,7 +54,7 @@ export async function POST(request, { params }) {
       date: new Date(),
     });
 
-    
+  
     await updateRecipeStats(recipeId, db);
 
     return NextResponse.json({ success: true, message: 'Review added and recipe updated' });
@@ -66,15 +66,32 @@ export async function POST(request, { params }) {
 
 
 export async function PUT(request, { params }) {
+  try {
+    const client = await clientPromise;
+    const db = client.db('devdb');
+    const reviewsCollection = db.collection('reviews');
+
   
+
+  
+    await reviewsCollection.updateOne(
+      { _id: new ObjectId(reviewId), recipeId },
+      { $set: { ...updates, updatedAt: new Date() } }
+    );
+
+  
+    await updateRecipeStats(recipeId, db);
+
+    return NextResponse.json({ success: true, message: 'Review updated and recipe updated' });
+  } catch (error) {
+    console.error('Error updating review and recipe:', error);
+    return NextResponse.json({ success: false, error: 'Failed to update review' }, { status: 500 });
+  }
 }
 
 
 export async function DELETE(request, { params }) {
   
-}
-
-
 async function updateRecipeStats(recipeId, db) {
   const reviewsCollection = db.collection('reviews');
   const recipesCollection = db.collection('recipes');
