@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../../../lib/mongodb';
-import { ObjectId } from 'mongodb'; 
+import { ObjectId } from 'mongodb';
 
 /**
  * Handles GET, POST, PUT, and DELETE requests for reviews associated with a specific recipe.
@@ -54,7 +54,7 @@ export async function POST(request, { params }) {
       date: new Date(),
     });
 
-    
+    // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
 
     return NextResponse.json({ success: true, message: 'Review added and recipe updated' });
@@ -64,7 +64,9 @@ export async function POST(request, { params }) {
   }
 }
 
-
+/**
+ * PUT handler for updating an existing review.
+ */
 export async function PUT(request, { params }) {
   try {
     const client = await clientPromise;
@@ -78,13 +80,13 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ success: false, error: 'Review ID and updates are required' }, { status: 400 });
     }
 
-    
+    // Update the review in the reviews collection.
     await reviewsCollection.updateOne(
       { _id: new ObjectId(reviewId), recipeId },
       { $set: { ...updates, updatedAt: new Date() } }
     );
 
-    
+    // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
 
     return NextResponse.json({ success: true, message: 'Review updated and recipe updated' });
@@ -94,7 +96,9 @@ export async function PUT(request, { params }) {
   }
 }
 
-
+/**
+ * DELETE handler for deleting a review.
+ */
 export async function DELETE(request, { params }) {
   try {
     const client = await clientPromise;
@@ -108,9 +112,10 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ success: false, error: 'Review ID is required' }, { status: 400 });
     }
 
-  
+    // Delete the review from the reviews collection.
     await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
 
+    // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
 
     return NextResponse.json({ success: true, message: 'Review deleted and recipe updated' });
@@ -120,7 +125,11 @@ export async function DELETE(request, { params }) {
   }
 }
 
-
+/**
+ * Helper function to recalculate and update `averageRating` and `reviewCount` for a recipe.
+ * @param {string} recipeId - The ID of the recipe to update.
+ * @param {Object} db - The MongoDB database instance.
+ */
 async function updateRecipeStats(recipeId, db) {
   const reviewsCollection = db.collection('reviews');
   const recipesCollection = db.collection('recipes');
