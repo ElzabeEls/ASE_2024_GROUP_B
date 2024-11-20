@@ -80,15 +80,11 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ success: false, error: 'Review ID and updates are required' }, { status: 400 });
     }
 
-    // Update the review in the reviews collection using the _id
-    const result = await reviewsCollection.updateOne(
+    // Update the review in the reviews collection.
+    await reviewsCollection.updateOne(
       { _id: new ObjectId(reviewId), recipeId },
       { $set: { ...updates, updatedAt: new Date() } }
     );
-
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ success: false, error: 'Review not found' }, { status: 404 });
-    }
 
     // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
@@ -116,14 +112,10 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ success: false, error: 'Review ID is required' }, { status: 400 });
     }
 
-    // Delete the review using the _id field
-    const result = await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
+    // Delete the review from the reviews collection.
+    await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
 
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ success: false, error: 'Review not found or already deleted' }, { status: 404 });
-    }
-
-    // Recalculate and update recipe stats
+    // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
 
     return NextResponse.json({ success: true, message: 'Review deleted and recipe updated' });
