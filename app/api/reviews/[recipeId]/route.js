@@ -1,18 +1,14 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '../../../../lib/mongodb';
+import { ObjectId } from 'mongodb'; 
 
 /**
- * Handles GET and POST requests for reviews associated with a specific recipe.
+ * Handles GET, POST, PUT, and DELETE requests for reviews associated with a specific recipe.
  * Updates the recipe's `averageRating` and `reviewCount` when a review is added, updated, or deleted.
  */
 
 /**
  * GET handler for fetching all reviews of a specific recipe.
- * 
- * @param {Request} request - The HTTP request object.
- * @param {Object} params - Parameters passed to the route.
- * @param {string} params.recipeId - The ID of the recipe for which to fetch reviews.
- * @returns {Promise<NextResponse>} - A JSON response with the reviews or an error message.
  */
 export async function GET(request, { params }) {
   try {
@@ -31,19 +27,13 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({ success: true, data: reviews });
   } catch (error) {
-    console.error("Error fetching reviews for recipe:", error);
+    console.error('Error fetching reviews for recipe:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch reviews' }, { status: 500 });
   }
 }
 
 /**
  * POST handler for adding a new review to a recipe.
- * Automatically updates the recipe's `averageRating` and `reviewCount` in the database.
- * 
- * @param {Request} request - The HTTP request object containing review details.
- * @param {Object} params - Parameters passed to the route.
- * @param {string} params.recipeId - The ID of the recipe to which the review belongs.
- * @returns {Promise<NextResponse>} - A JSON response indicating success or failure.
  */
 export async function POST(request, { params }) {
   try {
@@ -61,36 +51,47 @@ export async function POST(request, { params }) {
       username,
       rating,
       review,
-      date: new Date(), // Add the current date.
+      date: new Date(),
     });
 
-    // Recalculate averageRating and reviewCount for the recipe.
-    const [aggregateData] = await reviewsCollection
-      .aggregate([
-        { $match: { recipeId } },
-        {
-          $group: {
-            _id: '$recipeId',
-            averageRating: { $avg: '$rating' },
-            reviewCount: { $sum: 1 },
-          },
-        },
-      ])
-      .toArray();
 
-    if (aggregateData) {
-      const { averageRating, reviewCount } = aggregateData;
-
-      // Update the recipe document with the new values.
-      await recipesCollection.updateOne(
-        { _id: recipeId },
-        { $set: { averageRating, reviewCount } }
-      );
-    }
+    await updateRecipeStats(recipeId, db);
 
     return NextResponse.json({ success: true, message: 'Review added and recipe updated' });
   } catch (error) {
-    console.error("Error adding review and updating recipe:", error);
+    console.error('Error adding review and updating recipe:', error);
     return NextResponse.json({ success: false, error: 'Failed to add review' }, { status: 500 });
+  }
+}
+
+
+
+
+
+async function updateRecipeStats(recipeId, db) {
+  const reviewsCollection = db.collection('reviews');
+  const recipesCollection = db.collection('recipes');
+
+  const [aggregateData] = await reviewsCollection
+    .aggregate([
+      { $match: { recipeId } },
+      {
+        $group: {
+          _id: '$recipeId',
+          averageRating: { $avg: '$rating' },
+          reviewCount: { $sum: 1 },
+        },
+      },
+    ])
+    .toArray();
+
+  if (aggregateData) {
+    const { averageRating, reviewCount } = aggregateData;
+
+    // Update the recipe document with the new values.
+    await recipesCollection.updateOne(
+      { _id: new ObjectId(recipeId) },
+      { $set: { averageRating, reviewCount } }
+    );
   }
 }
