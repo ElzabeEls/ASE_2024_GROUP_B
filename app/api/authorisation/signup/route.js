@@ -1,8 +1,8 @@
 /**
  * Module dependencies
  */
-const bcrypt = require("bcryptjs");
-const clientPromise = require("../../../../lib/mongodb");
+import bcrypt from "bcryptjs"
+import clientPromise from "../../../../lib/mongodb";
 
 /**
  * Handles the POST request to register a new user.
@@ -12,7 +12,7 @@ const clientPromise = require("../../../../lib/mongodb");
  * @param {Object} req - The request object containing email and password.
  * @returns {Promise<Response>} - A response object indicating the result of the operation.
  */
-module.exports.POST = async function POST(req) {
+export async function POST(req) {
   try {
     // Destructure email and password from the request body
     const { email, password } = await req.json();
