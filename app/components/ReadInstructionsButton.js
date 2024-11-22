@@ -1,10 +1,21 @@
 "use client"; // Ensure this component runs on the client side
 
+import { useEffect, useState } from "react";
+
 export default function ReadInstructionsButton({ instructions }) {
+  const [isReading, setIsReading] = useState(false);
+
   const scrollToInstructions = () => {
     document.getElementById("instructions-section").scrollIntoView({
       behavior: "smooth",
     });
+  };
+
+  const stopReading = () => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel(); // Stops speech synthesis immediately
+    }
+    setIsReading(false);
   };
 
   const readInstructions = () => {
