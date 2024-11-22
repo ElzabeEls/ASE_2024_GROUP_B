@@ -49,6 +49,43 @@ export default function ReadInstructionsButton({ instructions }) {
     readInstructions();
   };
 
+  useEffect(() => {
+    if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
+      console.warn("Speech Recognition is not supported in this browser.");
+      return;
+    }
+
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.continuous = true; // Listen continuously
+    recognition.interimResults = false;
+
+    const handleSpeechResult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join("")
+        .toLowerCase();
+
+      if (transcript.includes("stop")) {
+        stopReading();
+        recognition.stop(); // Stop listening for commands
+      }
+    };
+
+    if (isReading) {
+      recognition.addEventListener("result", handleSpeechResult);
+      recognition.start();
+    }
+
+    return () => {
+      recognition.removeEventListener("result", handleSpeechResult);
+      recognition.stop();
+    };
+  }, [isReading]);
+
   return (
     <button
       onClick={handleButtonClick}
