@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from "react";
 
+/**
+ * A button that reads the instructions aloud using speech synthesis.
+ * It also listens for a "stop" command to stop the speech synthesis.
+ *
+ * @component
+ * @example
+ * // Example usage
+ * <ReadInstructionsButton instructions={["Step 1: Do this", "Step 2: Do that"]} />
+ */
 export default function ReadInstructionsButton({ instructions }) {
   const [isReading, setIsReading] = useState(false);
 
