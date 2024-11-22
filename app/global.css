@@ -20,6 +20,12 @@
   --tag-text: #171717;
   --tag-hover-bg: #d1d5db;
   --tag-hover-text: #171717;
+  --icon-color: #333333;
+  --primary: #1f2937; /* Text color for light theme */
+  --secondary: #374151; /* Subtle text color for light theme */
+  --highlight: #14b8a6; /* Accent color for light theme */
+  --button: #14b8a6; /* Button background for light theme */
+
 }
 
 .dark {
@@ -40,6 +46,11 @@
   --tag-text: #ffffff;
   --tag-hover-bg: #555555;
   --tag-hover-text: #ffffff;
+  --icon-color: #ffffff;
+  --primary: #e5e7eb; /* Text color for dark theme */
+  --secondary: #9ca3af; /* Subtle text color for dark theme */
+  --highlight: #2dd4bf; /* Accent color for dark theme */
+  --button: #2dd4bf; /* Button background for dark theme */
 }
 
 body {
@@ -95,7 +106,8 @@ button:active {
   }
 
   @keyframes pulse {
-    0%, 100% {
+    0%,
+    100% {
       transform: scale(1);
     }
     50% {

@@ -158,34 +158,38 @@ const SearchBar = () => {
           placeholder="Search for recipes..."
           value={searchTextQuery}
           onChange={handleInputChange}
-          className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
+          className="w-full max-w-lg px-4 py-2 border-2 rounded-l-md focus:outline-none focus:ring-2 text-[var(--input-text)] bg-[var(--input-bg)] border-[var(--input-border)] focus:ring-[var(--button-hover-bg)]"
         />
         <button
           type="submit"
-          className="px-6 py-2 text-white bg-black hover:bg-gray-800 rounded-r-md shadow-md transition-all duration-300"
+          className="px-6 py-2 text-[var(--button-text)] bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)] rounded-r-md shadow-md transition-all duration-300"
         >
           Search
         </button>
       </form>
       {/* Auto-suggestions Dropdown */}
       {showSuggestions && (
-        <div className="absolute top-full mt-1 w-full max-w-lg bg-white border border-gray-300 rounded-md shadow-lg z-10">
+        <div className="absolute top-full mt-1 w-full max-w-lg bg-[var(--dropdown-bg)] border-[var(--dropdown-border)] rounded-md shadow-lg z-10">
           {suggestions.length > 0 ? (
             suggestions.map((suggestion) => (
               <div
                 key={suggestion._id}
                 onClick={() => handleSuggestionClick(suggestion.title)}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                className="px-4 py-2 cursor-pointer hover:bg-[var(--dropdown-hover-bg)] text-[var(--dropdown-text)]"
               >
                 {suggestion.title}
               </div>
             ))
           ) : (
-            <div className="px-4 py-2 text-gray-500">No recipes found</div>
+            <div className="px-4 py-2 text-[var(--dropdown-muted-text)]">
+              No recipes found
+            </div>
           )}
         </div>
       )}
     </div>
   );
-};
-export default SearchBar;
+  };
+  
+  export default SearchBar;
+  
