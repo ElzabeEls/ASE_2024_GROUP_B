@@ -138,29 +138,6 @@ const SearchBar = () => {
     performSearch(title); // Fetch the full recipe details
   };
 
-  /**
-   * Sets up a debounce effect to auto-submit the search for short queries (1-3 characters).
-   * Clears the previous debounce timer when searchTextQuery changes.
-   */
-  useEffect(() => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current); // Clear the previous timer
-    }
-
-    // Only debounce for short queries (1-3 characters)
-    if (
-      searchTextQuery.trim().length > 0 &&
-      searchTextQuery.trim().length <= 3
-    ) {
-      debounceTimeout.current = setTimeout(() => {
-        handleSearch(); // Auto-submit the search
-      }, 300); // Delay of 300ms
-
-      // Cleanup function to clear the timeout
-      return () => clearTimeout(debounceTimeout.current);
-    }
-  }, [searchTextQuery, handleSearch]); // Add handleSearch to dependencies
-
   return (
     <div className="relative flex justify-center mt-8">
       <form onSubmit={handleSearch} className="flex justify-center mt-8">
