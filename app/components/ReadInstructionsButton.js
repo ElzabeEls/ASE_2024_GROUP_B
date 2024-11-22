@@ -12,7 +12,8 @@ import { useEffect, useState } from "react";
  * <ReadInstructionsButton instructions={["Step 1: Do this", "Step 2: Do that"]} />
  */
 export default function ReadInstructionsButton({ instructions }) {
-  const [isReading, setIsReading] = useState(false);
+  const [isReading, setIsReading] = useState(false); // State to manage reading status
+  const [errorMessage, setErrorMessage] = useState(""); // State to hold error messages
 
   /**
    * Scrolls to the instructions section in the document.
@@ -29,7 +30,7 @@ export default function ReadInstructionsButton({ instructions }) {
   const stopReading = () => {
     console.log("Stopping reading...");
     window.speechSynthesis.cancel(); // Stops speech synthesis immediately
-    setIsReading(false);
+    setIsReading(false); // Update the state to indicate reading has stopped
   };
 
   /**
@@ -63,6 +64,9 @@ export default function ReadInstructionsButton({ instructions }) {
     });
   };
 
+  /**
+   * Handles the button click to start reading instructions and scroll to instructions.
+   */
   const handleButtonClick = () => {
     scrollToInstructions();
     readInstructions();
@@ -73,7 +77,9 @@ export default function ReadInstructionsButton({ instructions }) {
    * Sets up error handling if speech recognition fails.
    */
   useEffect(() => {
-    if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
+    if (
+      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
+    ) {
       console.warn("Speech Recognition is not supported in this browser.");
       return;
     }
@@ -107,6 +113,14 @@ export default function ReadInstructionsButton({ instructions }) {
       }
     };
 
+    /**
+     * Error handler for speech recognition. If an error occurs, an error message is displayed.
+     */
+    recognition.onerror = () => {
+      setErrorMessage("Speech to text feature failed"); // Set error message
+      console.error("Speech recognition error occurred");
+    };
+
     if (isReading) {
       console.log("Starting speech recognition...");
       recognition.addEventListener("result", handleSpeechResult);
@@ -120,11 +134,17 @@ export default function ReadInstructionsButton({ instructions }) {
   }, [isReading]);
 
   return (
-    <button
-      onClick={handleButtonClick}
-      className="bg-brown text-white px-4 py-2 rounded-md hover:bg-peach transition duration-200"
-    >
-      Read Instructions
-    </button>
+    <div>
+      <button
+        onClick={handleButtonClick}
+        className="bg-brown text-white px-4 py-2 rounded-md hover:bg-peach transition duration-200"
+      >
+        Read Instructions
+      </button>
+
+      {errorMessage && (
+        <div className="error-message text-red-500 mt-2">{errorMessage}</div>
+      )}
+    </div>
   );
 }
