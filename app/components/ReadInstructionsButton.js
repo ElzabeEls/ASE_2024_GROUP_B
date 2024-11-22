@@ -14,21 +14,29 @@ import { useEffect, useState } from "react";
 export default function ReadInstructionsButton({ instructions }) {
   const [isReading, setIsReading] = useState(false);
 
-  // Scroll to instructions section
+  /**
+   * Scrolls to the instructions section in the document.
+   */
   const scrollToInstructions = () => {
     document.getElementById("instructions-section").scrollIntoView({
       behavior: "smooth",
     });
   };
 
-  // Stop the reading and speech synthesis
+  /**
+   * Stops reading instructions and cancels speech synthesis.
+   */
   const stopReading = () => {
     console.log("Stopping reading...");
     window.speechSynthesis.cancel(); // Stops speech synthesis immediately
     setIsReading(false);
   };
 
-  // Read the instructions step by step
+  /**
+   * Reads the instructions aloud step by step using speech synthesis.
+   * If no instructions are provided, an alert will be shown.
+   * If speech synthesis is not supported, an alert will be shown.
+   */
   const readInstructions = () => {
     if (!instructions || instructions.length === 0) {
       alert("No instructions available to read.");
@@ -60,7 +68,10 @@ export default function ReadInstructionsButton({ instructions }) {
     readInstructions();
   };
 
-  // Use Speech Recognition to listen for "stop"
+  /**
+   * Initializes speech recognition to listen for the "stop" command while reading instructions.
+   * Sets up error handling if speech recognition fails.
+   */
   useEffect(() => {
     if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
       console.warn("Speech Recognition is not supported in this browser.");
@@ -75,6 +86,12 @@ export default function ReadInstructionsButton({ instructions }) {
     recognition.continuous = true; // Listen continuously
     recognition.interimResults = false;
 
+    /**
+     * Handles the speech recognition result when speech is detected.
+     * Stops reading instructions if the word "stop" is detected.
+     *
+     * @param {SpeechRecognitionEvent} event - The speech recognition event containing the transcript.
+     */
     const handleSpeechResult = (event) => {
       const transcript = Array.from(event.results)
         .map((result) => result[0].transcript)
