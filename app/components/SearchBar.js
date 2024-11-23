@@ -21,6 +21,7 @@ const SearchBar = () => {
   const [searchTextQuery, setTextSearchQuery] = useState(""); // State for the search text input
   const [searchCategoryQuery, setCategorySearchQuery] = useState(""); // State for the category input
   let debounceTimeout = useRef(null); // Ref to hold the debounce timer
+  const longQueryTimeout = useRef(null); // Separate timeout for long queries
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchTagsQuery, setTagsSearchQuery] = useState(""); // State for the category input
@@ -99,13 +100,25 @@ const SearchBar = () => {
     setTextSearchQuery(value);
 
     // Clear any existing debounce
-    clearTimeout(debounceTimeout);
+    clearTimeout(debounceTimeout.current);
+    clearTimeout(longQueryTimeout.current);
 
-    // Set debounce for 300ms
-    debounceTimeout = setTimeout(() => {
-      fetchSuggestions(value);
-    }, 300);
-  };
+     // Short query debounce (1-3 characters)
+     if (value.trim().length > 0 && value.trim().length <= 3) {
+      debounceTimeout.current = setTimeout(() => {
+        handleSearch();
+      }, 300);
+    }
+
+    // Long query debounce (>3 characters)
+    if (value.trim().length > 3) {
+      longQueryTimeout.current = setTimeout(() => {
+        fetchSuggestions(value);
+        handleSearch();
+      }, 500); // Debounce long queries with a delay of 500ms
+    }
+  }
+  
 
   // Handle selection of an auto-suggested title
   const handleSuggestionClick = (title) => {
@@ -144,9 +157,7 @@ const SearchBar = () => {
           type="text"
           placeholder="Search for recipes..."
           value={searchTextQuery}
-          onChange={(e) => {
-            handleInputChange(e);
-          }}
+          onChange={handleInputChange}
           className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
         />
         <button
