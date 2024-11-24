@@ -66,9 +66,14 @@ const RecipeReviews = ({ recipeId }) => {
         { username, date: new Date(), rating, review: reviewText },
         ...prev,
       ]);
-      
+      setUsername("");
+      setReviewText("");
+      setRating(5);
     } catch (err) {
-      
+      console.error("Error submitting review:", err);
+      setError("Unable to submit review. Please try again later.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -79,7 +84,7 @@ const RecipeReviews = ({ recipeId }) => {
     <section className="mt-8">
       <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
 
-      
+     
       {reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review, index) => (
