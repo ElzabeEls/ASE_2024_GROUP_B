@@ -67,7 +67,13 @@ export async function POST(request, { params }) {
     try {
       // Attempt to update recipe stats
       await updateRecipeStats(recipeId, db);
-    
+    } catch (statsError) {
+      console.warn('Review added, but failed to update recipe stats:', statsError);
+      return NextResponse.json({
+        success: true,
+        message: 'Review added, but recipe stats update failed',
+      });
+    }
 
     return NextResponse.json({ success: true, message: 'Review added and recipe updated' });
   } catch (error) {
@@ -167,5 +173,4 @@ async function updateRecipeStats(recipeId, db) {
         { $set: { averageRating, reviewCount } }
       );
       
-  }
 }
