@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
+import FavoriteButton from "./FavoriteButton";
 import Carousel from "./Carousel";
 
 /**
@@ -43,11 +44,25 @@ export default function RecipeCard({ recipe }) {
       <meta name="twitter:description" content={`Detailed recipe for ${recipe.title}.`} />
       <meta name="twitter:image" content={recipe.images[0]} /> */}
     </Head>
+
+    {/* Image Carousel */}
+    <div className="relative">
       <Carousel
         images={recipe.images}
         alt={recipe.title}
         className="w-full h-48 object-cover rounded-md"
+        
       />
+      <div className="absolute top-2 right-2">
+          <FavoriteButton
+            recipeId={recipe._id}
+            onFavoriteChange={() => {
+              // Dispatch event to update header count
+              window.dispatchEvent(new Event("favoritesUpdated"));
+            }}
+          />
+        </div>
+    </div>
       <p className="text-gray-600 text-xs mt-1">
         Published : {formatDate(recipe.published)}
       </p>
