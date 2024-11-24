@@ -133,8 +133,8 @@ export default function Favourites() {
             <div key={favorite._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="relative">
                 <img
-                  src={favorite.recipe.images[0] || "/default-recipe-image.jpg"}
-                  alt={favorite.recipe.title}
+                  src={favourite.recipe.images[0] || "/default-recipe-image.jpg"}
+                  alt={favourite.recipe.title}
                   className="w-full h-48 object-cover"
                 />
               </div>

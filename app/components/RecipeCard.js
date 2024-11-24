@@ -1,3 +1,4 @@
+"use client"
 import Head from "next/head";
 import Link from "next/link";
 import FavoriteButton from "./FavoriteButton";
@@ -56,7 +57,7 @@ export default function RecipeCard({ recipe }) {
       <div className="absolute top-2 right-2">
           <FavoriteButton
             recipeId={recipe._id}
-            onFavoriteChange={() => {
+            onFavouriteChange={() => {
               // Dispatch event to update header count
               window.dispatchEvent(new Event("favouritesUpdated"));
             }}
