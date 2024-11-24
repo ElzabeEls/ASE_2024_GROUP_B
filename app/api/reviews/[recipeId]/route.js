@@ -48,7 +48,12 @@ export async function POST(request, { params }) {
     if (!username || typeof username !== 'string' || username.trim() === '') {
       return NextResponse.json({ success: false, error: 'Invalid username' }, { status: 400 });
     }
- 
+    if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
+      return NextResponse.json({ success: false, error: 'Invalid rating' }, { status: 400 });
+    }
+    if (!review || typeof review !== 'string' || review.trim() === '') {
+      return NextResponse.json({ success: false, error: 'Invalid review' }, { status: 400 });
+    }
 
     // Insert the new review
     await reviewsCollection.insertOne({
@@ -62,7 +67,7 @@ export async function POST(request, { params }) {
     try {
       // Attempt to update recipe stats
       await updateRecipeStats(recipeId, db);
-  
+    
 
     return NextResponse.json({ success: true, message: 'Review added and recipe updated' });
   } catch (error) {
@@ -161,5 +166,6 @@ async function updateRecipeStats(recipeId, db) {
         { _id: new ObjectId(recipeId) },
         { $set: { averageRating, reviewCount } }
       );
+      
   }
 }
