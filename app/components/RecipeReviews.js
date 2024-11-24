@@ -106,7 +106,17 @@ const RecipeReviews = ({ recipeId }) => {
             required
           ></textarea>
         </div>
-        
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Rating</label>
+          
+        </div>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700"
+        >
+          {submitting ? "Submitting..." : "Submit Review"}
+        </button>
       </form>
 
       {/* Render Reviews */}
