@@ -3,9 +3,40 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
-
+import { Heart } from "lucide-react";
 
 const Header = () => {
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+    setIsLoggedIn(!!token);
+
+    const fetchFavoriteCount = async () => {
+      if (!token) return;
+
+      try {
+        const response = await fetch("/api/favourites?action=count", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setFavoriteCount(data.count);
+      } catch (error) {
+        console.error("Error fetching favorite count:", error);
+      }
+    };
+
+    fetchFavoriteCount();
+
+    // Listen for favorite updates
+    window.addEventListener("favouritesUpdated", fetchFavoriteCount);
+    return () =>
+      window.removeEventListener("favouritesUpdated", fetchFavoriteCount);
+  }, []);
+
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-gray-300 bg-opacity-80 shadow-md backdrop-blur-lg">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -34,35 +65,49 @@ const Header = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-              >
-              </svg>
+              ></svg>
             </span>
           </Link>
 
           <Link href="/recipe">
-
             <span className="hover:text-gray-500 cursor-pointer">Recipes</span>
           </Link>
-          <Link href="/favourites">
-            <span className="hover:text-gray-500 cursor-pointer">
-              Favourites
-            </span>
-          </Link>
-          <Link href="/login">
-          <button className="bg-white px-2 py-1 rounded-full">
-            <span className="font-bold text-green-600">
-              Login
-            </span>
-          </button>
-          </Link>
-          <Link href="/signup">
-          <button className="bg-white px-2 py-1 rounded-full">
-            <span className="font-bold text-blue-600">
-              Sign Up
-            </span>
-          </button>
-          </Link>
-          <ThemeToggle /> 
+          {isLoggedIn && (
+            <Link
+              href="/favourites"
+              className="flex items-center space-x-2 hover:text-gray-500"
+            >
+              <Heart className="w-5 h-5" />
+              <span>Favorites ({favoriteCount})</span>
+            </Link>
+          )}
+          
+          {isLoggedIn ? (
+            <button
+              onClick={() => {
+                localStorage.removeItem("jwt");
+                setIsLoggedIn(false);
+                window.location.href = "/";
+              }}
+              className="bg-white px-2 py-1 rounded-full"
+            >
+              <span className="font-bold text-red-600">Logout</span>
+            </button>
+          ) : (
+            <>
+              <Link href="/login">
+                <button className="bg-white px-2 py-1 rounded-full">
+                  <span className="font-bold text-green-600">Login</span>
+                </button>
+              </Link>
+              <Link href="/signup">
+                <button className="bg-white px-2 py-1 rounded-full">
+                  <span className="font-bold text-blue-600">Sign Up</span>
+                </button>
+              </Link>
+            </>
+          )}
+          <ThemeToggle />
         </div>
       </div>
     </header>
@@ -70,4 +115,3 @@ const Header = () => {
 };
 
 export default Header;
-
