@@ -6,8 +6,13 @@ const RecipeReviews = ({ recipeId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // States for review submission
+  const [username, setUsername] = useState("");
+  const [reviewText, setReviewText] = useState("");
+  const [rating, setRating] = useState(5);
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
-    // Guard clause for missing recipeId
     if (!recipeId) {
       setError("Recipe ID is missing.");
       setLoading(false);
@@ -17,11 +22,9 @@ const RecipeReviews = ({ recipeId }) => {
     const fetchReviews = async () => {
       try {
         const res = await fetch(`/api/reviews/${recipeId}`);
-        if (!res.ok) {
-          throw new Error(`Error: ${res.statusText}`);
-        }
-        const data = await res.json();
+        if (!res.ok) throw new Error(`Error: ${res.statusText}`);
 
+        const data = await res.json();
         if (data.success) {
           setReviews(data.data);
         } else {
@@ -38,20 +41,40 @@ const RecipeReviews = ({ recipeId }) => {
     fetchReviews();
   }, [recipeId]);
 
-  // Render loading state
-  if (loading) {
-    return <p>Loading reviews...</p>;
-  }
+ 
 
-  // Render error state
-  if (error) {
-    return <p className="text-red-500">Error: {error}</p>;
-  }
+    try {
+      const res = await fetch(`/api/reviews/${recipeId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+         
+          review: reviewText,
+        }),
+      });
 
-  // Render reviews
+    
+
+      
+      setReviews((prev) => [
+        { username, date: new Date(), rating, review: reviewText },
+        ...prev,
+      ]);
+     
+    } catch (err) {
+      
+    } 
+    }
+  };
+
+  if (loading) return <p>Loading reviews...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
+
   return (
     <section className="mt-8">
       <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+
+      
       {reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review) => (
