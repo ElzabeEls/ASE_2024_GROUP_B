@@ -172,5 +172,12 @@ async function updateRecipeStats(recipeId, db) {
         { _id: new ObjectId(recipeId) },
         { $set: { averageRating, reviewCount } }
       );
-      
+      console.log('Recipe stats updated:', result);
+    } else {
+      console.warn(`No reviews found for recipeId: ${recipeId}`);
+    }
+  } catch (error) {
+    console.error('Error in updateRecipeStats:', error);
+    throw error; // Re-throw to ensure it propagates up
+  }
 }
