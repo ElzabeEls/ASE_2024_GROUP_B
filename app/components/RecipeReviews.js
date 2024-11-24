@@ -41,29 +41,34 @@ const RecipeReviews = ({ recipeId }) => {
     fetchReviews();
   }, [recipeId]);
 
- 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
 
     try {
       const res = await fetch(`/api/reviews/${recipeId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-         
+          username,
+          rating,
           review: reviewText,
         }),
       });
 
-    
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to submit review.");
+      }
 
-      
+      // Fetch updated reviews after submission
       setReviews((prev) => [
         { username, date: new Date(), rating, review: reviewText },
         ...prev,
       ]);
-     
+      
     } catch (err) {
       
-    } 
     }
   };
 
@@ -77,8 +82,8 @@ const RecipeReviews = ({ recipeId }) => {
       
       {reviews.length > 0 ? (
         <div className="space-y-4">
-          {reviews.map((review) => (
-            <ReviewCard key={review._id} review={review} />
+          {reviews.map((review, index) => (
+            <ReviewCard key={index} review={review} />
           ))}
         </div>
       ) : (
