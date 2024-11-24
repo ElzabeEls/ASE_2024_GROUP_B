@@ -58,7 +58,7 @@ export default function RecipeCard({ recipe }) {
             recipeId={recipe._id}
             onFavoriteChange={() => {
               // Dispatch event to update header count
-              window.dispatchEvent(new Event("favoritesUpdated"));
+              window.dispatchEvent(new Event("favouritesUpdated"));
             }}
           />
         </div>
