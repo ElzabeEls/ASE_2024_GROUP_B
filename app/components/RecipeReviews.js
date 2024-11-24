@@ -84,7 +84,21 @@ const RecipeReviews = ({ recipeId }) => {
     <section className="mt-8">
       <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
 
-     
+      {/* Review Submission Form */}
+      <form onSubmit={handleSubmit} className="mb-6">
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Username</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full border rounded p-2"
+            required
+          />
+        </div>
+      </form>
+
+      {/* Render Reviews */}
       {reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review, index) => (
