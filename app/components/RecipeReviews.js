@@ -96,6 +96,17 @@ const RecipeReviews = ({ recipeId }) => {
             required
           />
         </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Your Review</label>
+          <textarea
+            value={reviewText}
+            onChange={(e) => setReviewText(e.target.value)}
+            rows="4"
+            className="w-full border rounded p-2"
+            required
+          ></textarea>
+        </div>
+        
       </form>
 
       {/* Render Reviews */}
