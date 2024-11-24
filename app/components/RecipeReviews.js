@@ -108,7 +108,17 @@ const RecipeReviews = ({ recipeId }) => {
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Rating</label>
-          
+          <select
+            value={rating}
+            onChange={(e) => setRating(Number(e.target.value))}
+            className="w-full border rounded p-2"
+          >
+            {[...Array(5)].map((_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1} Star{(i + 1) > 1 ? "s" : ""}
+              </option>
+            ))}
+          </select>
         </div>
         <button
           type="submit"
