@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 
 export default function Favourites() {
-  const [favorites, setFavorites] = useState([]);
+  const [favourites, setFavourites] = useState([]);
   const [favouriteCount, setFavouriteCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function Favourites() {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzNkOTAxMjJlMDAzNzEwY2ViZjA4NmUiLCJlbWFpbCI6ImVsenplbHMyNUBnbWFpbC5jb20iLCJpYXQiOjE3MzIwODc4MzYsImV4cCI6MTczMjA5MTQzNn0.9Y7YZRm3lrBNuOnO04mrnzc0_0-ysQW7ntaBnqAlXdo";
 
   useEffect(() => {
-    const fetchFavorites = async () => {
+    const fetchFavourites = async () => {
       if (!jwt) {
         router.push("/login");
         return;
@@ -29,17 +29,17 @@ export default function Favourites() {
 
         if (response.ok) {
           const data = await response.json();
-          setFavorites(data.favorites);
-          setFavouriteCount(data.favorites.length);
+          setFavourites(data.favourites);
+          setFavouriteCount(data.favourites.length);
         }
       } catch (error) {
-        console.error("Error fetching favorites:", error);
+        console.error("Error fetching favourites:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFavorites();
+    fetchFavourites();
   }, [router, jwt]);
 
   async function addFavourite() {
@@ -56,7 +56,7 @@ export default function Favourites() {
 
       if (response.ok) {
         const data = await response.json();
-        setFavorites((prev) => [...prev, data]);
+        setFavourites((prev) => [...prev, data]);
         setFavouriteCount((prevCount) => prevCount + 1);
       }
     } catch (error) {
@@ -65,9 +65,9 @@ export default function Favourites() {
   }
 
   const handleFavoriteChange = (recipeId) => {
-    setFavorites(favorites.filter((fav) => fav.recipe._id !== recipeId));
+    setFavourites(favourites.filter((fav) => fav.recipe._id !== recipeId));
     setFavouriteCount((prevCount) => prevCount - 1);
-    window.dispatchEvent(new Event("favoritesUpdated"));
+    window.dispatchEvent(new Event("favouritesUpdated"));
   };
 
   if (loading) {
@@ -91,7 +91,7 @@ export default function Favourites() {
         <div className="carousel-container overflow-hidden relative">
           <div className="carousel flex space-x-4">
             {favouriteCount > 0
-              ? favorites.map((favourite) => (
+              ? favourites.map((favourite) => (
                   <div
                     key={favourite._id}
                     className="carousel-item bg-white p-4 rounded-lg shadow-md w-80"
@@ -122,14 +122,14 @@ export default function Favourites() {
       {/* Grid of Favorite Recipes */}
       {favourites.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-600 mb-4">You haven&apos;t added any favorites yet.</p>
+          <p className="text-gray-600 mb-4">You haven&apos;t added any favourites yet.</p>
           <Link href="/recipe" className="text-blue-500 hover:underline">
             Browse Recipes
           </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favorites.map((favorite) => (
+          {favourites.map((favorite) => (
             <div key={favorite._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="relative">
                 <img
