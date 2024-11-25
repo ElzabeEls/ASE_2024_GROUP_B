@@ -176,7 +176,12 @@ const RecipeReviews = ({ recipeId }) => {
                 <p className="font-medium text-teal-600">Rating: {review.rating} / 5</p>
               </div>
               <p className="text-gray-700 mt-2">{review.review}</p>
-              
+              <button
+                onClick={() => handleEdit(review)}
+                className="mt-2 text-blue-500 hover:underline"
+              >
+                Edit
+              </button>
             </div>
           ))}
         </div>
