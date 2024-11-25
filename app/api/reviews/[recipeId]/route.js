@@ -101,7 +101,19 @@ export async function PUT(request, { params }) {
     if (username && (typeof username !== 'string' || username.trim() === '')) {
       return NextResponse.json({ success: false, error: 'Invalid username' }, { status: 400 });
     }
-   
+    if (rating && (typeof rating !== 'number' || rating < 1 || rating > 5)) {
+      return NextResponse.json({ success: false, error: 'Invalid rating' }, { status: 400 });
+    }
+    if (review && (typeof review !== 'string' || review.trim() === '')) {
+      return NextResponse.json({ success: false, error: 'Invalid review' }, { status: 400 });
+    }
+
+    // Create the updates object
+    const updates = {};
+    if (username) updates.username = username;
+    if (rating) updates.rating = rating;
+    if (review) updates.review = review;
+    updates.updatedAt = new Date();
 
     // Update the review in the database
     const result = await reviewsCollection.updateOne(
@@ -109,6 +121,7 @@ export async function PUT(request, { params }) {
       { $set: updates }
     );
 
+    
    
 
     // Recalculate and update recipe stats
@@ -143,7 +156,7 @@ export async function DELETE(request, { params }) {
     // Delete the review from the reviews collection.
     const result = await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
 
-  
+   
 
     // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
