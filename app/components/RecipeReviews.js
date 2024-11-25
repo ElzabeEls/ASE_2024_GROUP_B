@@ -198,11 +198,12 @@ const RecipeReviews = ({ recipeId }) => {
               </div>
               <p className="text-gray-700 mt-2">{review.review}</p>
               <button
-                onClick={() => handleEdit(review)}
-                className="mt-2 text-blue-500 hover:underline"
-              >
-                Edit
-              </button>
+  onClick={() => handleEdit(review)}
+  className="mt-2 text-blue-500 hover:text-blue-700 focus:outline-none font-semibold text-sm px-3 py-1 rounded border border-blue-500 hover:bg-blue-100 transition-colors duration-200"
+>
+  Edit
+</button>
+
             </div>
           ))}
         </div>
