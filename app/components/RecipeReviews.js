@@ -169,7 +169,9 @@ const RecipeReviews = ({ recipeId }) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold">{review.username}</p>
-                  
+                  <p className="text-xs text-gray-500">
+                    {new Date(review.date).toLocaleDateString()}
+                  </p>
                 </div>
                 <p className="font-medium text-teal-600">Rating: {review.rating} / 5</p>
               </div>
