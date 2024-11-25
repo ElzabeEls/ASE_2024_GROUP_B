@@ -12,6 +12,10 @@ const RecipeReviews = ({ recipeId }) => {
   const [rating, setRating] = useState(5);
   const [submitting, setSubmitting] = useState(false);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editReviewId, setEditReviewId] = useState(null);
+
+
   useEffect(() => {
     if (!recipeId) {
       setError("Recipe ID is missing.");
@@ -41,15 +45,17 @@ const RecipeReviews = ({ recipeId }) => {
     fetchReviews();
   }, [recipeId]);
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
       const res = await fetch(`/api/reviews/${recipeId}`, {
-        method: "POST",
+        method: isEditing ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          reviewId: editReviewId,
           username,
           rating,
           review: reviewText,
@@ -61,14 +67,18 @@ const RecipeReviews = ({ recipeId }) => {
         throw new Error(data.error || "Failed to submit review.");
       }
 
-      // Fetch updated reviews after submission
-      setReviews((prev) => [
-        { username, date: new Date(), rating, review: reviewText },
-        ...prev,
-      ]);
+     
+        setReviews((prev) => [
+          { _id: data.reviewId, username, date: new Date(), rating, review: reviewText },
+          ...prev,
+        ]);
+      }
+
+    
       setUsername("");
       setReviewText("");
       setRating(5);
+      
     } catch (err) {
       console.error("Error submitting review:", err);
       setError("Unable to submit review. Please try again later.");
@@ -77,6 +87,7 @@ const RecipeReviews = ({ recipeId }) => {
     }
   };
 
+  
   if (loading) return <p>Loading reviews...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
@@ -84,7 +95,7 @@ const RecipeReviews = ({ recipeId }) => {
     <section className="mt-8">
       <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
 
-      {/* Review Submission Form */}
+      {/* Review Submission/Edit Form */}
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Username</label>
@@ -125,15 +136,15 @@ const RecipeReviews = ({ recipeId }) => {
           disabled={submitting}
           className="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700"
         >
-          {submitting ? "Submitting..." : "Submit Review"}
+          {submitting ? "Submitting..." : isEditing ? "Update Review" : "Submit Review"}
         </button>
       </form>
 
       {/* Render Reviews */}
       {reviews.length > 0 ? (
         <div className="space-y-4">
-          {reviews.map((review, index) => (
-            <ReviewCard key={index} review={review} />
+          {reviews.map((review) => (
+           
           ))}
         </div>
       ) : (
@@ -144,20 +155,5 @@ const RecipeReviews = ({ recipeId }) => {
     </section>
   );
 };
-
-const ReviewCard = ({ review }) => (
-  <div className="border rounded-lg p-4 bg-gray-50">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <p className="text-sm font-semibold">{review.username}</p>
-        <p className="text-xs text-gray-500">
-          {new Date(review.date).toLocaleDateString()}
-        </p>
-      </div>
-      <p className="font-medium text-teal-600">Rating: {review.rating} / 5</p>
-    </div>
-    <p className="text-gray-700 mt-2">{review.review}</p>
-  </div>
-);
 
 export default RecipeReviews;
