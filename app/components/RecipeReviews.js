@@ -15,7 +15,6 @@ const RecipeReviews = ({ recipeId }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editReviewId, setEditReviewId] = useState(null);
 
-
   useEffect(() => {
     if (!recipeId) {
       setError("Recipe ID is missing.");
@@ -98,7 +97,16 @@ const RecipeReviews = ({ recipeId }) => {
     }
   };
 
-  
+  // Handle review edit initialization
+  const handleEdit = (review) => {
+    setIsEditing(true);
+    setEditReviewId(review._id);
+    setUsername(review.username);
+    setReviewText(review.review);
+    setRating(review.rating);
+  };
+
+  // Render loading, error, or review UI
   if (loading) return <p>Loading reviews...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
@@ -155,7 +163,7 @@ const RecipeReviews = ({ recipeId }) => {
       {reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review) => (
-       
+           
           ))}
         </div>
       ) : (
