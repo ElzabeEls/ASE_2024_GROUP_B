@@ -1,6 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 
+/**
+ * RecipeReviews component for displaying and submitting reviews for a specific recipe.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.recipeId - The ID of the recipe whose reviews are being displayed.
+ * @returns {JSX.Element} The rendered component.
+ */
 const RecipeReviews = ({ recipeId }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +23,9 @@ const RecipeReviews = ({ recipeId }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editReviewId, setEditReviewId] = useState(null);
 
-  // Fetch reviews when the component mounts
+  /**
+   * Fetch reviews from the API when the component mounts or when recipeId changes.
+   */
   useEffect(() => {
     if (!recipeId) {
       setError("Recipe ID is missing.");
@@ -46,7 +55,11 @@ const RecipeReviews = ({ recipeId }) => {
     fetchReviews();
   }, [recipeId]);
 
-  // Handle review submission or editing
+  /**
+   * Handle the submission or editing of a review.
+   * 
+   * @param {React.FormEvent} e - The submit event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -99,7 +112,15 @@ const RecipeReviews = ({ recipeId }) => {
     }
   };
 
-  // Handle review edit initialization
+  /**
+   * Initialize editing of an existing review.
+   * 
+   * @param {Object} review - The review to be edited.
+   * @param {string} review._id - The ID of the review to be edited.
+   * @param {string} review.username - The username of the reviewer.
+   * @param {string} review.review - The content of the review.
+   * @param {number} review.rating - The rating given in the review.
+   */
   const handleEdit = (review) => {
     setIsEditing(true);
     setEditReviewId(review._id);
