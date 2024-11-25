@@ -1,10 +1,10 @@
 "use client"; // Ensure this component runs on the client side
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 /**
  * A button that reads the instructions aloud using speech synthesis.
- * It also listens for a "stop" command to stop the speech synthesis.
+ * It also listens for voice commands to stop, pause, and resume the speech synthesis.
  *
  * @component
  * @example
@@ -13,13 +13,14 @@ import { useEffect, useState } from "react";
  */
 export default function ReadInstructionsButton({ instructions }) {
   const [isReading, setIsReading] = useState(false); // State to manage reading status
+  const [isPaused, setIsPaused] = useState(false); // State to manage pause status
   const [errorMessage, setErrorMessage] = useState(""); // State to hold error messages
 
   /**
    * Scrolls to the instructions section in the document.
    */
   const scrollToInstructions = () => {
-    document.getElementById("instructions-section").scrollIntoView({
+    document.getElementById("instructions-section")?.scrollIntoView({
       behavior: "smooth",
     });
   };
@@ -31,7 +32,30 @@ export default function ReadInstructionsButton({ instructions }) {
     console.log("Stopping reading...");
     window.speechSynthesis.cancel(); // Stops speech synthesis immediately
     setIsReading(false); // Update the state to indicate reading has stopped
+    setIsPaused(false); // Reset pause state
   };
+
+  /**
+   * Pauses reading instructions.
+   */
+  const pauseReading = useCallback(() => {
+    if (isReading && !isPaused) {
+      console.log("Pausing reading...");
+      window.speechSynthesis.pause();
+      setIsPaused(true);
+    }
+  }, [isReading, isPaused]);
+
+  /**
+   * Resumes reading instructions if paused.
+   */
+  const resumeReading = useCallback(() => {
+    if (isReading && isPaused) {
+      console.log("Resuming reading...");
+      window.speechSynthesis.resume();
+      setIsPaused(false);
+    }
+  }, [isReading, isPaused]);
 
   /**
    * Reads the instructions aloud step by step using speech synthesis.
@@ -58,7 +82,7 @@ export default function ReadInstructionsButton({ instructions }) {
       const utterance = new SpeechSynthesisUtterance(
         `Step ${index + 1}: ${instruction}`
       );
-      utterance.lang = "en-US";
+      utterance.lang = "en-UK";
       utterance.rate = 1;
       window.speechSynthesis.speak(utterance);
     });
@@ -73,7 +97,7 @@ export default function ReadInstructionsButton({ instructions }) {
   };
 
   /**
-   * Initializes speech recognition to listen for the "stop" command while reading instructions.
+   * Initializes speech recognition to listen for commands ("stop", "pause", "resume").
    * Sets up error handling if speech recognition fails.
    */
   useEffect(() => {
@@ -88,37 +112,44 @@ export default function ReadInstructionsButton({ instructions }) {
       window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
 
-    recognition.lang = "en-US";
+    recognition.lang = "en-UK";
     recognition.continuous = true; // Listen continuously
     recognition.interimResults = false;
 
     /**
      * Handles the speech recognition result when speech is detected.
-     * Stops reading instructions if the word "stop" is detected.
+     * Stops, pauses, or resumes reading instructions based on the recognized command.
      *
-     * @param {SpeechRecognitionEvent} event - The speech recognition event containing the transcript.
+     * @param {SpeechRecognitionResult} event - The speech recognition event containing the transcript.
      */
     const handleSpeechResult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0].transcript)
+      const result = Array.from(event.results)
+        .filter((res) => res[0].confidence > 0.8) // Only process results with high confidence
+        .map((res) => res[0].transcript)
         .join("")
         .toLowerCase();
 
-      console.log("Speech recognized:", transcript); // Log recognized speech
+      console.log("Speech recognized:", result); // Log recognized speech
 
-      if (transcript.includes("stop")) {
+      if (result.includes("stop")) {
         console.log("Stop command detected.");
         stopReading();
         recognition.stop(); // Stop listening for commands
+      } else if (result.includes("pause")) {
+        console.log("Pause command detected.");
+        pauseReading();
+      } else if (result.includes("resume")) {
+        console.log("Resume command detected.");
+        resumeReading();
       }
     };
 
     /**
      * Error handler for speech recognition. If an error occurs, an error message is displayed.
      */
-    recognition.onerror = () => {
-      setErrorMessage("Speech to text feature failed"); // Set error message
-      console.error("Speech recognition error occurred");
+    recognition.onerror = (event) => {
+      setErrorMessage("Speech to text feature failed. Please try again.");
+      console.error("Speech recognition error:", event.error);
     };
 
     if (isReading) {
@@ -131,7 +162,7 @@ export default function ReadInstructionsButton({ instructions }) {
       recognition.removeEventListener("result", handleSpeechResult);
       recognition.stop();
     };
-  }, [isReading]);
+  }, [isReading, pauseReading, resumeReading]);
 
   return (
     <div>

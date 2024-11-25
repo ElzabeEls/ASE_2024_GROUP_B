@@ -64,7 +64,7 @@ export default async function RecipeDetail({ params }) {
         <h1 className="text-3xl font-bold">{title}</h1>
         <a
           href="/recipe"
-          className="mt-4 block text-center text-white bg-brown rounded-full px-4 py-2 hover:bg-green-800 transition duration-200"
+          className="mt-4 block text-center text-white bg-brown rounded-full px-4 py-2 hover:bg-peach transition duration-200"
         >
           Back to Home
         </a>
