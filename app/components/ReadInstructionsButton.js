@@ -19,7 +19,7 @@ export default function ReadInstructionsButton({ instructions }) {
    * Scrolls to the instructions section in the document.
    */
   const scrollToInstructions = () => {
-    document.getElementById("instructions-section").scrollIntoView({
+    document.getElementById("instructions-section")?.scrollIntoView({
       behavior: "smooth",
     });
   };
@@ -99,14 +99,15 @@ export default function ReadInstructionsButton({ instructions }) {
      * @param {SpeechRecognitionEvent} event - The speech recognition event containing the transcript.
      */
     const handleSpeechResult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0].transcript)
+      const result = Array.from(event.results)
+        .filter((res) => res[0].confidence > 0.8) // Only process results with high confidence
+        .map((res) => res[0].transcript)
         .join("")
         .toLowerCase();
 
-      console.log("Speech recognized:", transcript); // Log recognized speech
+      console.log("Speech recognized:", result); // Log recognized speech
 
-      if (transcript.includes("stop")) {
+      if (result.includes("stop")) {
         console.log("Stop command detected.");
         stopReading();
         recognition.stop(); // Stop listening for commands
@@ -116,9 +117,9 @@ export default function ReadInstructionsButton({ instructions }) {
     /**
      * Error handler for speech recognition. If an error occurs, an error message is displayed.
      */
-    recognition.onerror = () => {
-      setErrorMessage("Speech to text feature failed"); // Set error message
-      console.error("Speech recognition error occurred");
+    recognition.onerror = (event) => {
+      setErrorMessage("Speech to text feature failed. Please try again.");
+      console.error("Speech recognition error:", event.error);
     };
 
     if (isReading) {
