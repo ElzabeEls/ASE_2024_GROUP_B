@@ -12,9 +12,11 @@ const RecipeReviews = ({ recipeId }) => {
   const [rating, setRating] = useState(5);
   const [submitting, setSubmitting] = useState(false);
 
+  // States for editing reviews
   const [isEditing, setIsEditing] = useState(false);
   const [editReviewId, setEditReviewId] = useState(null);
 
+  // Fetch reviews when the component mounts
   useEffect(() => {
     if (!recipeId) {
       setError("Recipe ID is missing.");
@@ -163,7 +165,17 @@ const RecipeReviews = ({ recipeId }) => {
       {reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review) => (
-           
+            <div key={review._id} className="border rounded-lg p-4 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold">{review.username}</p>
+                  
+                </div>
+                <p className="font-medium text-teal-600">Rating: {review.rating} / 5</p>
+              </div>
+              <p className="text-gray-700 mt-2">{review.review}</p>
+              
+            </div>
           ))}
         </div>
       ) : (
