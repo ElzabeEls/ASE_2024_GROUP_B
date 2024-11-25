@@ -64,8 +64,8 @@ export async function POST(request, { params }) {
       date: new Date(),
     });
 
+    // Attempt to update recipe stats
     try {
-      // Attempt to update recipe stats
       await updateRecipeStats(recipeId, db);
     } catch (statsError) {
       console.warn('Review added, but failed to update recipe stats:', statsError);
@@ -92,24 +92,34 @@ export async function PUT(request, { params }) {
     const reviewsCollection = db.collection('reviews');
 
     const { recipeId } = params;
-    const { reviewId, updates } = await request.json();
+    const { reviewId, username, rating, review } = await request.json();
 
-    if (!reviewId || !updates) {
-      return NextResponse.json({ success: false, error: 'Review ID and updates are required' }, { status: 400 });
+    // Validate required fields
+    if (!reviewId || typeof reviewId !== 'string') {
+      return NextResponse.json({ success: false, error: 'Review ID is required and must be a valid string' }, { status: 400 });
     }
+    if (username && (typeof username !== 'string' || username.trim() === '')) {
+      return NextResponse.json({ success: false, error: 'Invalid username' }, { status: 400 });
+    }
+   
 
-    // Update the review in the reviews collection.
-    await reviewsCollection.updateOne(
+    // Update the review in the database
+    const result = await reviewsCollection.updateOne(
       { _id: new ObjectId(reviewId), recipeId },
-      { $set: { ...updates, updatedAt: new Date() } }
+      { $set: updates }
     );
 
-    // Recalculate and update recipe stats.
-    await updateRecipeStats(recipeId, db);
+   
 
-    return NextResponse.json({ success: true, message: 'Review updated and recipe updated' });
+    // Recalculate and update recipe stats
+    try {
+      await updateRecipeStats(recipeId, db);
+   
+    }
+
+    return NextResponse.json({ success: true, message: 'Review updated and recipe stats recalculated' });
   } catch (error) {
-    console.error('Error updating review and recipe:', error);
+    console.error('Error updating review and recipe stats:', error);
     return NextResponse.json({ success: false, error: 'Failed to update review' }, { status: 500 });
   }
 }
@@ -131,7 +141,9 @@ export async function DELETE(request, { params }) {
     }
 
     // Delete the review from the reviews collection.
-    await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
+    const result = await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
+
+  
 
     // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
