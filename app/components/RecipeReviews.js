@@ -45,7 +45,7 @@ const RecipeReviews = ({ recipeId }) => {
     fetchReviews();
   }, [recipeId]);
 
-  
+  // Handle review submission or editing
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -67,18 +67,29 @@ const RecipeReviews = ({ recipeId }) => {
         throw new Error(data.error || "Failed to submit review.");
       }
 
-     
+      if (isEditing) {
+        // Update the edited review in the UI
+        setReviews((prev) =>
+          prev.map((r) =>
+            r._id === editReviewId
+              ? { ...r, username, rating, review: reviewText, date: new Date() }
+              : r
+          )
+        );
+      } else {
+        // Add the new review to the list
         setReviews((prev) => [
           { _id: data.reviewId, username, date: new Date(), rating, review: reviewText },
           ...prev,
         ]);
       }
 
-    
+      // Reset the form
       setUsername("");
       setReviewText("");
       setRating(5);
-      
+      setIsEditing(false);
+      setEditReviewId(null);
     } catch (err) {
       console.error("Error submitting review:", err);
       setError("Unable to submit review. Please try again later.");
@@ -144,7 +155,7 @@ const RecipeReviews = ({ recipeId }) => {
       {reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review) => (
-           
+       
           ))}
         </div>
       ) : (
