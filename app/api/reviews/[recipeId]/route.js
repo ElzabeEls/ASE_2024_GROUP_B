@@ -121,13 +121,20 @@ export async function PUT(request, { params }) {
       { $set: updates }
     );
 
-    
-   
+    // Check if the review was updated
+    if (result.matchedCount === 0) {
+      return NextResponse.json({ success: false, error: 'Review not found or does not belong to the specified recipe' }, { status: 404 });
+    }
 
     // Recalculate and update recipe stats
     try {
       await updateRecipeStats(recipeId, db);
-   
+    } catch (statsError) {
+      console.warn('Review updated, but failed to update recipe stats:', statsError);
+      return NextResponse.json({
+        success: true,
+        message: 'Review updated, but recipe stats update failed',
+      });
     }
 
     return NextResponse.json({ success: true, message: 'Review updated and recipe stats recalculated' });
@@ -156,7 +163,9 @@ export async function DELETE(request, { params }) {
     // Delete the review from the reviews collection.
     const result = await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
 
-   
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ success: false, error: 'Review not found or does not belong to the specified recipe' }, { status: 404 });
+    }
 
     // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
