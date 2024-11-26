@@ -40,12 +40,22 @@ export async function POST(request, { params }) {
     const client = await clientPromise;
     const db = client.db('devdb');
     const reviewsCollection = db.collection('reviews');
-    const recipesCollection = db.collection('recipes');
 
     const { recipeId } = params;
     const { username, rating, review } = await request.json();
 
-    // Insert the new review into the reviews collection.
+    // Validate the incoming request data
+    if (!username || typeof username !== 'string' || username.trim() === '') {
+      return NextResponse.json({ success: false, error: 'Invalid username' }, { status: 400 });
+    }
+    if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
+      return NextResponse.json({ success: false, error: 'Invalid rating' }, { status: 400 });
+    }
+    if (!review || typeof review !== 'string' || review.trim() === '') {
+      return NextResponse.json({ success: false, error: 'Invalid review' }, { status: 400 });
+    }
+
+    // Insert the new review
     await reviewsCollection.insertOne({
       recipeId,
       username,
@@ -54,12 +64,20 @@ export async function POST(request, { params }) {
       date: new Date(),
     });
 
-    // Recalculate and update recipe stats.
-    await updateRecipeStats(recipeId, db);
+    // Attempt to update recipe stats
+    try {
+      await updateRecipeStats(recipeId, db);
+    } catch (statsError) {
+      console.warn('Review added, but failed to update recipe stats:', statsError);
+      return NextResponse.json({
+        success: true,
+        message: 'Review added, but recipe stats update failed',
+      });
+    }
 
     return NextResponse.json({ success: true, message: 'Review added and recipe updated' });
   } catch (error) {
-    console.error('Error adding review and updating recipe:', error);
+    console.error('Error adding review:', error);
     return NextResponse.json({ success: false, error: 'Failed to add review' }, { status: 500 });
   }
 }
@@ -74,24 +92,54 @@ export async function PUT(request, { params }) {
     const reviewsCollection = db.collection('reviews');
 
     const { recipeId } = params;
-    const { reviewId, updates } = await request.json();
+    const { reviewId, username, rating, review } = await request.json();
 
-    if (!reviewId || !updates) {
-      return NextResponse.json({ success: false, error: 'Review ID and updates are required' }, { status: 400 });
+    // Validate required fields
+    if (!reviewId || typeof reviewId !== 'string') {
+      return NextResponse.json({ success: false, error: 'Review ID is required and must be a valid string' }, { status: 400 });
+    }
+    if (username && (typeof username !== 'string' || username.trim() === '')) {
+      return NextResponse.json({ success: false, error: 'Invalid username' }, { status: 400 });
+    }
+    if (rating && (typeof rating !== 'number' || rating < 1 || rating > 5)) {
+      return NextResponse.json({ success: false, error: 'Invalid rating' }, { status: 400 });
+    }
+    if (review && (typeof review !== 'string' || review.trim() === '')) {
+      return NextResponse.json({ success: false, error: 'Invalid review' }, { status: 400 });
     }
 
-    // Update the review in the reviews collection.
-    await reviewsCollection.updateOne(
+    // Create the updates object
+    const updates = {};
+    if (username) updates.username = username;
+    if (rating) updates.rating = rating;
+    if (review) updates.review = review;
+    updates.updatedAt = new Date();
+
+    // Update the review in the database
+    const result = await reviewsCollection.updateOne(
       { _id: new ObjectId(reviewId), recipeId },
-      { $set: { ...updates, updatedAt: new Date() } }
+      { $set: updates }
     );
 
-    // Recalculate and update recipe stats.
-    await updateRecipeStats(recipeId, db);
+    // Check if the review was updated
+    if (result.matchedCount === 0) {
+      return NextResponse.json({ success: false, error: 'Review not found or does not belong to the specified recipe' }, { status: 404 });
+    }
 
-    return NextResponse.json({ success: true, message: 'Review updated and recipe updated' });
+    // Recalculate and update recipe stats
+    try {
+      await updateRecipeStats(recipeId, db);
+    } catch (statsError) {
+      console.warn('Review updated, but failed to update recipe stats:', statsError);
+      return NextResponse.json({
+        success: true,
+        message: 'Review updated, but recipe stats update failed',
+      });
+    }
+
+    return NextResponse.json({ success: true, message: 'Review updated and recipe stats recalculated' });
   } catch (error) {
-    console.error('Error updating review and recipe:', error);
+    console.error('Error updating review and recipe stats:', error);
     return NextResponse.json({ success: false, error: 'Failed to update review' }, { status: 500 });
   }
 }
@@ -113,7 +161,11 @@ export async function DELETE(request, { params }) {
     }
 
     // Delete the review from the reviews collection.
-    await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
+    const result = await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ success: false, error: 'Review not found or does not belong to the specified recipe' }, { status: 404 });
+    }
 
     // Recalculate and update recipe stats.
     await updateRecipeStats(recipeId, db);
@@ -131,29 +183,35 @@ export async function DELETE(request, { params }) {
  * @param {Object} db - The MongoDB database instance.
  */
 async function updateRecipeStats(recipeId, db) {
-  const reviewsCollection = db.collection('reviews');
-  const recipesCollection = db.collection('recipes');
+  try {
+    const reviewsCollection = db.collection('reviews');
+    const recipesCollection = db.collection('recipes');
 
-  const [aggregateData] = await reviewsCollection
-    .aggregate([
-      { $match: { recipeId } },
-      {
-        $group: {
-          _id: '$recipeId',
-          averageRating: { $avg: '$rating' },
-          reviewCount: { $sum: 1 },
+    const [aggregateData] = await reviewsCollection
+      .aggregate([
+        { $match: { recipeId } },
+        {
+          $group: {
+            _id: '$recipeId',
+            averageRating: { $avg: '$rating' },
+            reviewCount: { $sum: 1 },
+          },
         },
-      },
-    ])
-    .toArray();
+      ])
+      .toArray();
 
-  if (aggregateData) {
-    const { averageRating, reviewCount } = aggregateData;
-
-    // Update the recipe document with the new values.
-    await recipesCollection.updateOne(
-      { _id: new ObjectId(recipeId) },
-      { $set: { averageRating, reviewCount } }
-    );
+    if (aggregateData) {
+      const { averageRating, reviewCount } = aggregateData;
+      const result = await recipesCollection.updateOne(
+        { _id: new ObjectId(recipeId) },
+        { $set: { averageRating, reviewCount } }
+      );
+      console.log('Recipe stats updated:', result);
+    } else {
+      console.warn(`No reviews found for recipeId: ${recipeId}`);
+    }
+  } catch (error) {
+    console.error('Error in updateRecipeStats:', error);
+    throw error; // Re-throw to ensure it propagates up
   }
 }
