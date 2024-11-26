@@ -156,26 +156,35 @@ export async function DELETE(request, { params }) {
     const { recipeId } = params;
     const { reviewId } = await request.json();
 
-    if (!reviewId) {
-      return NextResponse.json({ success: false, error: 'Review ID is required' }, { status: 400 });
+    // Validate required fields
+    if (!reviewId || typeof reviewId !== 'string') {
+      return NextResponse.json(
+        { success: false, error: 'Review ID is required and must be a valid string' },
+        { status: 400 }
+      );
     }
 
-    // Delete the review from the reviews collection.
+    // Attempt to delete the review
     const result = await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
 
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ success: false, error: 'Review not found or does not belong to the specified recipe' }, { status: 404 });
-    }
+    // Check if the review was successfully deleted
+  
 
-    // Recalculate and update recipe stats.
-    await updateRecipeStats(recipeId, db);
+    // Recalculate and update recipe stats
+    try {
+      await updateRecipeStats(recipeId, db);
+   
 
-    return NextResponse.json({ success: true, message: 'Review deleted and recipe updated' });
+    return NextResponse.json({ success: true, message: 'Review deleted and recipe stats recalculated' });
   } catch (error) {
-    console.error('Error deleting review and updating recipe:', error);
-    return NextResponse.json({ success: false, error: 'Failed to delete review' }, { status: 500 });
+    console.error('Error deleting review and updating recipe stats:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete review' },
+      { status: 500 }
+    );
   }
 }
+
 
 /**
  * Helper function to recalculate and update `averageRating` and `reviewCount` for a recipe.
