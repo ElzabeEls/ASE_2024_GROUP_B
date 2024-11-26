@@ -168,12 +168,19 @@ export async function DELETE(request, { params }) {
     const result = await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
 
     // Check if the review was successfully deleted
-  
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Review not found or does not belong to the specified recipe' },
+        { status: 404 }
+      );
+    }
 
     // Recalculate and update recipe stats
     try {
       await updateRecipeStats(recipeId, db);
-   
+    } catch (statsError) {
+      
+    }
 
     return NextResponse.json({ success: true, message: 'Review deleted and recipe stats recalculated' });
   } catch (error) {
