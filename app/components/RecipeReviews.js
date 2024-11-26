@@ -243,7 +243,12 @@ const RecipeReviews = ({ recipeId }) => {
                   Edit
                 </button>
                 <button
-                 
+                  onClick={() => handleDelete(review._id)}
+                  disabled={deleting}
+                  className="text-red-500 hover:text-red-700 focus:outline-none font-semibold text-sm px-3 py-1 rounded border border-red-500 hover:bg-red-100 transition-colors duration-200"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
               </div>
             </div>
           ))}
