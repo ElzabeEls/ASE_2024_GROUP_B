@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { fetchRecipes } from "../../lib/api"; // Adjust this import based on your project structure
+import { fetchRecipes } from "../../lib/api";
 
 /**
  * A search bar component that allows users to search for recipes by title and category.
@@ -27,7 +27,6 @@ const SearchBar = () => {
   const [searchTagsQuery, setTagsSearchQuery] = useState(""); // State for the category input
   const [searchStepsQuery, setStepsSearchQuery] = useState(""); // State for the category input
 
-
   /**
    * Initializes the search query state from the URL search parameters.
    * Runs once on component mount and when searchParams changes.
@@ -51,7 +50,14 @@ const SearchBar = () => {
     }
 
     try {
-      const data = await fetchRecipes(1, 5, query, searchCategoryQuery, searchTagsQuery, searchStepsQuery); // Get limited suggestions
+      const data = await fetchRecipes(
+        1,
+        5,
+        query,
+        searchCategoryQuery,
+        searchTagsQuery,
+        searchStepsQuery
+      ); // Get limited suggestions
       setSuggestions(data);
       setShowSuggestions(data.length > 0);
     } catch (error) {
@@ -103,8 +109,8 @@ const SearchBar = () => {
     clearTimeout(debounceTimeout.current);
     clearTimeout(longQueryTimeout.current);
 
-     // Short query debounce (1-3 characters)
-     if (value.trim().length > 0 && value.trim().length <= 3) {
+    // Short query debounce (1-3 characters)
+    if (value.trim().length > 0 && value.trim().length <= 3) {
       debounceTimeout.current = setTimeout(() => {
         handleSearch();
       }, 300);
@@ -117,8 +123,13 @@ const SearchBar = () => {
         handleSearch();
       }, 500); // Debounce long queries with a delay of 500ms
     }
-  }
-  
+
+    // New debounce for submitting any query after 500ms
+    clearTimeout(debounceTimeout.current); // Clear previous timeout
+    debounceTimeout.current = setTimeout(() => {
+      handleSearch(); // Ensure the query is submitted after 500ms
+    }, 500);
+  };
 
   // Handle selection of an auto-suggested title
   const handleSuggestionClick = (title) => {
@@ -126,29 +137,6 @@ const SearchBar = () => {
     setShowSuggestions(false); // Close the suggestion pop-up
     performSearch(title); // Fetch the full recipe details
   };
-
-  /**
-   * Sets up a debounce effect to auto-submit the search for short queries (1-3 characters).
-   * Clears the previous debounce timer when searchTextQuery changes.
-   */
-  useEffect(() => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current); // Clear the previous timer
-    }
-
-    // Only debounce for short queries (1-3 characters)
-    if (
-      searchTextQuery.trim().length > 0 &&
-      searchTextQuery.trim().length <= 3
-    ) {
-      debounceTimeout.current = setTimeout(() => {
-        handleSearch(); // Auto-submit the search
-      }, 300); // Delay of 300ms
-
-      // Cleanup function to clear the timeout
-      return () => clearTimeout(debounceTimeout.current);
-    }
-  }, [searchTextQuery, handleSearch]); // Add handleSearch to dependencies
 
   return (
     <div className="relative flex justify-center mt-8">
