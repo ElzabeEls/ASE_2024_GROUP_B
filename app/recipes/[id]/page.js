@@ -194,12 +194,33 @@ export default async function RecipeDetail({ params }) {
               Nutritional Information
             </h2>
             <ul className="space-y-2">
-              {Object.entries(nutrition).map(([key, value]) => (
-                <li key={key} className="flex justify-between text-gray-700">
-                  <span className="capitalize">{key}</span>
-                  <span className="font-medium">{value}</span>
-                </li>
-              ))}
+              {Object.entries(nutrition).map(([key, value]) => {
+                // Define units for common nutritional values in South Africa
+                const units = {
+                  energy: "kJ", // South African labels typically use kilojoules
+                  calories: "kcal", // Optional, if dual-labeling is desired
+                  protein: "g",
+                  fat: "g",
+                  saturated: "g", 
+                  carbohydrates: "g",
+                  sugar: "g",
+                  fiber: "g",
+                  sodium: "mg",
+                  cholesterol: "mg",
+                };
+
+                // Use the unit if defined, otherwise no unit
+                const unit = units[key.toLowerCase()] || "";
+
+                return (
+                  <li key={key} className="flex justify-between text-gray-700">
+                    <span className="capitalize">{key}</span>
+                    <span className="font-medium">
+                      {value} {unit}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </CardContent>
         </Card>
