@@ -25,6 +25,8 @@
   --secondary: #374151; /* Subtle text color for light theme */
   --highlight: #14b8a6; /* Accent color for light theme */
   --button: #14b8a6; /* Button background for light theme */
+  --filter-label: #333; /* dark text for light theme */
+  --filter-placeholder: #999; /* gray placeholder text */
 
 }
 
@@ -50,7 +52,9 @@
   --primary: #e5e7eb; /* Text color for dark theme */
   --secondary: #9ca3af; /* Subtle text color for dark theme */
   --highlight: #2dd4bf; /* Accent color for dark theme */
-  --button: #2dd4bf; /* Button background for dark theme */
+  --button: #2dd4bf; /* Button back--filter-label: #ddd; /* light text for dark theme */
+  --filter-placeholder: #666; /* darker placeholder text /*ground for dark theme */
+
 }
 
 body {
