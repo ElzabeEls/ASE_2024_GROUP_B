@@ -179,7 +179,11 @@ export async function DELETE(request, { params }) {
     try {
       await updateRecipeStats(recipeId, db);
     } catch (statsError) {
-      
+      console.warn('Review deleted, but failed to update recipe stats:', statsError);
+      return NextResponse.json({
+        success: true,
+        message: 'Review deleted, but recipe stats update failed',
+      });
     }
 
     return NextResponse.json({ success: true, message: 'Review deleted and recipe stats recalculated' });
