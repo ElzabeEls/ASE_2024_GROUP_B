@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 
 /**
- * RecipeReviews component for displaying and submitting reviews for a specific recipe.
+ * RecipeReviews component for displaying, submitting, editing, and deleting reviews for a specific recipe.
  *
  * @param {Object} props - The component props.
  * @param {string} props.recipeId - The ID of the recipe whose reviews are being displayed.
@@ -22,6 +22,9 @@ const RecipeReviews = ({ recipeId }) => {
   // States for editing reviews
   const [isEditing, setIsEditing] = useState(false);
   const [editReviewId, setEditReviewId] = useState(null);
+
+  // States for deleting reviews
+  const [deleting, setDeleting] = useState(false);
 
   /**
    * Fetch reviews from the API when the component mounts or when recipeId changes.
@@ -57,7 +60,7 @@ const RecipeReviews = ({ recipeId }) => {
 
   /**
    * Handle the submission or editing of a review.
-   * 
+   *
    * @param {React.FormEvent} e - The submit event.
    */
   const handleSubmit = async (e) => {
@@ -113,8 +116,43 @@ const RecipeReviews = ({ recipeId }) => {
   };
 
   /**
+   * Handle review deletion.
+   *
+   * @param {string} reviewId - The ID of the review to delete.
+   */
+  const handleDelete = async (reviewId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this review? This action cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+
+    try {
+      const res = await fetch(`/api/reviews/${recipeId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete review.");
+      }
+
+      // Remove the deleted review from the UI
+      setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+    } catch (err) {
+      console.error("Error deleting review:", err);
+      setError("Unable to delete review. Please try again later.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  /**
    * Initialize editing of an existing review.
-   * 
+   *
    * @param {Object} review - The review to be edited.
    * @param {string} review._id - The ID of the review to be edited.
    * @param {string} review.username - The username of the reviewer.
@@ -197,20 +235,19 @@ const RecipeReviews = ({ recipeId }) => {
                 <p className="font-medium text-teal-600">Rating: {review.rating} / 5</p>
               </div>
               <p className="text-gray-700 mt-2">{review.review}</p>
-              <button
-  onClick={() => handleEdit(review)}
-  className="mt-2 text-blue-500 hover:text-blue-700 focus:outline-none font-semibold text-sm px-3 py-1 rounded border border-blue-500 hover:bg-blue-100 transition-colors duration-200"
->
-  Edit
-</button>
-
+             
+                <button
+                  onClick={() => handleEdit(review)}
+                 
+                >
+                  Edit
+                </button>
+               
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-500">
-          No reviews available for this recipe. Be the first to leave one!
-        </p>
+        <p className="text-gray-500">No reviews yet. Be the first to leave one!</p>
       )}
     </section>
   );
