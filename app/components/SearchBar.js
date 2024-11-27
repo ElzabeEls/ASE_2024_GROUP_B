@@ -26,6 +26,7 @@ const SearchBar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchTagsQuery, setTagsSearchQuery] = useState(""); // State for the category input
   const [searchStepsQuery, setStepsSearchQuery] = useState(""); // State for the category input
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
    * Initializes the search query state from the URL search parameters.
@@ -46,10 +47,12 @@ const SearchBar = () => {
   const fetchSuggestions = async (query) => {
     if (query.length < 3) {
       setSuggestions([]);
+      setIsLoading(false);
       return;
     }
 
     try {
+      setIsLoading(true); // Set loading to true when fetching begins
       const data = await fetchRecipes(
         1,
         5,
@@ -63,6 +66,8 @@ const SearchBar = () => {
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setSuggestions([]);
+    } finally {
+      setIsLoading(false); // Set loading to false when fetching completes
     }
   };
 
@@ -94,6 +99,7 @@ const SearchBar = () => {
         url += `&category=${encodeURIComponent(searchCategoryQuery)}`;
       }
 
+      setIsLoading(true); // Set loading to true when search starts
       // Redirect to the new URL with updated search parameters
       router.push(url);
     },
@@ -150,11 +156,19 @@ const SearchBar = () => {
         />
         <button
           type="submit"
-          className="px-6 py-2 text-white bg-black hover:bg-gray-800 rounded-r-md shadow-md transition-all duration-300"
+          className={`px-6 py-2 rounded-r-md shadow-md transition-all duration-300 flex items-center justify-center text-white ${
+            isLoading ? "bg-gray-600 cursor-not-allowed" : "bg-black hover:bg-gray-800"
+          }`}
+          disabled={isLoading} // Disable button when loading
         >
-          Search
+          {isLoading? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+         "Search"
+        )}
         </button>
       </form>
+
       {/* Auto-suggestions Dropdown */}
       {showSuggestions && (
         <div className="absolute top-full mt-1 w-full max-w-lg bg-white border border-gray-300 rounded-md shadow-lg z-10">
