@@ -85,7 +85,7 @@ export default async function RecipeDetail({ params }) {
         </a>
         <ReadInstructionsButton instructions={instructions} />
       </div>
-      
+
       <h1 className="text-4xl font-bold text-gray-900 mb-4">{title}</h1>
       <p className="text-lg text-gray-700 mb-6">{description}</p>
 
@@ -172,37 +172,50 @@ export default async function RecipeDetail({ params }) {
             <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
             <ul className="space-y-2">
               {ingredients && Object.keys(ingredients).length > 0 ? (
-                Object.entries(ingredients).map(([ingredient, quantity], index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="w-2 h-2 rounded-full bg-teal-500 mt-1 flex-shrink-0" />
-                    <span className="text-gray-700">
-                      {quantity} {ingredient}
-                    </span>
-                  </li>
-                ))
+                Object.entries(ingredients).map(
+                  ([ingredient, quantity], index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="w-2 h-2 rounded-full bg-teal-500 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700">
+                        {quantity} {ingredient}
+                      </span>
+                    </li>
+                  )
+                )
               ) : (
                 <li className="text-gray-500">No ingredients available.</li>
               )}
             </ul>
           </CardContent>
         </Card>
-        
-        {/* Instructions */}
-        <Card id="instructions-section">
-          <CardContent className="pt-6">
-            <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
-            <ol className="space-y-4">
+
+        {/* Enhanced Instructions */}
+        <Card
+          id="instructions-section"
+          className="shadow-lg rounded-lg border border-gray-200"
+        >
+          <CardContent className="pt-6 px-6">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+              Instructions
+            </h2>
+            <ol className="space-y-6">
               {instructions.length > 0 ? (
                 instructions.map((step, index) => (
-                  <li key={index} className="flex gap-4">
-                    <span className="w-8 h-8 flex items-center justify-center bg-teal-100 text-teal-700 rounded-full font-medium">
+                  <li key={index} className="flex gap-4 items-start">
+                    <div className="w-10 h-10 flex items-center justify-center bg-teal-100 text-teal-700 rounded-full font-semibold shadow-md">
                       {index + 1}
-                    </span>
-                    <p className="text-gray-700">{step}</p>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-gray-700 leading-relaxed text-lg">
+                        {step}
+                      </p>
+                    </div>
                   </li>
                 ))
               ) : (
-                <li className="text-gray-500">No instructions available.</li>
+                <li className="text-gray-500 text-center">
+                  No instructions available.
+                </li>
               )}
             </ol>
           </CardContent>
@@ -218,13 +231,12 @@ export default async function RecipeDetail({ params }) {
             </h2>
             <ul className="space-y-2">
               {Object.entries(nutrition).map(([key, value]) => {
-                // Define units for common nutritional values in South Africa
                 const units = {
-                  energy: "kJ", // South African labels typically use kilojoules
-                  calories: "kcal", // Optional, if dual-labeling is desired
+                  energy: "kJ",
+                  calories: "kcal",
                   protein: "g",
                   fat: "g",
-                  saturated: "g", 
+                  saturated: "g",
                   carbohydrates: "g",
                   sugar: "g",
                   fiber: "g",
@@ -232,7 +244,6 @@ export default async function RecipeDetail({ params }) {
                   cholesterol: "mg",
                 };
 
-                // Use the unit if defined, otherwise no unit
                 const unit = units[key.toLowerCase()] || "";
 
                 return (
