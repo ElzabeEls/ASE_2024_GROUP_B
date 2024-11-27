@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { metadata } from '../lib/metadata';
+import { useAuth } from './hooks/useAuth';
 
 /**
  * Root layout component of the application.
@@ -18,6 +19,7 @@ import { metadata } from '../lib/metadata';
  */
 export default function RootLayout({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -35,6 +37,10 @@ export default function RootLayout({ children }) {
     localStorage.setItem('theme', newTheme);
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <html lang="en">
       <Head>
@@ -46,7 +52,7 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content={isDarkMode ? "#0a0a0a" : "#ffffff"} />
       </Head>
       <body className={`flex flex-col min-h-screen ${isDarkMode ? 'dark' : ''}`}>
-        <Header />
+        <Header user={user} />
         <div className="flex justify-center p-4">
           <button
             onClick={toggleTheme}

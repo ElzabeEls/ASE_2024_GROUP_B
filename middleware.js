@@ -9,8 +9,7 @@ export async function middleware(req) {
   const token = req.cookies.get("token");
 
   if (!token) {
-    console.log("No token found in cookies.");
-    return new Response("Unauthorized: No token found", { status: 401 });
+    return NextResponse.redirect("/login");
   }
 
   try {
@@ -22,11 +21,16 @@ export async function middleware(req) {
     req.user = payload;
     console.log("Token verified", payload);
 
+    // Attach user info to headers for client-side access
+    const headers = new Headers(req.headers);
+    headers.set("user-id", payload.userId);
+    headers.set("user-email", payload.email);
+    
+
     // Proceed with the request
-    return NextResponse.next();
+    return NextResponse.next({ headers });
   } catch (error) {
-    console.log("Token verification failed:", error.message);
-    return new Response("Unauthorized: Invalid token", { status: 401 });
+    return NextResponse.redirect("/login");
   }
 }
 

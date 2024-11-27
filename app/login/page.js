@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * Login Component
@@ -15,12 +16,35 @@ export default function Login() {
   const [success, setSuccess] = useState(""); // State for success messages
   const [loading, setLoading] = useState(false); // State to manage the loading indicator
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
-
+  const router = useRouter(); // Correct hook for App Router
   /**
    * Handles form submission and sends data to the backend.
    *
    * @param {React.FormEvent<HTMLFormElement>} e - The form submit event.
    */
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch("/api/authorisation/session", {
+          headers: {
+            Authorization: `Bearer ${yourToken}`,
+          },
+        });
+        
+        if (response.status === 200) {
+          const data = await response.json();
+          setSuccess(`Welcome back, ${data.email}`);
+          // Redirect if already logged in
+          router.push("/recipe");
+        }
+      } catch {
+        console.log("No active session found.");
+      }
+    };
+    checkSession();
+  }, [router]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -46,9 +70,12 @@ export default function Login() {
       setLoading(false); // Stop loading
       if (response.status === 200) {
         const data = await response.json();
-        setSuccess("Login successful!");
+        setSuccess("Login successful! Redirecting...");
         setEmail("");
         setPassword("");
+
+        // Redirect to the home page
+        router.push("/");
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Invalid email or password. Please try again.");

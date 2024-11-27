@@ -3,81 +3,78 @@ import clientPromise from "../../../../lib/mongodb";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
 /**
  * Handles the POST request for user login.
  *
- * @function
  * @async
+ * @function POST
  * @param {Object} req - The request object containing email and password.
  * @returns {Promise<Response>} - A response object indicating the result of the authentication attempt.
  */
 export async function POST(req) {
   try {
-    // Extract email and password from the request body
-    const { email, password } = await req.json();
+    const { email, password } = await req.json(); // Extract email and password
 
-    // Validate input: Ensure email and password are provided
+    // Validate input
     if (!email || !password) {
-      return new Response(
-        JSON.stringify({ error: "Email and password are required" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Email and password are required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Connect to the database
     const client = await clientPromise;
     const db = client.db("devdb");
 
-    // Check if a user with the given email exists
+    // Find user by email
     const user = await db.collection("users").findOne({ email });
     if (!user) {
-      return new Response(
-        JSON.stringify({ error: "Invalid email or password" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Invalid email or password" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    // Compare the provided password with the hashed password in the database
+    // Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return new Response(
-        JSON.stringify({ error: "Invalid email or password" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Invalid email or password" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    // Generate a JWT token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email }, // Payload
-      JWT_SECRET, // Secret key
-      { expiresIn: "1h" } // Token expiration
-    );
+    // Generate JWT token
+    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, {
+      expiresIn: "7d", // Extended session duration
+    });
 
-
-  // Set token as an HTTP-only cookie
-  const cookieOptions = {
-    httpOnly: true,  // Prevents JavaScript from accessing the cookie
-    secure: process.env.NODE_ENV === "production", // Only use cookies over HTTPS
-    maxAge: 60 * 60 * 1000, // 1 hour
-    sameSite: "Strict", // Helps prevent CSRF attacks
-    path: "/", // Cookie is accessible throughout the entire app
-  };
-
-
-  
-    // If authentication is successful, respond with user details or a success message
+    // Set token as HTTP-only cookie
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+      sameSite: "Strict",
+      path: "/",
+    };
 
     return new Response(
       JSON.stringify({
         message: "Login successful",
-        token,
         userId: user._id,
         email: user.email,
       }),
-      { status: 200, headers: { "Content-Type": "application/json" ,
-      "Set-Cookie": `token=${token}; ${Object.entries(cookieOptions).map(([key, value]) => `${key}=${value}`).join('; ')}`
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Set-Cookie": `token=${token}; ${Object.entries(cookieOptions)
+            .map(([key, value]) => `${key}=${value}`)
+            .join("; ")}`,
+        },
       }
-     }
     );
   } catch (error) {
     // Handle any unexpected errors
