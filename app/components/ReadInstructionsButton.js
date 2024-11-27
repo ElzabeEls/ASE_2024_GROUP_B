@@ -168,14 +168,16 @@ export default function ReadInstructionsButton({ instructions }) {
     <div>
       <button
         onClick={handleButtonClick}
-        className="bg-brown text-white px-4 py-2 rounded-md hover:bg-peach transition duration-200"
+        className="bg-[var(--button-bg)] text-[var(--button-text)] px-4 py-2 rounded-md hover:bg-[var(--button-hover)] transition duration-200"
       >
         Read Instructions
       </button>
-
+  
       {errorMessage && (
-        <div className="error-message text-red-500 mt-2">{errorMessage}</div>
+        <div className="error-message text-[var(--error-text)] mt-2">
+          {errorMessage}
+        </div>
       )}
     </div>
-  );
+  );  
 }

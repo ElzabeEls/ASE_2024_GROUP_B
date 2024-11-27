@@ -27,7 +27,11 @@
   --button: #14b8a6; /* Button background for light theme */
   --filter-label: #333; /* dark text for light theme */
   --filter-placeholder: #999; /* gray placeholder text */
-
+  --button-hover: #ffdab9; /* Peach hover background */
+  --svg-fill-light: #000; /* Black for light theme */
+  --button-text-color: white; /* White text for light mode */
+  --button-bg-color: #6a4e23; /* Brown background for light mode */
+  --button-hover-bg-color: #4a3c22; /* Darker brown for hover effect */
 }
 
 .dark {
@@ -54,13 +58,18 @@
   --highlight: #2dd4bf; /* Accent color for dark theme */
   --button: #2dd4bf; /* Button back--filter-label: #ddd; /* light text for dark theme */
   --filter-placeholder: #666; /* darker placeholder text /*ground for dark theme */
-
+  --button-hover: #d8a48f; /* Soft peach for dark hover */
+  --svg-fill-dark: #fff; /* White for dark theme */
+  --button-text-color: black; /* Black text for dark mode */
+  --button-bg-color: #3e2723; /* Darker brown background for dark mode */
+  --button-hover-bg-color: #2c1a17; /* Even darker brown for hover effect */
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:'Dancing Script', Cursive, Arial, Helvetica, sans-serif;
+
 }
 
 button {
