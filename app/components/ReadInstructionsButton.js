@@ -168,7 +168,7 @@ export default function ReadInstructionsButton({ instructions }) {
     <div>
       <button
         onClick={handleButtonClick}
-        className="bg-brown text-white px-4 py-2 rounded-md hover:bg-peach transition duration-200"
+        className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 md:inline-block"
       >
         Read Instructions
       </button>
