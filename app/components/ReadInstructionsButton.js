@@ -170,6 +170,7 @@ export default function ReadInstructionsButton({ instructions }) {
       <button
         onClick={handleButtonClick}
         className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 md:inline-block"
+        title="Read Instructions"
       >
          <BookOpen className="w-5 h-5" aria-label="Read Instructions" />
       </button>

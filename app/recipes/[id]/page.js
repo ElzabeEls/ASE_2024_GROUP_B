@@ -78,8 +78,9 @@ export default async function RecipeDetail({ params }) {
         <a
           href="/recipe"
           className="text-white bg-brown px-6 py-2 rounded-lg hover:bg-peach transition duration-200"
+          title="Back"
         >
-          <Home className="w-5 h-5" aria-label="Home" />
+          <Home className="w-5 h-5" />
         </a>
         <ReadInstructionsButton instructions={instructions} />
       </div>
