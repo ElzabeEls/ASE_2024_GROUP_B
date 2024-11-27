@@ -4,6 +4,7 @@ import { Clock, Users } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import RecipeReviews from "../../components/RecipeReviews";
 import ReadInstructionsButton from "../../components/ReadInstructionsButton";
+import { Home } from "lucide-react";
 
 /**
  * The RecipeDetail component fetches and displays a specific recipe based on its ID.
@@ -78,7 +79,7 @@ export default async function RecipeDetail({ params }) {
           href="/recipe"
           className="text-white bg-brown px-6 py-2 rounded-lg hover:bg-peach transition duration-200"
         >
-          Back to Home
+          <Home className="w-5 h-5" aria-label="Home" />
         </a>
         <ReadInstructionsButton instructions={instructions} />
       </div>

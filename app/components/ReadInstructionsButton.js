@@ -1,6 +1,7 @@
 "use client"; // Ensure this component runs on the client side
 
 import { useEffect, useState, useCallback } from "react";
+import { BookOpen } from "lucide-react";
 
 /**
  * A button that reads the instructions aloud using speech synthesis.
@@ -170,7 +171,7 @@ export default function ReadInstructionsButton({ instructions }) {
         onClick={handleButtonClick}
         className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 md:inline-block"
       >
-        Read Instructions
+         <BookOpen className="w-5 h-5" aria-label="Read Instructions" />
       </button>
 
       {errorMessage && (
