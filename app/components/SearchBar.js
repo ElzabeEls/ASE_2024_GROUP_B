@@ -150,22 +150,6 @@ const SearchBar = () => {
    * @param {string} query - The search query.
    * @returns {JSX.Element} The title with highlighted matches.
    */
-  const highlightText = (title, query) => {
-    if (!query) return title;
-
-    const regex = new RegExp(`(${query})`, "gi");
-    const parts = title.split(regex);
-
-    return parts.map((part, index) =>
-      regex.test(part) ? (
-        <span key={index} className="bg-yellow-200 font-semibold">
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  };
 
   return (
     <div className="relative flex justify-center mt-8">
@@ -206,7 +190,7 @@ const SearchBar = () => {
                 onClick={() => handleSuggestionClick(suggestion.title)}
                 className="px-4 py-2 cursor-pointer hover:bg-gray-200"
               >
-                {highlightText(suggestion.title, searchTextQuery)}
+                {suggestion.title}
               </div>
             ))
           ) : (
