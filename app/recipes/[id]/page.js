@@ -51,6 +51,7 @@ export default async function RecipeDetail({ params }) {
     images,
     ingredients,
     instructions,
+    nutrition, // Added for nutritional data
   } = recipe;
 
   const totalTime = (prep || 0) + (cook || 0);
@@ -139,8 +140,8 @@ export default async function RecipeDetail({ params }) {
         </div>
       )}
 
-      {/* Ingredients */}
       <div className="grid md:grid-cols-2 gap-8">
+        {/* Ingredients */}
         <Card>
           <CardContent className="pt-6">
             <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
@@ -162,9 +163,9 @@ export default async function RecipeDetail({ params }) {
             </ul>
           </CardContent>
         </Card>
-        
+
         {/* Instructions */}
-        <Card id="instructions-section">
+        <Card>
           <CardContent className="pt-6">
             <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
             <ol className="space-y-4">
@@ -184,6 +185,46 @@ export default async function RecipeDetail({ params }) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Nutritional Information */}
+      {nutrition && (
+        <Card className="mt-8">
+          <CardContent className="pt-6">
+            <h2 className="text-2xl font-semibold mb-4">
+              Nutritional Information
+            </h2>
+            <ul className="space-y-2">
+              {Object.entries(nutrition).map(([key, value]) => {
+                // Define units for common nutritional values in South Africa
+                const units = {
+                  energy: "kJ", // South African labels typically use kilojoules
+                  calories: "kcal", // Optional, if dual-labeling is desired
+                  protein: "g",
+                  fat: "g",
+                  saturated: "g", 
+                  carbohydrates: "g",
+                  sugar: "g",
+                  fiber: "g",
+                  sodium: "mg",
+                  cholesterol: "mg",
+                };
+
+                // Use the unit if defined, otherwise no unit
+                const unit = units[key.toLowerCase()] || "";
+
+                return (
+                  <li key={key} className="flex justify-between text-gray-700">
+                    <span className="capitalize">{key}</span>
+                    <span className="font-medium">
+                      {value} {unit}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Reviews */}
       {id ? (

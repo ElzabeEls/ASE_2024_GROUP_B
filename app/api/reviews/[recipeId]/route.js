@@ -56,7 +56,7 @@ export async function POST(request, { params }) {
     }
 
     // Insert the new review
-    await reviewsCollection.insertOne({
+    const result = await reviewsCollection.insertOne({
       recipeId,
       username,
       rating,
@@ -64,18 +64,22 @@ export async function POST(request, { params }) {
       date: new Date(),
     });
 
+    if (!result.insertedId) {
+      throw new Error('Failed to insert the review.');
+    }
+
     // Attempt to update recipe stats
     try {
       await updateRecipeStats(recipeId, db);
     } catch (statsError) {
       console.warn('Review added, but failed to update recipe stats:', statsError);
-      return NextResponse.json({
-        success: true,
-        message: 'Review added, but recipe stats update failed',
-      });
     }
 
-    return NextResponse.json({ success: true, message: 'Review added and recipe updated' });
+    return NextResponse.json({
+      success: true,
+      message: 'Review added successfully',
+      reviewId: result.insertedId.toString(),
+    });
   } catch (error) {
     console.error('Error adding review:', error);
     return NextResponse.json({ success: false, error: 'Failed to add review' }, { status: 500 });
@@ -94,36 +98,28 @@ export async function PUT(request, { params }) {
     const { recipeId } = params;
     const { reviewId, username, rating, review } = await request.json();
 
-    // Validate required fields
+    // Validate input
     if (!reviewId || typeof reviewId !== 'string') {
-      return NextResponse.json({ success: false, error: 'Review ID is required and must be a valid string' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Invalid review ID' }, { status: 400 });
     }
-    if (username && (typeof username !== 'string' || username.trim() === '')) {
+    if (!username || typeof username !== 'string' || username.trim() === '') {
       return NextResponse.json({ success: false, error: 'Invalid username' }, { status: 400 });
     }
-    if (rating && (typeof rating !== 'number' || rating < 1 || rating > 5)) {
+    if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
       return NextResponse.json({ success: false, error: 'Invalid rating' }, { status: 400 });
     }
-    if (review && (typeof review !== 'string' || review.trim() === '')) {
+    if (!review || typeof review !== 'string' || review.trim() === '') {
       return NextResponse.json({ success: false, error: 'Invalid review' }, { status: 400 });
     }
 
-    // Create the updates object
-    const updates = {};
-    if (username) updates.username = username;
-    if (rating) updates.rating = rating;
-    if (review) updates.review = review;
-    updates.updatedAt = new Date();
-
-    // Update the review in the database
+    // Update the review
     const result = await reviewsCollection.updateOne(
       { _id: new ObjectId(reviewId), recipeId },
-      { $set: updates }
+      { $set: { username, rating, review, date: new Date() } }
     );
 
-    // Check if the review was updated
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ success: false, error: 'Review not found or does not belong to the specified recipe' }, { status: 404 });
+    if (result.modifiedCount === 0) {
+      return NextResponse.json({ success: false, error: 'Review not found or no changes detected' }, { status: 404 });
     }
 
     // Recalculate and update recipe stats
@@ -131,15 +127,11 @@ export async function PUT(request, { params }) {
       await updateRecipeStats(recipeId, db);
     } catch (statsError) {
       console.warn('Review updated, but failed to update recipe stats:', statsError);
-      return NextResponse.json({
-        success: true,
-        message: 'Review updated, but recipe stats update failed',
-      });
     }
 
-    return NextResponse.json({ success: true, message: 'Review updated and recipe stats recalculated' });
+    return NextResponse.json({ success: true, message: 'Review updated successfully' });
   } catch (error) {
-    console.error('Error updating review and recipe stats:', error);
+    console.error('Error updating review:', error);
     return NextResponse.json({ success: false, error: 'Failed to update review' }, { status: 500 });
   }
 }
@@ -156,24 +148,42 @@ export async function DELETE(request, { params }) {
     const { recipeId } = params;
     const { reviewId } = await request.json();
 
-    if (!reviewId) {
-      return NextResponse.json({ success: false, error: 'Review ID is required' }, { status: 400 });
+    // Validate required fields
+    if (!reviewId || typeof reviewId !== 'string') {
+      return NextResponse.json(
+        { success: false, error: 'Review ID is required and must be a valid string' },
+        { status: 400 }
+      );
     }
 
-    // Delete the review from the reviews collection.
-    const result = await reviewsCollection.deleteOne({ _id: new ObjectId(reviewId), recipeId });
+    // Attempt to delete the review
+    const result = await reviewsCollection.deleteOne({
+      _id: new ObjectId(reviewId),
+      recipeId,
+    });
 
+    // Check if the review was successfully deleted
     if (result.deletedCount === 0) {
-      return NextResponse.json({ success: false, error: 'Review not found or does not belong to the specified recipe' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'Review not found or does not belong to the specified recipe' },
+        { status: 404 }
+      );
     }
 
-    // Recalculate and update recipe stats.
-    await updateRecipeStats(recipeId, db);
+    // Recalculate and update recipe stats
+    try {
+      await updateRecipeStats(recipeId, db);
+    } catch (statsError) {
+      console.warn('Review deleted, but failed to update recipe stats:', statsError);
+    }
 
-    return NextResponse.json({ success: true, message: 'Review deleted and recipe updated' });
+    return NextResponse.json({ success: true, message: 'Review deleted successfully' });
   } catch (error) {
-    console.error('Error deleting review and updating recipe:', error);
-    return NextResponse.json({ success: false, error: 'Failed to delete review' }, { status: 500 });
+    console.error('Error deleting review and updating recipe stats:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete review' },
+      { status: 500 }
+    );
   }
 }
 

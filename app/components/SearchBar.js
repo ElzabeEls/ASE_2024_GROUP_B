@@ -26,6 +26,7 @@ const SearchBar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchTagsQuery, setTagsSearchQuery] = useState(""); // State for the category input
   const [searchStepsQuery, setStepsSearchQuery] = useState(""); // State for the category input
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
    * Initializes the search query state from the URL search parameters.
@@ -46,10 +47,12 @@ const SearchBar = () => {
   const fetchSuggestions = async (query) => {
     if (query.length < 3) {
       setSuggestions([]);
+      setIsLoading(false);
       return;
     }
 
     try {
+      setIsLoading(true); // Set loading to true when fetching begins
       const data = await fetchRecipes(
         1,
         5,
@@ -63,6 +66,8 @@ const SearchBar = () => {
     } catch (error) {
       console.error("Error fetching suggestions:", error);
       setSuggestions([]);
+    } finally {
+      setIsLoading(false); // Set loading to false when fetching completes
     }
   };
 
@@ -94,6 +99,7 @@ const SearchBar = () => {
         url += `&category=${encodeURIComponent(searchCategoryQuery)}`;
       }
 
+      setIsLoading(true); // Set loading to true when search starts
       // Redirect to the new URL with updated search parameters
       router.push(url);
     },
@@ -155,6 +161,7 @@ const SearchBar = () => {
           Search
         </button>
       </form>
+
       {/* Auto-suggestions Dropdown */}
       {showSuggestions && (
         <div className="absolute top-full mt-1 w-full max-w-lg bg-[var(--dropdown-bg)] border-[var(--dropdown-border)] rounded-md shadow-lg z-10">

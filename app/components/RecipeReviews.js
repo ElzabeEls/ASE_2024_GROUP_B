@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 
 /**
- * RecipeReviews component for displaying and submitting reviews for a specific recipe.
+ * RecipeReviews component for displaying, submitting, editing, and deleting reviews for a specific recipe.
  *
  * @param {Object} props - The component props.
  * @param {string} props.recipeId - The ID of the recipe whose reviews are being displayed.
@@ -22,6 +22,10 @@ const RecipeReviews = ({ recipeId }) => {
   // States for editing reviews
   const [isEditing, setIsEditing] = useState(false);
   const [editReviewId, setEditReviewId] = useState(null);
+
+  // States for deleting reviews
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   /**
    * Fetch reviews from the API when the component mounts or when recipeId changes.
@@ -57,7 +61,7 @@ const RecipeReviews = ({ recipeId }) => {
 
   /**
    * Handle the submission or editing of a review.
-   * 
+   *
    * @param {React.FormEvent} e - The submit event.
    */
   const handleSubmit = async (e) => {
@@ -113,8 +117,51 @@ const RecipeReviews = ({ recipeId }) => {
   };
 
   /**
+   * Handle review deletion.
+   *
+   * @param {string} reviewId - The ID of the review to delete.
+   */
+  const handleDelete = (reviewId) => {
+    setConfirmDelete(reviewId);
+  };
+
+  /**
+   * Confirm review deletion.
+   *
+   * @param {boolean} confirm - Whether the user confirms or cancels the deletion.
+   */
+  const confirmDeleteReview = async (confirm) => {
+    if (confirm && confirmDelete) {
+      setDeleting(true);
+      try {
+        const res = await fetch(`/api/reviews/${recipeId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reviewId: confirmDelete }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || "Failed to delete review.");
+        }
+
+        // Remove the deleted review from the UI
+        setReviews((prev) => prev.filter((r) => r._id !== confirmDelete));
+        setConfirmDelete(null); // Reset confirmation state
+      } catch (err) {
+        console.error("Error deleting review:", err);
+        setError("Unable to delete review. Please try again later.");
+      } finally {
+        setDeleting(false);
+      }
+    } else {
+      setConfirmDelete(null); // Reset confirmation state if user cancels
+    }
+  };
+
+  /**
    * Initialize editing of an existing review.
-   * 
+   *
    * @param {Object} review - The review to be edited.
    * @param {string} review._id - The ID of the review to be edited.
    * @param {string} review.username - The username of the reviewer.
@@ -197,20 +244,48 @@ const RecipeReviews = ({ recipeId }) => {
                 <p className="font-medium text-teal-600">Rating: {review.rating} / 5</p>
               </div>
               <p className="text-gray-700 mt-2">{review.review}</p>
-              <button
-  onClick={() => handleEdit(review)}
-  className="mt-2 text-blue-500 hover:text-blue-700 focus:outline-none font-semibold text-sm px-3 py-1 rounded border border-blue-500 hover:bg-blue-100 transition-colors duration-200"
->
-  Edit
-</button>
-
+              <div className="mt-2 flex gap-2">
+                <button
+                  onClick={() => handleEdit(review)}
+                  className="text-blue-500 hover:text-blue-700 focus:outline-none font-semibold text-sm px-3 py-1 rounded border"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(review._id)}
+                  className="text-red-500 hover:text-red-700 focus:outline-none font-semibold text-sm px-3 py-1 rounded border"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-500">
-          No reviews available for this recipe. Be the first to leave one!
-        </p>
+        <p>No reviews yet. Be the first to share your thoughts!</p>
+      )}
+
+      {/* On-screen confirmation for deletion */}
+      {confirmDelete && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-10">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <p className="text-lg font-semibold mb-4">Are you sure you want to delete this review?</p>
+            <div className="flex justify-between">
+              <button
+                onClick={() => confirmDeleteReview(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => confirmDeleteReview(false)}
+                className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );
