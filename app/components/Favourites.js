@@ -1,58 +1,27 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import React, { useState } from "react";
 
-export default function Favourites() {
-  const [favourites, setFavourites] = useState([]);
+export default function Favourites({ recipes }) {
+  const [favourites, setFavourites] = useState([recipes]);
   const [favouriteCount, setFavouriteCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  const jwt =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzNkOTAxMjJlMDAzNzEwY2ViZjA4NmUiLCJlbWFpbCI6ImVsenplbHMyNUBnbWFpbC5jb20iLCJpYXQiOjE3MzIwODc4MzYsImV4cCI6MTczMjA5MTQzNn0.9Y7YZRm3lrBNuOnO04mrnzc0_0-ysQW7ntaBnqAlXdo";
-
-  useEffect(() => {
-    const fetchFavourites = async () => {
-      if (!jwt) {
-        router.push("/login");
-        return;
-      }
-
-      try {
-        const response = await fetch("http://localhost:3000/api/favourites", {
-          headers: {
-            Authorization: `Bearer ${jwt}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setFavourites(data.favourites);
-          setFavouriteCount(data.favourites.length);
-        }
-      } catch (error) {
-        console.error("Error fetching favourites:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFavourites();
-  }, [router, jwt]);
 
   async function addFavourite() {
     const recipeId = "a71f9756-fd61-4514-977d-261e38345d55"; // Replace with actual recipe ID
     try {
-      const response = await fetch("http://localhost:3000/api/favourites", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ recipeId }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/favourites`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ recipeId }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -60,19 +29,27 @@ export default function Favourites() {
         setFavouriteCount((prevCount) => prevCount + 1);
       }
     } catch (error) {
-      console.error("Error adding favorite:", error);
+      console.error("Error adding favourite:", error);
     }
   }
 
-  const handleFavoriteChange = (recipeId) => {
+  /*
+  const handleFavouriteChange = (recipeId) => {
     setFavourites(favourites.filter((fav) => fav.recipe._id !== recipeId));
     setFavouriteCount((prevCount) => prevCount - 1);
     window.dispatchEvent(new Event("favouritesUpdated"));
   };
-
+*/
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
+
+  console.log("recipes");
+  console.log(recipes);
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -96,12 +73,17 @@ export default function Favourites() {
                     key={favourite._id}
                     className="carousel-item bg-white p-4 rounded-lg shadow-md w-80"
                   >
-                    <img
-                      src={favourite.recipe.images[0] || "/default-recipe-image.jpg"}
+                    <Image
+                      src={
+                        favourite.recipe.images[0] ||
+                        "/default-recipe-image.jpg"
+                      }
                       alt={favourite.recipe.title}
                       className="w-full h-48 object-cover rounded-lg mb-4"
                     />
-                    <h3 className="text-xl font-semibold">{favourite.recipe.title}</h3>
+                    <h3 className="text-xl font-semibold">
+                      {favourite.recipe.title}
+                    </h3>
                     <div className="flex items-center mt-2">
                       <span className="text-orange-500 font-semibold">
                         Rating: {favourite.recipe.rating} / 5
@@ -119,33 +101,42 @@ export default function Favourites() {
         </div>
       </div>
 
-      {/* Grid of Favorite Recipes */}
+      {/* Grid of Favourite Recipes */}
       {favourites.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-600 mb-4">You haven&apos;t added any favourites yet.</p>
+          <p className="text-gray-600 mb-4">
+            You haven&apos;t added any favourites yet.
+          </p>
           <Link href="/recipe" className="text-blue-500 hover:underline">
             Browse Recipes
           </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favourites.map((favorite) => (
-            <div key={favorite._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+          {favourites.map((favourite) => (
+            <div
+              key={favourite._id}
+              className="bg-white rounded-lg shadow-md overflow-hidden"
+            >
               <div className="relative">
-                <img
-                  src={favourite.recipe.images[0] || "/default-recipe-image.jpg"}
+                <Image
+                  src={
+                    favourite.recipe.images[0] || "/default-recipe-image.jpg"
+                  }
                   alt={favourite.recipe.title}
                   className="w-full h-48 object-cover"
                 />
               </div>
               <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">{favorite.recipe.title}</h2>
+                <h2 className="text-xl font-semibold mb-2">
+                  {favourite.recipe.title}
+                </h2>
                 <p className="text-gray-600 text-sm mb-4">
-                  Added on {new Date(favorite.createdAt).toLocaleDateString()}
+                  Added on {new Date(favourite.createdAt).toLocaleDateString()}
                 </p>
                 <div className="flex justify-between items-center">
                   <Link
-                    href={`/recipes/${favorite.recipe._id}`}
+                    href={`/recipes/${favourite.recipe._id}`}
                     className="text-blue-500 hover:underline"
                   >
                     View Recipe

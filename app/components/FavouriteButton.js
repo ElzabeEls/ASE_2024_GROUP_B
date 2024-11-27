@@ -1,39 +1,46 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Heart, HeartOff } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Heart, HeartOff } from "lucide-react";
 
-export default function FavouriteButton({ recipeId, initialIsFavourite = false, onFavouriteChange }) {
+
+export default function FavouriteButton({
+  recipeId,
+  initialIsFavourite = false,
+  onFavouriteChange,
+  token
+}) {
   const [isFavourite, setIsFavourite] = useState(initialIsFavourite);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
+  const [alertMessage, setAlertMessage] = useState("");
 
-  const handleFavouriteClick = async () => {
+  const handleFavouriteClick = () => {
     if (isFavourite) {
       setShowConfirmDialog(true);
-    } else {
-      await toggleFavourite();
     }
+    toggleFavourite();
   };
 
   const toggleFavourite = async () => {
-    try {
-      const token = localStorage.getItem('jwt');
-      if (!token) {
-        setAlertMessage('Please log in to add favourites');
-        setShowAlert(true);
-        return;
-      }
+    if (!token) {
+      setAlertMessage("Please log in to add favourites");
+      setShowAlert(true);
+      return;
+    }
 
-      const response = await fetch('/api/favourites', {
-        method: isFavourite ? 'DELETE' : 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ recipeId }),
-      });
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/favourites`,
+        {
+          method: isFavourite ? "DELETE" : "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ recipeId }),
+        }
+      );
 
       if (response.ok) {
         const newState = !isFavourite;
@@ -41,13 +48,15 @@ export default function FavouriteButton({ recipeId, initialIsFavourite = false, 
         if (onFavouriteChange) {
           onFavouriteChange(newState);
         }
-        setAlertMessage(newState ? 'Added to favourites!' : 'Removed from favourites');
+        setAlertMessage(
+          newState ? "Added to favourites!" : "Removed from favourites"
+        );
         setShowAlert(true);
       } else {
-        throw new Error('Failed to update favourite');
+        throw new Error("Failed to update favourite");
       }
     } catch (error) {
-      setAlertMessage('Error updating favourites');
+      setAlertMessage("Error updating favourites");
       setShowAlert(true);
     }
   };
@@ -64,7 +73,9 @@ export default function FavouriteButton({ recipeId, initialIsFavourite = false, 
       <button
         onClick={handleFavouriteClick}
         className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-        aria-label={isFavourite ? 'Remove from favourites' : 'Add to favourites'}
+        aria-label={
+          isFavourite ? "Remove from favourites" : "Add to favourites"
+        }
       >
         {isFavourite ? (
           <Heart className="w-6 h-6 fill-red-500 text-red-500" />
