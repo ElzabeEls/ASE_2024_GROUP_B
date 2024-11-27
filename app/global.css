@@ -1,16 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Slab:wght@100;200;300;400;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: #ffeb3b;
   --foreground: #171717;
-  --button-bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --hover-shadow: #ffcc00 ;
+  --button-bg: #3adee4; 
   --button-text: #171717;
   --button-hover-bg: #e5e7eb;
   --button-hover-text: #171717;
-  --button-active-bg: #d1d5db;
+  --button-active-bg: #00bcd4;
   --button-active-text: #171717;
+  --heager-bg: #4caf50;
   --filter-bg: #ffffff;
   --filter-border: #d1d5db;
   --filter-text: #171717;
@@ -29,9 +33,11 @@
   --filter-placeholder: #999; /* gray placeholder text */
   --button-hover: #ffdab9; /* Peach hover background */
   --svg-fill-light: #000; /* Black for light theme */
-  --button-text-color: white; /* White text for light mode */
-  --button-bg-color: #6a4e23; /* Brown background for light mode */
-  --button-hover-bg-color: #4a3c22; /* Darker brown for hover effect */
+  --button-text-color: Black; /* White text for light mode */
+  --button-bg-color: #00bcd4; /* Brown background for light mode */
+  --button-hover-bg-color: #00cdc1; /* Darker brown for hover effect */
+  --error-text: #e53e3e;
+  --success-text: #38a169;
 }
 
 .dark {
@@ -60,15 +66,18 @@
   --filter-placeholder: #666; /* darker placeholder text /*ground for dark theme */
   --button-hover: #d8a48f; /* Soft peach for dark hover */
   --svg-fill-dark: #fff; /* White for dark theme */
-  --button-text-color: black; /* Black text for dark mode */
-  --button-bg-color: #3e2723; /* Darker brown background for dark mode */
-  --button-hover-bg-color: #2c1a17; /* Even darker brown for hover effect */
+  --button-text-color: White; /* Black text for dark mode */
+  --button-bg-color: #666; /* Darker brown background for dark mode */
+  --button-hover-bg-color: #8d8989; /* Even darker brown for hover effect */
+  --card-bg: #343a40;
+  --success-text: #48bb78;
+  --error-text: #f56565; /* Lighter red color for error in dark mode */
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family:'Dancing Script', Cursive, Arial, Helvetica, sans-serif;
+  font-family: 'Josefin Slab', Helvetica, sans-serif, Arial;
 
 }
 
