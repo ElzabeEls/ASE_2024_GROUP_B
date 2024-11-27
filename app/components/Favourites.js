@@ -4,9 +4,8 @@ import Link from "next/link";
 import React, { useState } from "react";
 
 export default function Favourites({ recipes }) {
-  const [favourites, setFavourites] = useState([recipes]);
+  const [favourites, setFavourites] = useState(recipes);
   const [favouriteCount, setFavouriteCount] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   async function addFavourite() {
     const recipeId = "a71f9756-fd61-4514-977d-261e38345d55"; // Replace with actual recipe ID
@@ -40,16 +39,6 @@ export default function Favourites({ recipes }) {
     window.dispatchEvent(new Event("favouritesUpdated"));
   };
 */
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        Loading...
-      </div>
-    );
-  }
-
-  console.log("recipes");
-  console.log(recipes);
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -74,22 +63,19 @@ export default function Favourites({ recipes }) {
                     className="carousel-item bg-white p-4 rounded-lg shadow-md w-80"
                   >
                     <Image
-                      src={
-                        favourite.recipe.images[0] ||
-                        "/default-recipe-image.jpg"
-                      }
-                      alt={favourite.recipe.title}
+                      width={1000}
+                      height={1000}
+                      src={favourite.images[0] || "/default-recipe-image.jpg"}
+                      alt={favourite.title}
                       className="w-full h-48 object-cover rounded-lg mb-4"
                     />
-                    <h3 className="text-xl font-semibold">
-                      {favourite.recipe.title}
-                    </h3>
+                    <h3 className="text-xl font-semibold">{favourite.title}</h3>
                     <div className="flex items-center mt-2">
                       <span className="text-orange-500 font-semibold">
                         Rating: {favourite.recipe.rating} / 5
                       </span>
                     </div>
-                    <Link href={`/recipes/${favourite.recipe._id}`} passHref>
+                    <Link href={`/recipes/${favourite._id}`} passHref>
                       <button className="mt-4 w-full py-2 bg-orange-500 text-white rounded-md">
                         View Recipe
                       </button>
@@ -120,23 +106,23 @@ export default function Favourites({ recipes }) {
             >
               <div className="relative">
                 <Image
-                  src={
-                    favourite.recipe.images[0] || "/default-recipe-image.jpg"
-                  }
-                  alt={favourite.recipe.title}
+                  width={1000}
+                  height={1000}
+                  src={favourite.images[0] || "/default-recipe-image.jpg"}
+                  alt={favourite.title}
                   className="w-full h-48 object-cover"
                 />
               </div>
               <div className="p-4">
                 <h2 className="text-xl font-semibold mb-2">
-                  {favourite.recipe.title}
+                  {favourite.title}
                 </h2>
                 <p className="text-gray-600 text-sm mb-4">
                   Added on {new Date(favourite.createdAt).toLocaleDateString()}
                 </p>
                 <div className="flex justify-between items-center">
                   <Link
-                    href={`/recipes/${favourite.recipe._id}`}
+                    href={`/recipes/${favourite._id}`}
                     className="text-blue-500 hover:underline"
                   >
                     View Recipe
