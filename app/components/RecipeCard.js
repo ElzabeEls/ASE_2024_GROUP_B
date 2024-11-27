@@ -145,7 +145,8 @@ export default function RecipeCard({ recipe }) {
 
         <Link
           href={`/recipes/${recipe._id}`}
-           className="mt-4 block text-center text-[var(--button-text-color)] bg-[var(--button-bg-color)] rounded-full py-2 hover:bg-[var(--button-hover-bg-color)] transition duration-200"
+          className="mt-4 block text-center font-bold text-[var(--button-text-color)] bg-[var(--button-bg-color)] rounded-full py-2 hover:bg-[var(--button-hover-bg-color)] transition duration-200"
+
         >
           Get Cooking
         </Link>
