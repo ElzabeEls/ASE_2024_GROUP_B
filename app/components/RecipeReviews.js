@@ -245,14 +245,15 @@ const RecipeReviews = ({ recipeId }) => {
         </button>
       </form>
 
-      {/* Feedback Message */}
       {feedbackMessage && (
-        <div
-          className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-700 px-4 py-2 rounded shadow"
-        >
-          {feedbackMessage}
-        </div>
-      )}
+  <div
+    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50"
+  >
+    <div className="bg-green-100 text-green-700 px-6 py-3 rounded-lg shadow-lg text-center">
+      {feedbackMessage}
+    </div>
+  </div>
+)}
 
       {/* Render Reviews */}
       {reviews.length > 0 ? (
