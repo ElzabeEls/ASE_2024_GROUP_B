@@ -89,7 +89,7 @@ export default function SignUp() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border-2 rounded-md text-[var(--filter-text)] focus:ring-2 focus:ring-[var(--button-hover-bg)] focus:outline-none"
+              className="w-full px-4 py-2 border-2 rounded-md text-[var(--filter1-text)] focus:ring-2 focus:ring-[var(--button-hover-bg)] focus:outline-none"
               placeholder="Enter your email"
               required
             />
@@ -104,7 +104,7 @@ export default function SignUp() {
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md text-[var(--filter-text)] focus:ring-2 focus:ring-[var(--button-hover-bg)] focus:outline-none"
+              className="w-full px-4 py-2 border rounded-md text-[var(--filter1-text)] focus:ring-2 focus:ring-[var(--button-hover-bg)] focus:outline-none"
               placeholder="Create a password"
               required
             />
