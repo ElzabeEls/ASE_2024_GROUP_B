@@ -26,7 +26,13 @@ const RecipeReviews = ({ recipeId }) => {
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
- 
+  // Feedback message
+  const [feedbackMessage, setFeedbackMessage] = useState(null);
+  const feedbackTimer = useRef(null);
+
+  // Reference for the form
+  const formRef = useRef(null);
+
   useEffect(() => {
     if (!recipeId) {
       setError("Recipe ID is missing.");
@@ -65,7 +71,13 @@ const RecipeReviews = ({ recipeId }) => {
    *
    * @param {string} message - The feedback message to display.
    */
- 
+  const showFeedbackMessage = (message) => {
+    setFeedbackMessage(message);
+    clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => {
+      setFeedbackMessage(null);
+    }, 3000);
+  };
 
   /**
    * Handle the submission or editing of a review.
@@ -223,6 +235,7 @@ const RecipeReviews = ({ recipeId }) => {
         </button>
       </form>
 
+  
 
       {/* Render Reviews */}
       {reviews.length > 0 ? (
@@ -257,7 +270,7 @@ const RecipeReviews = ({ recipeId }) => {
 
       {/* Delete Confirmation */}
       {confirmDelete && (
-      
+       
             <div className="flex justify-between">
               <button
                 onClick={() => handleDelete(confirmDelete)}
