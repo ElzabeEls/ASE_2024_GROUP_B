@@ -1,5 +1,4 @@
 import React from "react";
-import { FastForward } from "lucide-react"; // Importing the FastForward icon
 
 /**
  * A component for adjusting the speech speed.
@@ -14,14 +13,12 @@ import { FastForward } from "lucide-react"; // Importing the FastForward icon
  */
 export default function SpeedAdjuster({ speed, setSpeed }) {
   return (
-    <div className="mt-4">
+    <div className="mt-4 w-full max-w-xs">
       <label
         htmlFor="speed"
         className="text-gray-700 font-medium mb-2 flex items-center space-x-2"
       >
-        {/* Icon and Speed Text */}
-        <FastForward className="w-5 h-5 text-white hover:text-black" />
-        <span className="text-sm text-gray-500">{speed.toFixed(1)}x</span>
+        <span className="text-sm w-2 h-2 text-gray-500">{speed.toFixed(1)}x</span>
       </label>
       <input
         type="range"
@@ -31,7 +28,7 @@ export default function SpeedAdjuster({ speed, setSpeed }) {
         step="0.1"
         value={speed}
         onChange={(e) => setSpeed(parseFloat(e.target.value))}
-        className="w-full mt-2"
+        className="w-fit mt-2 rounded-lg cursor-pointer bg-gray-200 accent-teal-600"
       />
     </div>
   );
