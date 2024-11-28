@@ -67,6 +67,7 @@ export default async function RecipeDetail({ params }) {
     ingredients,
     instructions,
     nutrition,
+
   } = recipe;
 
   const totalTime = (prep || 0) + (cook || 0);
@@ -165,7 +166,22 @@ export default async function RecipeDetail({ params }) {
         </div>
       </div>
 
+      {/* Recipe Images */}
+      {images.length > 0 && (
+        <div className="mb-8">
+          <Image
+            src={images[0]}
+            alt={title}
+            width={800}
+            height={400}
+            className="w-full h-[400px] object-cover rounded-lg mb-4"
+            priority
+          />
+        </div>
+      )}
+
       <div className="grid md:grid-cols-2 gap-8">
+        {/* Ingredients */}
         <Card>
           <CardContent className="pt-6">
             <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
@@ -196,6 +212,8 @@ export default async function RecipeDetail({ params }) {
             <h2 className="text-xl font-semibold mb-3 text-gray-800">
               Instructions
             </h2>
+
+            
             <ol className="space-y-4">
               {instructions.length > 0 ? (
                 instructions.map((step, index) => (
@@ -220,6 +238,7 @@ export default async function RecipeDetail({ params }) {
         </Card>
       </div>
 
+      {/* Nutritional Information */}
       {nutrition && (
         <Card className="mt-8">
           <CardContent className="pt-6">
@@ -234,6 +253,7 @@ export default async function RecipeDetail({ params }) {
                   protein: "g",
                   fat: "g",
                   saturated: "g",
+
                   carbohydrates: "g",
                   sugar: "g",
                   fiber: "g",
@@ -255,6 +275,14 @@ export default async function RecipeDetail({ params }) {
             </ul>
           </CardContent>
         </Card>
+
+      )}
+
+      {/* Reviews */}
+      {id ? (
+        <RecipeReviews recipeId={id} />
+      ) : (
+        <p className="text-red-500">Loading recipe ID...</p>
       )}
 
       {id && <RecipeReviews recipeId={id} />}
