@@ -277,7 +277,9 @@ const RecipeReviews = ({ recipeId }) => {
 
       {/* Delete Confirmation */}
       {confirmDelete && (
-        
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <p className="mb-4">Are you sure you want to delete this review?</p>
             <div className="flex justify-between">
               <button
                 onClick={() => handleDelete(confirmDelete)}
