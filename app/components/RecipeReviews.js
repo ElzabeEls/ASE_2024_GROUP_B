@@ -181,8 +181,18 @@ const RecipeReviews = ({ recipeId }) => {
     setUsername(review.username);
     setReviewText(review.review);
     setRating(review.rating);
-    formRef.current.scrollIntoView({ behavior: "smooth" });
+  
+    // Scroll slightly above the review input form
+    const offset = 130; // Adjust this value as needed for the slight upward scroll
+    const formElement = formRef.current;
+    const formPosition = formElement.getBoundingClientRect().top + window.pageYOffset;
+  
+    window.scrollTo({
+      top: formPosition - offset,
+      behavior: "smooth",
+    });
   };
+  
 
   if (loading) return <p>Loading reviews...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
