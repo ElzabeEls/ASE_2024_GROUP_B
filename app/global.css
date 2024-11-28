@@ -55,6 +55,7 @@
   --filter-bg: #2d2d2d;
   --filter-border: #444444;
   --filter-text: #ffffff;
+  --filter1-text: #2d2d2d;
   --filter-header-bg: #333333;
   --filter-header-text: #ffffff;
   --tag-bg: #444444;
@@ -76,6 +77,7 @@
   --hover-shadow: #934269 ;
   --success-text: #48bb78;
   --error-text: #f56565; /* Lighter red color for error in dark mode */
+  --button1-bg: #2d2d2d;
 }
 
 body {
