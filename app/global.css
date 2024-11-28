@@ -4,17 +4,17 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffeb3b;
+  --background: #f6f5f0;
   --foreground: #171717;
   --card-bg: #ffffff;
-  --hover-shadow: #ffcc00 ;
+  --hover-shadow: #aa8094;
   --button-bg: #3adee4; 
   --button-text: #171717;
   --button-hover-bg: #e5e7eb;
   --button-hover-text: #171717;
   --button-active-bg: #00bcd4;
   --button-active-text: #171717;
-  --heager-bg: #4caf50;
+  --header-bg: #aa8094;
   --filter-bg: #ffffff;
   --filter-border: #d1d5db;
   --filter-text: #171717;
@@ -49,6 +49,9 @@
   --button-hover-text: #ffffff;
   --button-active-bg: #555555;
   --button-active-text: #ffffff;
+  --input-text: #ffffff ;
+  --input-bg: #666;
+  --header-bg: #444444;
   --filter-bg: #2d2d2d;
   --filter-border: #444444;
   --filter-text: #ffffff;
@@ -70,6 +73,7 @@
   --button-bg-color: #666; /* Darker brown background for dark mode */
   --button-hover-bg-color: #8d8989; /* Even darker brown for hover effect */
   --card-bg: #343a40;
+  --hover-shadow: #934269 ;
   --success-text: #48bb78;
   --error-text: #f56565; /* Lighter red color for error in dark mode */
 }
