@@ -7,7 +7,7 @@ import ThemeToggle from "./ThemeToggle";
 
 const Header = () => {
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-[var(--header-bg)] bg-opacity-80 shadow-md backdrop-blur-lg">
+    <header className=" glossy-highlight fixed top-0 left-0 w-full z-50 bg-[var(--header-bg)] bg-opacity-80 shadow-md backdrop-blur-lg">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link href="/">
