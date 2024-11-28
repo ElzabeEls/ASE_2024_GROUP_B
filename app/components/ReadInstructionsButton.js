@@ -169,7 +169,10 @@ export default function ReadInstructionsButton({ instructions }) {
   return (
     <div className="flex flex-col items-center">
       <button
-        onClick={handleButtonClick}
+        onClick={() => {
+          handleButtonClick();
+          scrollToInstructions();
+        }}
         className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 mb-4 flex items-center gap-2"
         title="Read Instructions"
       >
@@ -182,8 +185,6 @@ export default function ReadInstructionsButton({ instructions }) {
           {errorMessage}
         </div>
       )}
-
-      
     </div>
   );
 }

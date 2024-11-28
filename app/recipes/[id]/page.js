@@ -188,7 +188,7 @@ export default async function RecipeDetail({ params }) {
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg rounded-lg border border-gray-200">
+        <Card className="shadow-lg rounded-lg border border-gray-200" id="instructions-section">
           <div className="flex justify-end px-6 pt-4">
             <ReadInstructionsButton instructions={instructions} />
           </div>
