@@ -167,8 +167,8 @@ const SearchBar = () => {
           type="submit"
           className={`px-6 py-2 text-[var(--button-text)] bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)] rounded-r-md shadow-md transition-all duration-300 flex items-center justify-center ${
             isLoading
-              ? "bg-gray-600 cursor-not-allowed"
-              : "bg-black hover:bg-gray-800"
+              ? "bg-[var(--button-bg)] cursor-not-allowed"
+              : "bg-[var(--button1-bg)] hover:bg-[var(--button-hover-bg)]"
           }`}
           disabled={isLoading} // Disable button when loading
         >
