@@ -6,7 +6,7 @@ import SpeedAdjuster from "./SpeedAdjuster";
 
 /**
  * A button that reads the instructions aloud using speech synthesis.
- * It also listens for voice commands to stop, pause, and resume the speech synthesis.
+ * It also listens for voice commands to stop, pause, resume, and repeat steps.
  *
  * @component
  * @example
@@ -14,13 +14,16 @@ import SpeedAdjuster from "./SpeedAdjuster";
  * <ReadInstructionsButton instructions={["Step 1: Do this", "Step 2: Do that"]} />
  */
 export default function ReadInstructionsButton({ instructions }) {
-  const [isReading, setIsReading] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [speed, setSpeed] = useState(1); // State for speech speed
+  // State variables
+  const [isReading, setIsReading] = useState(false); // Whether instructions are being read
+  const [isPaused, setIsPaused] = useState(false); // Whether speech synthesis is paused
+  const [errorMessage, setErrorMessage] = useState(""); // Error messages to display
+  const [speed, setSpeed] = useState(1); // Speed of speech synthesis
+  const [currentStep, setCurrentStep] = useState(0); // Index of the current instruction being read
 
   /**
-   * Scrolls to the instructions section in the document.
+   * Scrolls smoothly to the section containing the instructions.
+   * Ensures users see the instructions while they are being read aloud.
    */
   const scrollToInstructions = () => {
     document.getElementById("instructions-section")?.scrollIntoView({
@@ -29,69 +32,96 @@ export default function ReadInstructionsButton({ instructions }) {
   };
 
   /**
-   * Stops reading instructions and cancels speech synthesis.
+   * Stops the speech synthesis and resets the state variables.
    */
   const stopReading = () => {
     window.speechSynthesis.cancel();
     setIsReading(false);
     setIsPaused(false);
+    setCurrentStep(0);
   };
 
   /**
-   * Pauses reading instructions.
+   * Pauses the speech synthesis if currently reading.
    */
   const pauseReading = useCallback(() => {
     if (isReading && !isPaused) {
-      console.log("Pausing reading...");
       window.speechSynthesis.pause();
       setIsPaused(true);
     }
   }, [isReading, isPaused]);
 
   /**
-   * Resumes reading instructions if paused.
+   * Resumes the speech synthesis if it was paused.
    */
   const resumeReading = useCallback(() => {
     if (isReading && isPaused) {
-      console.log("Resuming reading...");
       window.speechSynthesis.resume();
       setIsPaused(false);
     }
   }, [isReading, isPaused]);
 
   /**
-   * Reads the instructions aloud step by step using speech synthesis.
-   * If no instructions are provided, an alert will be shown.
-   * If speech synthesis is not supported, an alert will be shown.
+   * Repeats the current step using speech synthesis.
+   */
+  const repeatCurrentStep = useCallback(() => {
+    if (currentStep > 0) {
+      const instruction = instructions[currentStep - 1];
+      const utterance = new SpeechSynthesisUtterance(
+        `Repeating step ${currentStep}: ${instruction}`
+      );
+      utterance.lang = "en-UK";
+      utterance.rate = speed;
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [currentStep, instructions, speed]);
+
+  /**
+   * Reads all the instructions one by one using speech synthesis.
+   * Updates the current step while reading.
    */
   const readInstructions = () => {
     if (!instructions || instructions.length === 0) {
-      alert("No instructions available to read.");
+      setErrorMessage("No instructions available to read.");
       return;
     }
 
     if (!window.speechSynthesis) {
-      alert("Speech synthesis is not supported in this browser.");
+      setErrorMessage("Speech synthesis is not supported in this browser.");
       return;
     }
 
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     setIsReading(true);
 
-    // Create speech utterances for each instruction
-    instructions.forEach((instruction, index) => {
-      const utterance = new SpeechSynthesisUtterance(
-        `Step ${index + 1}: ${instruction}`
-      );
-      utterance.lang = "en-UK";
-      utterance.rate = speed; // Use the speed from state
-      window.speechSynthesis.speak(utterance);
-    });
+    let index = 0;
+
+    const speakNextInstruction = () => {
+      if (index < instructions.length) {
+        const utterance = new SpeechSynthesisUtterance(
+          `Step ${index + 1}: ${instructions[index]}`
+        );
+        utterance.lang = "en-UK";
+        utterance.rate = speed;
+
+        utterance.onstart = () => setCurrentStep(index + 1); // Update current step
+        utterance.onend = () => {
+          index++;
+          speakNextInstruction(); // Move to the next step
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } else {
+        setIsReading(false); // Finished reading
+      }
+    };
+
+    speakNextInstruction();
   };
 
   /**
-   * Handles the button click to start reading instructions and scroll to instructions.
+   * Handles the click event for the button.
+   * Scrolls to the instructions and starts reading them aloud.
    */
   const handleButtonClick = () => {
     scrollToInstructions();
@@ -99,80 +129,65 @@ export default function ReadInstructionsButton({ instructions }) {
   };
 
   /**
-   * Initializes speech recognition to listen for commands ("stop", "pause", "resume").
-   * Sets up error handling if speech recognition fails.
+   * Effect hook to manage speech recognition.
+   * Listens for voice commands like "stop", "pause", "resume", and "repeat step".
    */
   useEffect(() => {
-    if (
-      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
-    ) {
-      console.warn("Speech Recognition is not supported in this browser.");
-      return;
-    }
+    let recognition;
 
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
+    if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
 
-    recognition.lang = "en-UK";
-    recognition.continuous = true;
-    recognition.interimResults = false;
+      recognition.lang = "en-UK";
+      recognition.continuous = true;
+      recognition.interimResults = false;
 
-    /**
-     * Handles the speech recognition result when speech is detected.
-     * Stops, pauses, or resumes reading instructions based on the recognized command.
-     *
-     * @param {SpeechRecognitionResult} event - The speech recognition event containing the transcript.
-     */
-    const handleSpeechResult = (event) => {
-      const result = Array.from(event.results)
-        .filter((res) => res[0].confidence > 0.8)
-        .map((res) => res[0].transcript)
-        .join("")
-        .toLowerCase();
+      const handleSpeechResult = (event) => {
+        const result = Array.from(event.results)
+          .filter((res) => res[0].confidence > 0.8)
+          .map((res) => res[0].transcript)
+          .join("")
+          .toLowerCase();
 
-      console.log("Speech recognized:", result); // Log recognized speech
+        if (result.includes("stop")) {
+          stopReading();
+          recognition.stop();
+        } else if (result.includes("pause")) {
+          pauseReading();
+        } else if (result.includes("resume")) {
+          resumeReading();
+        } else if (result.includes("repeat step")) {
+          repeatCurrentStep();
+        }
+      };
 
-      if (result.includes("stop")) {
-        console.log("Stop command detected.");
-        stopReading();
-        recognition.stop();
-      } else if (result.includes("pause")) {
-        console.log("Pause command detected.");
-        pauseReading();
-      } else if (result.includes("resume")) {
-        console.log("Resume command detected.");
-        resumeReading();
-      }
-    };
-
-    /**
-     * Error handler for speech recognition. If an error occurs, an error message is displayed.
-     */
-    recognition.onerror = (event) => {
-      setErrorMessage("Speech to text feature failed. Please try again.");
-      console.error("Speech recognition error:", event.error);
-    };
-
-    if (isReading) {
-      console.log("Starting speech recognition...");
       recognition.addEventListener("result", handleSpeechResult);
-      recognition.start();
+      recognition.onerror = (event) => {
+        setErrorMessage("Speech to text feature failed. Please try again.");
+        console.error("Speech recognition error:", event.error);
+      };
+
+      if (isReading) {
+        recognition.start();
+      }
+    } else {
+      setErrorMessage("Speech recognition is not supported in this browser.");
     }
 
     return () => {
-      recognition.removeEventListener("result", handleSpeechResult);
-      recognition.stop();
+      if (recognition) {
+        recognition.stop();
+      }
     };
-  }, [isReading, pauseReading, resumeReading]);
+  }, [isReading, pauseReading, resumeReading, repeatCurrentStep]);
 
   return (
     <div className="flex flex-col items-center">
+      {/* Button to start reading instructions */}
       <button
-        onClick={() => {
-          handleButtonClick();
-          scrollToInstructions();
-        }}
+        onClick={handleButtonClick}
         className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 mb-4 flex items-center gap-2"
         title="Read Instructions"
       >
@@ -180,6 +195,10 @@ export default function ReadInstructionsButton({ instructions }) {
         <SpeedAdjuster speed={speed} setSpeed={setSpeed} />
       </button>
 
+      {/* Speed adjuster component */}
+      
+
+      {/* Error message display */}
       {errorMessage && (
         <div className="text-red-500 mt-2 text-sm font-medium">
           {errorMessage}
