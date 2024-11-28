@@ -1,7 +1,8 @@
-"use client"; // Ensure this component runs on the client side
+"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { BookOpen } from "lucide-react";
+import SpeedAdjuster from "./SpeedAdjuster";
 
 /**
  * A button that reads the instructions aloud using speech synthesis.
@@ -13,9 +14,10 @@ import { BookOpen } from "lucide-react";
  * <ReadInstructionsButton instructions={["Step 1: Do this", "Step 2: Do that"]} />
  */
 export default function ReadInstructionsButton({ instructions }) {
-  const [isReading, setIsReading] = useState(false); // State to manage reading status
-  const [isPaused, setIsPaused] = useState(false); // State to manage pause status
-  const [errorMessage, setErrorMessage] = useState(""); // State to hold error messages
+  const [isReading, setIsReading] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [speed, setSpeed] = useState(1); // State for speech speed
 
   /**
    * Scrolls to the instructions section in the document.
@@ -30,10 +32,9 @@ export default function ReadInstructionsButton({ instructions }) {
    * Stops reading instructions and cancels speech synthesis.
    */
   const stopReading = () => {
-    console.log("Stopping reading...");
-    window.speechSynthesis.cancel(); // Stops speech synthesis immediately
-    setIsReading(false); // Update the state to indicate reading has stopped
-    setIsPaused(false); // Reset pause state
+    window.speechSynthesis.cancel();
+    setIsReading(false);
+    setIsPaused(false);
   };
 
   /**
@@ -76,7 +77,7 @@ export default function ReadInstructionsButton({ instructions }) {
 
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
-    setIsReading(true); // Set reading state to true when reading starts
+    setIsReading(true);
 
     // Create speech utterances for each instruction
     instructions.forEach((instruction, index) => {
@@ -84,7 +85,7 @@ export default function ReadInstructionsButton({ instructions }) {
         `Step ${index + 1}: ${instruction}`
       );
       utterance.lang = "en-UK";
-      utterance.rate = 1;
+      utterance.rate = speed; // Use the speed from state
       window.speechSynthesis.speak(utterance);
     });
   };
@@ -114,7 +115,7 @@ export default function ReadInstructionsButton({ instructions }) {
     const recognition = new SpeechRecognition();
 
     recognition.lang = "en-UK";
-    recognition.continuous = true; // Listen continuously
+    recognition.continuous = true;
     recognition.interimResults = false;
 
     /**
@@ -125,7 +126,7 @@ export default function ReadInstructionsButton({ instructions }) {
      */
     const handleSpeechResult = (event) => {
       const result = Array.from(event.results)
-        .filter((res) => res[0].confidence > 0.8) // Only process results with high confidence
+        .filter((res) => res[0].confidence > 0.8)
         .map((res) => res[0].transcript)
         .join("")
         .toLowerCase();
@@ -135,7 +136,7 @@ export default function ReadInstructionsButton({ instructions }) {
       if (result.includes("stop")) {
         console.log("Stop command detected.");
         stopReading();
-        recognition.stop(); // Stop listening for commands
+        recognition.stop();
       } else if (result.includes("pause")) {
         console.log("Pause command detected.");
         pauseReading();
@@ -172,8 +173,11 @@ export default function ReadInstructionsButton({ instructions }) {
         className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 md:inline-block"
         title="Read Instructions"
       >
-         <BookOpen className="w-5 h-5" aria-label="Read Instructions" />
+        <BookOpen className="w-5 h-5" aria-label="Read Instructions" />
+        <SpeedAdjuster speed={speed} setSpeed={setSpeed} />
       </button>
+
+      
 
       {errorMessage && (
         <div className="error-message text-red-500 mt-2">{errorMessage}</div>

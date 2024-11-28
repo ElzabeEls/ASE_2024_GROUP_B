@@ -83,7 +83,6 @@ export default async function RecipeDetail({ params }) {
         >
           <Home className="w-5 h-5" />
         </a>
-        <ReadInstructionsButton instructions={instructions} />
       </div>
 
       <h1 className="text-4xl font-bold text-gray-900 mb-4">{title}</h1>
@@ -189,31 +188,30 @@ export default async function RecipeDetail({ params }) {
           </CardContent>
         </Card>
 
-        {/* Enhanced Instructions */}
-        <Card
-          id="instructions-section"
-          className="shadow-lg rounded-lg border border-gray-200"
-        >
+        <Card className="shadow-lg rounded-lg border border-gray-200">
+          <div className="flex justify-end px-6 pt-4">
+            <ReadInstructionsButton instructions={instructions} />
+          </div>
           <CardContent className="pt-6 px-6">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            <h2 className="text-xl font-semibold mb-3 text-gray-800">
               Instructions
             </h2>
-            <ol className="space-y-6">
+            <ol className="space-y-4">
               {instructions.length > 0 ? (
                 instructions.map((step, index) => (
-                  <li key={index} className="flex gap-4 items-start">
-                    <div className="w-10 h-10 flex items-center justify-center bg-teal-100 text-teal-700 rounded-full font-semibold shadow-md">
+                  <li key={index} className="flex gap-3 items-start">
+                    <div className="w-8 h-8 flex items-center justify-center bg-teal-100 text-teal-700 rounded-full font-medium shadow-sm text-sm">
                       {index + 1}
                     </div>
                     <div className="flex-1">
-                      <p className="text-gray-700 leading-relaxed text-lg">
+                      <p className="text-gray-600 leading-snug text-sm">
                         {step}
                       </p>
                     </div>
                   </li>
                 ))
               ) : (
-                <li className="text-gray-500 text-center">
+                <li className="text-gray-500 text-center text-sm">
                   No instructions available.
                 </li>
               )}
@@ -222,7 +220,6 @@ export default async function RecipeDetail({ params }) {
         </Card>
       </div>
 
-      {/* Nutritional Information */}
       {nutrition && (
         <Card className="mt-8">
           <CardContent className="pt-6">
@@ -260,11 +257,7 @@ export default async function RecipeDetail({ params }) {
         </Card>
       )}
 
-      {id ? (
-        <RecipeReviews recipeId={id} />
-      ) : (
-        <p className="text-red-500">Loading recipe ID...</p>
-      )}
+      {id && <RecipeReviews recipeId={id} />}
     </main>
   );
 }
