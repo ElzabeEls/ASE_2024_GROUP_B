@@ -144,6 +144,13 @@ const SearchBar = () => {
     performSearch(title); // Fetch the full recipe details
   };
 
+  /**
+   * Highlights matching words in the recipe titles.
+   * @param {string} title - The recipe title.
+   * @param {string} query - The search query.
+   * @returns {JSX.Element} The title with highlighted matches.
+   */
+
   return (
     <div className="relative flex justify-center mt-8">
       <form onSubmit={handleSearch} className="flex justify-center mt-8">
@@ -154,11 +161,22 @@ const SearchBar = () => {
           onChange={handleInputChange}
           className="w-full max-w-lg px-4 py-2 border-2 rounded-l-md focus:outline-none focus:ring-2 text-[var(--input-text)] bg-[var(--input-bg)] border-[var(--input-border)] focus:ring-[var(--button-hover-bg)]"
         />
+
+        {/* Button */}
         <button
           type="submit"
-          className="px-6 py-2 text-[var(--button-text)] bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)] rounded-r-md shadow-md transition-all duration-300"
+          className={`px-6 py-2 text-[var(--button-text)] bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)] rounded-r-md shadow-md transition-all duration-300 flex items-center justify-center ${
+            isLoading
+              ? "bg-gray-600 cursor-not-allowed"
+              : "bg-black hover:bg-gray-800"
+          }`}
+          disabled={isLoading} // Disable button when loading
         >
-          Search
+          {isLoading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            "Search"
+          )}
         </button>
       </form>
 

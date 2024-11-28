@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import Carousel from "./Carousel";
+import { highlightText } from "../../lib/utils";
 
 /**
  * RecipeCard component displays a recipe with detailed information including
@@ -16,7 +17,7 @@ import Carousel from "./Carousel";
  * @param {Array<string>} props.recipe.images - Array of image URLs for the recipe
  */
 
-export default function RecipeCard({ recipe }) {
+export default function RecipeCard({ recipe, searchQuery }) {
   /**
    * Formats a date string to a readable format.
    *
@@ -59,7 +60,7 @@ export default function RecipeCard({ recipe }) {
       </p>
       <div className="p-4">
         <h3 className="text-[var(--text-heading)] font-bold text-xl">
-          {recipe.title}
+        {highlightText(recipe.title, searchQuery)}
         </h3>
 
         <div className="flex items-center justify-between mt-3 p-4">
