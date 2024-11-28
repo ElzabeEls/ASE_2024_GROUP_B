@@ -235,7 +235,14 @@ const RecipeReviews = ({ recipeId }) => {
         </button>
       </form>
 
-  
+      {/* Feedback Message */}
+      {feedbackMessage && (
+        <div
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-700 px-4 py-2 rounded shadow"
+        >
+          {feedbackMessage}
+        </div>
+      )}
 
       {/* Render Reviews */}
       {reviews.length > 0 ? (
@@ -270,7 +277,7 @@ const RecipeReviews = ({ recipeId }) => {
 
       {/* Delete Confirmation */}
       {confirmDelete && (
-       
+        
             <div className="flex justify-between">
               <button
                 onClick={() => handleDelete(confirmDelete)}
