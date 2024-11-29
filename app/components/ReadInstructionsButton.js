@@ -14,67 +14,103 @@ import SpeedAdjuster from "./SpeedAdjuster";
  * <ReadInstructionsButton instructions={["Step 1: Do this", "Step 2: Do that"]} />
  */
 export default function ReadInstructionsButton({ instructions }) {
-  // State variables
-  const [isReading, setIsReading] = useState(false); // Whether instructions are being read
-  const [isPaused, setIsPaused] = useState(false); // Whether speech synthesis is paused
-  const [errorMessage, setErrorMessage] = useState(""); // Error messages to display
-  const [speed, setSpeed] = useState(1); // Speed of speech synthesis
-  const [currentStep, setCurrentStep] = useState(0); // Index of the current instruction being read
+  const [isReading, setIsReading] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isRepeating, setIsRepeating] = useState(false);
+  const [resumeIndex, setResumeIndex] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [speed, setSpeed] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
 
-  /**
-   * Scrolls smoothly to the section containing the instructions.
-   * Ensures users see the instructions while they are being read aloud.
-   */
   const scrollToInstructions = () => {
     document.getElementById("instructions-section")?.scrollIntoView({
       behavior: "smooth",
     });
   };
 
-  /**
-   * Stops the speech synthesis and resets the state variables.
-   */
   const stopReading = () => {
     window.speechSynthesis.cancel();
     setIsReading(false);
     setIsPaused(false);
     setCurrentStep(0);
+    setResumeIndex(0);
   };
 
-  /**
-   * Pauses the speech synthesis if currently reading.
-   */
   const pauseReading = useCallback(() => {
-    if (isReading && !isPaused) {
+    if (isReading && !isPaused && window.speechSynthesis.speaking) {
       window.speechSynthesis.pause();
       setIsPaused(true);
+    } else if (!window.speechSynthesis.speaking) {
+      setErrorMessage(
+        "Cannot pause as no instruction is currently being read."
+      );
     }
   }, [isReading, isPaused]);
 
-  /**
-   * Resumes the speech synthesis if it was paused.
-   */
-  const resumeReading = useCallback(() => {
-    if (isReading && isPaused) {
-      window.speechSynthesis.resume();
-      setIsPaused(false);
-    }
-  }, [isReading, isPaused]);
-
-  /**
-   * Repeats the current step using speech synthesis.
-   */
   const repeatCurrentStep = useCallback(() => {
     if (currentStep > 0) {
+      setIsRepeating(true);
       const instruction = instructions[currentStep - 1];
       const utterance = new SpeechSynthesisUtterance(
         `Repeating step ${currentStep}: ${instruction}`
       );
       utterance.lang = "en-UK";
       utterance.rate = speed;
+
+      utterance.onend = () => {
+        if (!isPaused) {
+          setIsRepeating(false);
+        }
+      };
+
+      window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utterance);
+    } else {
+      setErrorMessage("No step to repeat currently.");
     }
-  }, [currentStep, instructions, speed]);
+  }, [currentStep, instructions, speed, isPaused]);
+
+  const readRemainingInstructions = useCallback(() => {
+    if (resumeIndex < instructions.length) {
+      let index = resumeIndex;
+
+      const speakNextInstruction = () => {
+        if (index < instructions.length && !isRepeating) {
+          const utterance = new SpeechSynthesisUtterance(
+            `Step ${index + 1}: ${instructions[index]}`
+          );
+          utterance.lang = "en-UK";
+          utterance.rate = speed;
+
+          utterance.onstart = () => {
+            setCurrentStep(index + 1);
+            setResumeIndex(index + 1);
+          };
+
+          utterance.onend = () => {
+            index++;
+            speakNextInstruction();
+          };
+
+          window.speechSynthesis.speak(utterance);
+        } else {
+          setIsReading(false);
+        }
+      };
+
+      speakNextInstruction();
+    }
+  }, [resumeIndex, instructions, isRepeating, speed]);
+
+  const resumeReading = useCallback(() => {
+    if (isReading && isPaused) {
+      setIsPaused(false);
+      setIsRepeating(false);
+      readRemainingInstructions();
+    } else if (!isPaused) {
+      setErrorMessage("Cannot resume as the speech synthesis is not paused.");
+    }
+  }, [isReading, isPaused, readRemainingInstructions]);
 
   /**
    * Reads all the instructions one by one using speech synthesis.
@@ -93,6 +129,7 @@ export default function ReadInstructionsButton({ instructions }) {
 
     window.speechSynthesis.cancel();
     setIsReading(true);
+    setResumeIndex(0);
 
     let index = 0;
 
@@ -104,15 +141,15 @@ export default function ReadInstructionsButton({ instructions }) {
         utterance.lang = "en-UK";
         utterance.rate = speed;
 
-        utterance.onstart = () => setCurrentStep(index + 1); // Update current step
+        utterance.onstart = () => setCurrentStep(index + 1);
         utterance.onend = () => {
           index++;
-          speakNextInstruction(); // Move to the next step
+          speakNextInstruction();
         };
 
         window.speechSynthesis.speak(utterance);
       } else {
-        setIsReading(false); // Finished reading
+        setIsReading(false);
       }
     };
 
@@ -185,7 +222,6 @@ export default function ReadInstructionsButton({ instructions }) {
 
   return (
     <div className="flex flex-col items-center">
-      {/* Button to start reading instructions */}
       <button
         onClick={handleButtonClick}
         className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 mb-4 flex items-center gap-2"
@@ -195,7 +231,6 @@ export default function ReadInstructionsButton({ instructions }) {
         <SpeedAdjuster speed={speed} setSpeed={setSpeed} />
       </button>
 
-      {/* Speed adjuster component */}
       
 
       {/* Error message display */}
