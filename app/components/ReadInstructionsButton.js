@@ -47,29 +47,6 @@ export default function ReadInstructionsButton({ instructions }) {
     }
   }, [isReading, isPaused]);
 
-  const repeatCurrentStep = useCallback(() => {
-    if (currentStep > 0) {
-      setIsRepeating(true);
-      const instruction = instructions[currentStep - 1];
-      const utterance = new SpeechSynthesisUtterance(
-        `Repeating step ${currentStep}: ${instruction}`
-      );
-      utterance.lang = "en-UK";
-      utterance.rate = speed;
-
-      utterance.onend = () => {
-        if (!isPaused) {
-          setIsRepeating(false);
-        }
-      };
-
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utterance);
-    } else {
-      setErrorMessage("No step to repeat currently.");
-    }
-  }, [currentStep, instructions, speed, isPaused]);
-
   const readRemainingInstructions = useCallback(() => {
     if (resumeIndex < instructions.length) {
       let index = resumeIndex;
@@ -101,6 +78,28 @@ export default function ReadInstructionsButton({ instructions }) {
       speakNextInstruction();
     }
   }, [resumeIndex, instructions, isRepeating, speed]);
+
+  const repeatCurrentStep = useCallback(() => {
+    if (currentStep > 0) {
+      setIsRepeating(true);
+      const instruction = instructions[currentStep - 1];
+      const utterance = new SpeechSynthesisUtterance(
+        `Repeating step ${currentStep}: ${instruction}`
+      );
+      utterance.lang = "en-UK";
+      utterance.rate = speed;
+
+      utterance.onend = () => {
+        setIsRepeating(false);
+        readRemainingInstructions();
+      };
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    } else {
+      setErrorMessage("No step to repeat currently.");
+    }
+  }, [currentStep, instructions, speed, readRemainingInstructions]);
 
   const resumeReading = useCallback(() => {
     if (isReading && isPaused) {
