@@ -84,6 +84,16 @@ export default async function RecipePage({ searchParams }) {
         </p>
       )}
 
+      
+      {/*   Recipe Count Message */}
+      <div className="text-gray-600 mt-4 text-center">
+        {recipes.length > 0 ? (
+          <p>{recipes.length} recipes match your search and filter criteria.</p>
+        ) : (
+          <p>No recipes match your criteria.</p>
+        )}
+      </div>
+
       {/* Recipe Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {recipes.map((recipe) => (
