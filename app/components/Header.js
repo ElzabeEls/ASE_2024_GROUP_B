@@ -70,22 +70,11 @@ const Header = () => {
           </Link>
           <Link href="/recipe">
             <span className="hover:text-[var(--link-hover)] cursor-pointer">Recipes</span>
-            <span className="hover:text-gray-500 cursor-pointer">Recipes</span>
           </Link>
           <Link href="/favourites">
             <span className="hover:text-[var(--link-hover)] cursor-pointer">Favourites</span>
           </Link>
-          <Link href="/login">
-            <button className="bg-[var(--button-bg)] px-2 py-1 rounded-full">
-              <span className="font-bold text-[var(--login-text)]">Login</span>
-            </button>
-          </Link>
-          <Link href="/signup">
-            <button className="bg-[var(--button-bg)] px-2 py-1 rounded-full">
-              <span className="font-bold text-[var(--signup-text)]">Sign Up</span>
-            </button>
-          </Link>
-          <ThemeToggle />
+        
           {isLoggedIn && (
             <Link
               href="/favourites"
@@ -110,14 +99,14 @@ const Header = () => {
           ) : (
             <>
               <Link href="/login">
-                <button className="bg-white px-2 py-1 rounded-full">
-                  <span className="font-bold text-green-600">Login</span>
-                </button>
+              <button className="bg-[var(--button-bg)] px-2 py-1 rounded-full">
+              <span className="font-bold text-[var(--login-text)]">Login</span>
+            </button>
               </Link>
               <Link href="/signup">
-                <button className="bg-white px-2 py-1 rounded-full">
-                  <span className="font-bold text-blue-600">Sign Up</span>
-                </button>
+              <button className="bg-[var(--button-bg)] px-2 py-1 rounded-full">
+              <span className="font-bold text-[var(--signup-text)]">Sign Up</span>
+            </button>
               </Link>
             </>
           )}

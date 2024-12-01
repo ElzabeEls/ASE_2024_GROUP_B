@@ -77,7 +77,7 @@ export default function RecipeCard({ recipe, token }) {
       </p>
       <div className="p-4">
         <h3 className="text-[var(--text-heading)] font-bold text-xl">
-        {highlightText(recipe.title, searchQuery)}
+        {highlightText(recipe.title, token)}
         </h3>
 
         <div className="flex items-center justify-between mt-3 p-4">
