@@ -6,14 +6,14 @@ import ThemeToggle from "./ThemeToggle";
 import { Heart } from "lucide-react";
 
 const Header = () => {
-  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [favouriteCount, setFavouriteCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     setIsLoggedIn(!!token);
 
-    const fetchFavoriteCount = async () => {
+    const fetchFavouriteCount = async () => {
       if (!token) return;
 
       try {
@@ -23,18 +23,18 @@ const Header = () => {
           },
         });
         const data = await response.json();
-        setFavoriteCount(data.count);
+        setFavouriteCount(data.count);
       } catch (error) {
-        console.error("Error fetching favorite count:", error);
+        console.error("Error fetching favourite count:", error);
       }
     };
 
-    fetchFavoriteCount();
+    fetchFavouriteCount();
 
-    // Listen for favorite updates
-    window.addEventListener("favouritesUpdated", fetchFavoriteCount);
+    // Listen for favourite updates
+    window.addEventListener("favouritesUpdated", fetchFavouriteCount);
     return () =>
-      window.removeEventListener("favouritesUpdated", fetchFavoriteCount);
+      window.removeEventListener("favouritesUpdated", fetchFavouriteCount);
   }, []);
 
   return (
@@ -92,7 +92,7 @@ const Header = () => {
               className="flex items-center space-x-2 hover:text-gray-500"
             >
               <Heart className="w-5 h-5" />
-              <span>Favorites ({favoriteCount})</span>
+              <span>Favourites ({favouriteCount})</span>
             </Link>
           )}
           

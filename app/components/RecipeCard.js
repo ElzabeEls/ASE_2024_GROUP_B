@@ -1,7 +1,7 @@
 "use client"
 import Head from "next/head";
 import Link from "next/link";
-import FavoriteButton from "./FavoriteButton";
+import FavouriteButton from "./FavouriteButton";
 import Carousel from "./Carousel";
 import { highlightText } from "../../lib/utils";
 
@@ -19,7 +19,7 @@ import { highlightText } from "../../lib/utils";
  * @param {Array<string>} props.recipe.images - Array of image URLs for the recipe
  */
 
-export default function RecipeCard({ recipe, searchQuery }) {
+export default function RecipeCard({ recipe, token }) {
   /**
    * Formats a date string to a readable format.
    *
@@ -62,12 +62,13 @@ export default function RecipeCard({ recipe, searchQuery }) {
         
       />
       <div className="absolute top-2 right-2">
-          <FavoriteButton
+          <FavouriteButton
             recipeId={recipe._id}
             onFavouriteChange={() => {
               // Dispatch event to update header count
               window.dispatchEvent(new Event("favouritesUpdated"));
             }}
+            token={token}
           />
         </div>
     </div>
