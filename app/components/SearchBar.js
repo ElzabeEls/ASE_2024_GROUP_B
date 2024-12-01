@@ -144,6 +144,13 @@ const SearchBar = () => {
     performSearch(title); // Fetch the full recipe details
   };
 
+  /**
+   * Highlights matching words in the recipe titles.
+   * @param {string} title - The recipe title.
+   * @param {string} query - The search query.
+   * @returns {JSX.Element} The title with highlighted matches.
+   */
+
   return (
     <div className="relative flex justify-center mt-8">
       <form onSubmit={handleSearch} className="flex justify-center mt-8">
@@ -152,42 +159,50 @@ const SearchBar = () => {
           placeholder="Search for recipes..."
           value={searchTextQuery}
           onChange={handleInputChange}
-          className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
+          className="w-full max-w-lg px-4 py-2 border-2 rounded-l-md focus:outline-none focus:ring-2 text-[var(--input-text)] bg-[var(--input-bg)] border-[var(--input-border)] focus:ring-[var(--button-hover-bg)]"
         />
+
+        {/* Button */}
         <button
           type="submit"
-          className={`px-6 py-2 rounded-r-md shadow-md transition-all duration-300 flex items-center justify-center text-white ${
-            isLoading ? "bg-gray-600 cursor-not-allowed" : "bg-black hover:bg-gray-800"
+          className={`px-6 py-2 text-[var(--button-text)] bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)] rounded-r-md shadow-md transition-all duration-300 flex items-center justify-center ${
+            isLoading
+              ? "bg-[var(--button-bg)] cursor-not-allowed"
+              : "bg-[var(--button1-bg)] hover:bg-[var(--button-hover-bg)]"
           }`}
           disabled={isLoading} // Disable button when loading
         >
-          {isLoading? (
+          {isLoading ? (
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           ) : (
-         "Search"
-        )}
+            "Search"
+          )}
         </button>
       </form>
 
       {/* Auto-suggestions Dropdown */}
       {showSuggestions && (
-        <div className="absolute top-full mt-1 w-full max-w-lg bg-white border border-gray-300 rounded-md shadow-lg z-10">
+        <div className="absolute top-full mt-1 w-full max-w-lg bg-[var(--dropdown-bg)] border-[var(--dropdown-border)] rounded-md shadow-lg z-10">
           {suggestions.length > 0 ? (
             suggestions.map((suggestion) => (
               <div
                 key={suggestion._id}
                 onClick={() => handleSuggestionClick(suggestion.title)}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                className="px-4 py-2 cursor-pointer hover:bg-[var(--dropdown-hover-bg)] text-[var(--dropdown-text)]"
               >
                 {suggestion.title}
               </div>
             ))
           ) : (
-            <div className="px-4 py-2 text-gray-500">No recipes found</div>
+            <div className="px-4 py-2 text-[var(--dropdown-muted-text)]">
+              No recipes found
+            </div>
           )}
         </div>
       )}
     </div>
   );
-};
-export default SearchBar;
+  };
+  
+  export default SearchBar;
+  
