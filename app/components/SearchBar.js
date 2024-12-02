@@ -141,15 +141,32 @@ const SearchBar = () => {
   const handleSuggestionClick = (title) => {
     setTextSearchQuery(title);
     setShowSuggestions(false); // Close the suggestion pop-up
-    performSearch(title); // Fetch the full recipe details
+    performSearch(title); // Fetch the full recipe details with the selected suggestion
   };
 
   /**
-   * Highlights matching words in the recipe titles.
-   * @param {string} title - The recipe title.
+   * Performs the search when a suggestion is clicked or search is manually submitted.
    * @param {string} query - The search query.
-   * @returns {JSX.Element} The title with highlighted matches.
    */
+  const performSearch = (query) => {
+    // Construct the search URL with the query parameter
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set("search", encodeURIComponent(query));
+
+    let url = `recipe/?page=1&limit=20`;
+
+    if (query && query.trim() !== "") {
+      url += `&search=${encodeURIComponent(query)}`;
+    }
+
+    if (searchCategoryQuery && searchCategoryQuery.trim() !== "") {
+      url += `&category=${encodeURIComponent(searchCategoryQuery)}`;
+    }
+
+    setIsLoading(true); // Set loading to true when search starts
+    // Redirect to the new URL with updated search parameters
+    router.push(url);
+  };
 
   return (
     <div className="relative flex justify-center mt-8">
@@ -159,16 +176,16 @@ const SearchBar = () => {
           placeholder="Search for recipes..."
           value={searchTextQuery}
           onChange={handleInputChange}
-          className="w-full max-w-lg px-4 py-2 border-2 rounded-l-md focus:outline-none focus:ring-2 text-[var(--input-text)] bg-[var(--input-bg)] border-[var(--input-border)] focus:ring-[var(--button-hover-bg)]"
+          className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
         />
 
         {/* Button */}
         <button
           type="submit"
-          className={`px-6 py-2 text-[var(--button-text)] bg-[var(--button-bg)] hover:bg-[var(--button-hover-bg)] rounded-r-md shadow-md transition-all duration-300 flex items-center justify-center ${
+          className={`px-6 py-2 rounded-r-md shadow-md transition-all duration-300 flex items-center justify-center text-white ${
             isLoading
-              ? "bg-[var(--button-bg)] cursor-not-allowed"
-              : "bg-[var(--button1-bg)] hover:bg-[var(--button-hover-bg)]"
+              ? "bg-gray-600 cursor-not-allowed"
+              : "bg-black hover:bg-gray-800"
           }`}
           disabled={isLoading} // Disable button when loading
         >
@@ -182,27 +199,26 @@ const SearchBar = () => {
 
       {/* Auto-suggestions Dropdown */}
       {showSuggestions && (
-        <div className="absolute top-full mt-1 w-full max-w-lg bg-[var(--dropdown-bg)] border-[var(--dropdown-border)] rounded-md shadow-lg z-10">
+        <div className="absolute top-full mt-1 w-full max-w-lg bg-white border border-gray-300 rounded-md shadow-lg z-10">
           {suggestions.length > 0 ? (
             suggestions.map((suggestion) => (
               <div
                 key={suggestion._id}
                 onClick={() => handleSuggestionClick(suggestion.title)}
-                className="px-4 py-2 cursor-pointer hover:bg-[var(--dropdown-hover-bg)] text-[var(--dropdown-text)]"
+                className="cursor-pointer hover:bg-gray-100 px-4 py-2"
               >
-                {suggestion.title}
+                <p className="text-sm text-black">{suggestion.title}</p>
               </div>
             ))
           ) : (
-            <div className="px-4 py-2 text-[var(--dropdown-muted-text)]">
-              No recipes found
+            <div className="px-4 py-2 text-sm text-gray-500">
+              No suggestions
             </div>
           )}
         </div>
       )}
     </div>
   );
-  };
-  
-  export default SearchBar;
-  
+};
+
+export default SearchBar;
