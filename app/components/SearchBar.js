@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useRef, useState, useEffect } from "react";
 import { fetchRecipes } from "../../lib/api";
 
 /**
@@ -17,34 +17,29 @@ import { fetchRecipes } from "../../lib/api";
 const SearchBar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const search = searchParams.get("search") || "";
-  const category = searchParams.get("category") || "";
-  const tags = searchParams.get("tags") || "";
-  const steps = searchParams.get("steps") || "";
-  const [searchTextQuery, setTextSearchQuery] = useState(search); // State for the search text input
-  const [searchCategoryQuery, setCategorySearchQuery] = useState(category); // State for the category input
-  let debounceTimeout = useRef(null); // Ref to hold the debounce timer
-  const longQueryTimeout = useRef(null); // Separate timeout for long queries
+
+  // State for search parameters
+  const [searchTextQuery, setTextSearchQuery] = useState("");
+  const [searchCategoryQuery, setCategorySearchQuery] = useState("");
+  const [searchTagsQuery, setTagsSearchQuery] = useState("");
+  const [searchStepsQuery, setStepsSearchQuery] = useState("");
+
+  // Suggestions state and debouncing references
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searchTagsQuery, setTagsSearchQuery] = useState(tags); // State for the category input
-  const [searchStepsQuery, setStepsSearchQuery] = useState(steps); // State for the category input
   const [isLoading, setIsLoading] = useState(false);
+  const debounceTimeout = useRef(null);
+  const longQueryTimeout = useRef(null);
 
-  // /**
-  //  * Initializes the search query state from the URL search parameters.
-  //  * Runs once on component mount and when searchParams changes.
-  //  */
-  // useEffect(() => {
-  //   const search = searchParams.get("search") || "";
-  //   setTextSearchQuery(search);
-  //   const category = searchParams.get("category") || "";
-  //   setCategorySearchQuery(category);
-  //   const tags = searchParams.get("tags") || "";
-  //   setTagsSearchQuery(tags);
-  //   const steps = searchParams.get("steps") || "";
-  //   setStepsSearchQuery(steps);
-  // }, [searchParams]);
+  // Initialize states from search parameters when available
+  useEffect(() => {
+    if (searchParams) {
+      setTextSearchQuery(searchParams.get("search") || "");
+      setCategorySearchQuery(searchParams.get("category") || "");
+      setTagsSearchQuery(searchParams.get("tags") || "");
+      setStepsSearchQuery(searchParams.get("steps") || "");
+    }
+  }, [searchParams]);
 
   // Handle debounce for fetching suggestions
   const fetchSuggestions = async (query) => {
@@ -74,28 +69,55 @@ const SearchBar = () => {
     }
   };
 
+  // Debounced search input handler
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setTextSearchQuery(value);
+
+    // Clear any existing debounce
+    clearTimeout(debounceTimeout.current);
+    clearTimeout(longQueryTimeout.current);
+
+    // Short query debounce (1-3 characters)
+    if (!value.trim()) {
+      handleSearch("");
+    }
+
+    // Short query debounce (1-3 characters)
+    if (value.trim().length > 0 && value.trim().length <= 3) {
+      debounceTimeout.current = setTimeout(() => {
+        handleSearch(value);
+      }, 500);
+    }
+
+    // Long query debounce (>3 characters)
+    if (value.trim().length > 3) {
+      longQueryTimeout.current = setTimeout(() => {
+        fetchSuggestions(value);
+        handleSearch(value);
+      }, 500); // Debounce long queries with a delay of 500ms
+    }
+
+    // // New debounce for submitting any query after 500ms
+    // clearTimeout(debounceTimeout.current); // Clear previous timeout
+    // debounceTimeout.current = setTimeout(() => {
+    //   handleSearch(value); // Ensure the query is submitted after 500ms
+
+    // }, 500);
+  };
+
   /**
    * Handles the search form submission, constructs a new search URL,
    * and redirects the user to the updated URL with query parameters.
    *
    * @param {Event} [e] - The form submission event. Prevents default form behavior if provided.
    */
-  const handleSearch =
-    (value) => {
-      alert("hey")
-if (value !== searchTextQuery) {
-setTextSearchQuery(value)
-      // Construct the new search query
-      const newSearchParams = new URLSearchParams(searchParams.toString());
-      if (searchTextQuery.trim()) {
-        newSearchParams.set("search", encodeURIComponent(searchTextQuery));
-      } else {
-        newSearchParams.delete("search");
-      }
-
+  const handleSearch = (value) => {
+    if (value !== searchTextQuery) {
       let url = `recipe/?page=1&limit=20`;
-      if (searchTextQuery && searchTextQuery.trim() !== "") {
-        url += `&search=${encodeURIComponent(searchTextQuery)}`;
+
+      if (value && value.trim() !== "") {
+        url += `&search=${encodeURIComponent(value)}`;
       }
 
       if (searchCategoryQuery && searchCategoryQuery.trim() !== "") {
@@ -106,40 +128,6 @@ setTextSearchQuery(value)
       // Redirect to the new URL with updated search parameters
       router.push(url);
     }
-  }
-
-  // Debounced search input handler
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    // setTextSearchQuery(value);
-
-    // Clear any existing debounce
-    clearTimeout(debounceTimeout.current);
-    clearTimeout(longQueryTimeout.current);
-
-    // Short query debounce (1-3 characters)
-    if (value.trim().length > 0 && value.trim().length <= 3) {
-      debounceTimeout.current = setTimeout(() => {
-        handleSearch(value);
-     
-      }, 300);
-    }
-
-    // Long query debounce (>3 characters)
-    if (value.trim().length > 3) {
-      longQueryTimeout.current = setTimeout(() => {
-        fetchSuggestions(value);
-        handleSearch(value);
-     
-      }, 500); // Debounce long queries with a delay of 500ms
-    }
-
-    // // New debounce for submitting any query after 500ms
-    // clearTimeout(debounceTimeout.current); // Clear previous timeout
-    // debounceTimeout.current = setTimeout(() => {
-    //   handleSearch(value); // Ensure the query is submitted after 500ms
-    
-    // }, 500);
   };
 
   // Handle selection of an auto-suggested title
@@ -158,17 +146,13 @@ setTextSearchQuery(value)
 
   return (
     <div className="relative flex justify-center mt-8">
-      <form onSubmit={handleSearch} className="flex justify-center mt-8">
-        <input
-          type="text"
-          placeholder="Search for recipes..."
-          value={searchTextQuery}
-          onChange={handleInputChange}
-          className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
-        />
-
-  
-      </form>
+      <input
+        type="text"
+        placeholder="Search for recipes..."
+        value={searchTextQuery}
+        onChange={handleInputChange}
+        className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
+      />
 
       {/* Auto-suggestions Dropdown */}
       {showSuggestions && (
