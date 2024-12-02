@@ -176,7 +176,7 @@ const SearchBar = () => {
           placeholder="Search for recipes..."
           value={searchTextQuery}
           onChange={handleInputChange}
-          className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
+          className="w-full max-w-lg px-4 py-2 border-2 rounded-l-md focus:outline-none focus:ring-2 text-[var(--input-text)] bg-[var(--input-bg)] border-[var(--input-border)] focus:ring-[var(--button-hover-bg)]"
         />
 
         {/* Button */}
@@ -184,8 +184,8 @@ const SearchBar = () => {
           type="submit"
           className={`px-6 py-2 rounded-r-md shadow-md transition-all duration-300 flex items-center justify-center text-white ${
             isLoading
-              ? "bg-gray-600 cursor-not-allowed"
-              : "bg-black hover:bg-gray-800"
+              ? "bg-[var(--button-bg)] cursor-not-allowed"
+              : "[var(--button1-bg)] hover:bg-[var(--button-hover-bg)]"
           }`}
           disabled={isLoading} // Disable button when loading
         >
@@ -199,19 +199,19 @@ const SearchBar = () => {
 
       {/* Auto-suggestions Dropdown */}
       {showSuggestions && (
-        <div className="absolute top-full mt-1 w-full max-w-lg bg-white border border-gray-300 rounded-md shadow-lg z-10">
+        <div className="absolute top-full mt-1 w-full max-w-lg bg-[var(--dropdown-bg)] border-[var(--dropdown-border)] rounded-md shadow-lg z-10">
           {suggestions.length > 0 ? (
             suggestions.map((suggestion) => (
               <div
                 key={suggestion._id}
                 onClick={() => handleSuggestionClick(suggestion.title)}
-                className="cursor-pointer hover:bg-gray-100 px-4 py-2"
+                className="px-4 py-2 cursor-pointer hover:bg-[var(--dropdown-hover-bg)] text-[var(--dropdown-text)]"
               >
                 <p className="text-sm text-black">{suggestion.title}</p>
               </div>
             ))
           ) : (
-            <div className="px-4 py-2 text-sm text-gray-500">
+            <div className="px-4 py-2 text-[var(--dropdown-muted-text)]">
               No suggestions
             </div>
           )}
