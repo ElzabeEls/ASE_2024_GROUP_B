@@ -91,6 +91,7 @@ export default function ReadInstructionsButton({ instructions }) {
 
       utterance.onend = () => {
         setIsRepeating(false);
+        setResumeIndex(currentStep);
         readRemainingInstructions();
       };
 
@@ -100,7 +101,6 @@ export default function ReadInstructionsButton({ instructions }) {
       setErrorMessage("No step to repeat currently.");
     }
   }, [currentStep, instructions, speed, readRemainingInstructions]);
-
   const resumeReading = useCallback(() => {
     if (isReading && isPaused) {
       window.speechSynthesis.resume();
@@ -225,14 +225,11 @@ export default function ReadInstructionsButton({ instructions }) {
       <button
         onClick={handleButtonClick}
         className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 mb-4 flex items-center gap-2"
-
         title="Read Instructions"
-        
       >
         <BookOpen className="w-5 h-5" aria-label="Read Instructions" />
         <SpeedAdjuster speed={speed} setSpeed={setSpeed} />
       </button>
-
 
       {/* Error message display */}
 
@@ -242,5 +239,5 @@ export default function ReadInstructionsButton({ instructions }) {
         </div>
       )}
     </div>
-  );  
+  );
 }
