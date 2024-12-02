@@ -67,6 +67,15 @@ export default async function RecipePage({ searchParams }) {
             </span>
           </span>
         )}
+
+        {searchParams.search && (
+          <span className="text-md font-semibold">
+            Search Total:{" "}
+            <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
+              {recipes.length}
+            </span>
+          </span>
+        )}
         {searchParams.steps && (
           <span className="text-md font-semibold ml-4">
             Steps:{" "}
@@ -84,7 +93,6 @@ export default async function RecipePage({ searchParams }) {
         </p>
       )}
 
-      
       {/*   Recipe Count Message */}
       <div className="text-gray-600 mt-4 text-center">
         {recipes.length > 0 ? (
