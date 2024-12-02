@@ -103,6 +103,7 @@ export default function ReadInstructionsButton({ instructions }) {
 
   const resumeReading = useCallback(() => {
     if (isReading && isPaused) {
+      window.speechSynthesis.resume();
       setIsPaused(false);
       setIsRepeating(false);
       readRemainingInstructions();
@@ -229,8 +230,6 @@ export default function ReadInstructionsButton({ instructions }) {
         <BookOpen className="w-5 h-5" aria-label="Read Instructions" />
         <SpeedAdjuster speed={speed} setSpeed={setSpeed} />
       </button>
-
-      
 
       {/* Error message display */}
       {errorMessage && (
