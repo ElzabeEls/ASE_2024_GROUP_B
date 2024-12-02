@@ -91,6 +91,7 @@ export default function ReadInstructionsButton({ instructions }) {
 
       utterance.onend = () => {
         setIsRepeating(false);
+        // Resume from the current step after repeating
         setResumeIndex(currentStep);
         readRemainingInstructions();
       };
@@ -101,6 +102,7 @@ export default function ReadInstructionsButton({ instructions }) {
       setErrorMessage("No step to repeat currently.");
     }
   }, [currentStep, instructions, speed, readRemainingInstructions]);
+
   const resumeReading = useCallback(() => {
     if (isReading && isPaused) {
       window.speechSynthesis.resume();
