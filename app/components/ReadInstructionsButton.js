@@ -225,18 +225,22 @@ export default function ReadInstructionsButton({ instructions }) {
       <button
         onClick={handleButtonClick}
         className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 mb-4 flex items-center gap-2"
+
         title="Read Instructions"
+        
       >
         <BookOpen className="w-5 h-5" aria-label="Read Instructions" />
         <SpeedAdjuster speed={speed} setSpeed={setSpeed} />
       </button>
 
+
       {/* Error message display */}
+
       {errorMessage && (
-        <div className="text-red-500 mt-2 text-sm font-medium">
+        <div className="error-message text-[var(--error-text)] mt-2">
           {errorMessage}
         </div>
       )}
     </div>
-  );
+  );  
 }
