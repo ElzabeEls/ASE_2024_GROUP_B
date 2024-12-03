@@ -185,3 +185,35 @@ export async function PUT(req) {
     );
   }
 }
+
+export async function DELETE(req) {
+  try {
+    const dbClient = await clientPromise;
+    const db = dbClient.db("devdb");
+    const shoppingLists = db.collection("shopping_lists");
+
+    // Parse the userId from the query parameters
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+
+    // Validate the userId
+    if (!userId) {
+      return NextResponse.json(
+        { message: "User ID is required to delete the shopping list." },
+        { status: 400 }
+      );
+    }
+
+    // Attempt to delete the shopping list for the given userId
+    const result = await shoppingLists.deleteOne({ userId });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { message: "No shopping list found for this user to delete." },
+        { status: 404 }
+      );
+    }
+
+   
+  }
+}
