@@ -169,5 +169,19 @@ export async function PUT(req) {
       );
     }
 
-   
+    // Respond with success
+    return NextResponse.json(
+      { message: "Shopping list updated successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating shopping list:", error);
+    return NextResponse.json(
+      {
+        message: "Failed to update shopping list. Please try again later.",
+        error: error.message,
+      },
+      { status: 500 }
+    );
+  }
 }
