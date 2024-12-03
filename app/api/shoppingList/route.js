@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/mongodb";
 
+// Save a new shopping list
 export async function POST(req) {
   try {
     const dbClient = await clientPromise;
@@ -60,6 +61,7 @@ export async function POST(req) {
   }
 }
 
+// Retrieve a shopping list
 export async function GET(req) {
   try {
     const dbClient = await clientPromise;
@@ -101,6 +103,7 @@ export async function GET(req) {
   }
 }
 
+// Update or add items to a shopping list
 export async function PUT(req) {
   try {
     const dbClient = await clientPromise;
@@ -210,40 +213,58 @@ export async function PUT(req) {
   }
 }
 
+// Remove specific items from a shopping list
 export async function DELETE(req) {
   try {
     const dbClient = await clientPromise;
     const db = dbClient.db("devdb");
     const shoppingLists = db.collection("shopping_lists");
 
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
+    const { userId, items } = await req.json();
 
-    if (!userId) {
+    if (!userId || !Array.isArray(items) || items.length === 0 || items.some((item) => !item.name)) {
       return NextResponse.json(
-        { message: "User ID is required to delete the shopping list." },
+        { message: "Invalid input data. Each item must have a 'name'." },
         { status: 400 }
       );
     }
 
-    const result = await shoppingLists.deleteOne({ userId });
+    const existingList = await shoppingLists.findOne({ userId });
 
-    if (result.deletedCount === 0) {
+    if (!existingList) {
       return NextResponse.json(
-        { message: "No shopping list found for this user to delete." },
+        { message: "Shopping list not found for this user." },
+        { status: 404 }
+      );
+    }
+
+    const itemNamesToRemove = items.map((item) => item.name.trim().toLowerCase());
+
+    const result = await shoppingLists.updateOne(
+      { userId },
+      {
+        $pull: {
+          items: { name: { $in: itemNamesToRemove } },
+        },
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return NextResponse.json(
+        { message: "No matching items were found to remove." },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { message: "Shopping list deleted successfully." },
+      { message: "Specified items removed from shopping list successfully." },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting shopping list:", error);
+    console.error("Error removing items from shopping list:", error);
     return NextResponse.json(
       {
-        message: "Failed to delete shopping list. Please try again later.",
+        message: "Failed to remove items from shopping list. Please try again later.",
         error: error.message,
       },
       { status: 500 }
