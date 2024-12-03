@@ -110,3 +110,64 @@ export async function GET(req) {
     );
   }
 }
+
+export async function PUT(req) {
+  try {
+    const dbClient = await clientPromise;
+    const db = dbClient.db("devdb");
+    const shoppingLists = db.collection("shopping_lists");
+
+    // Parse the incoming JSON data
+    const { userId, items } = await req.json();
+
+    // Validate the input
+    if (
+      !userId ||
+      !Array.isArray(items) ||
+      items.length === 0 ||
+      items.some((item) => !item.name)
+    ) {
+      return NextResponse.json(
+        {
+          message: "Invalid input data. Each item must have a 'name'.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if the shopping list exists for the user
+    const existingList = await shoppingLists.findOne({ userId });
+    if (!existingList) {
+      return NextResponse.json(
+        { message: "Shopping list not found for this user." },
+        { status: 404 }
+      );
+    }
+
+    // Update the items in the shopping list
+    const updatedItems = items.map((item) => ({
+      name: item.name.trim().toLowerCase(),
+      quantity: item.quantity || 1, // Default quantity to 1
+      purchased: item.purchased || false, // Default purchased status to false
+    }));
+
+    // Perform the update in the database
+    const result = await shoppingLists.updateOne(
+      { userId },
+      {
+        $set: {
+          items: updatedItems,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return NextResponse.json(
+        { message: "Failed to update shopping list. No changes were made." },
+        { status: 500 }
+      );
+    }
+
+   
+}
