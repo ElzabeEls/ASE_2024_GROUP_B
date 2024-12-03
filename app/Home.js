@@ -17,25 +17,22 @@ export default function Home({ searchParams }) {
   useEffect(() => {
     // Fetch recipes on load
     const fetchHighRatedRecipes = async () => {
-      const data = await fetchRecipes(
-        1, // Page 1 to get the first set of recipes
-        100, // Get a large number of recipes to filter top-rated ones
-        "",
-        "",
-        [],
-        ""
-      );
-      
-      // Sort recipes by rating (mocked rating)
-      const highRatedRecipes = data
-        .map((recipe) => ({
-          ...recipe,
-          rating: generateMockRating(), // Add mock rating to each recipe
-        }))
-        .sort((a, b) => b.rating - a.rating) // Sort by highest rating
-        .slice(0, 10); // Get top 10 or fewer recipes
-      
-      setRecommendedRecipes(highRatedRecipes);
+      try {
+        const data = await fetchRecipes(1, 100, "", "", [], "");
+        const highRatedRecipes = data
+          .map((recipe) => ({
+            ...recipe,
+            rating: generateMockRating(),
+          }))
+          .sort((a, b) => b.rating - a.rating)
+          .slice(0, 10);
+
+        setRecommendedRecipes(highRatedRecipes);
+      } catch (error) {
+        console.error("Error fetching recipes:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchHighRatedRecipes();
