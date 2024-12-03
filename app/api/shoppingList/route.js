@@ -214,6 +214,19 @@ export async function DELETE(req) {
       );
     }
 
-   
+    // Respond with success
+    return NextResponse.json(
+      { message: "Shopping list deleted successfully." },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting shopping list:", error);
+    return NextResponse.json(
+      {
+        message: "Failed to delete shopping list. Please try again later.",
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
