@@ -12,6 +12,7 @@ const generateMockRating = () => {
 
 export default function Home({ searchParams }) {
   const [recommendedRecipes, setRecommendedRecipes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch recipes on load
