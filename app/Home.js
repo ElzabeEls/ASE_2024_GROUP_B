@@ -6,8 +6,7 @@ import { fetchRecipes } from "../lib/api";
 import Loading from "./loading";
 
 const generateMockRating = () => {
-  // Generate a random rating between 1 and 5
-  return (Math.random() * 4 + 1).toFixed(1); // Random number between 1 and 5 with one decimal point
+  return (Math.random() * 4 + 1).toFixed(1);
 };
 
 export default function Home({ searchParams }) {
@@ -97,15 +96,7 @@ export default function Home({ searchParams }) {
               </div>
             )}
           </div>
-        </div>
-        
-        {/* Add navigation arrows for carousel */}
-        <div className="absolute top-1/2 left-4 transform -translate-y-1/2 text-white cursor-pointer">
-          ←
-        </div>
-        <div className="absolute top-1/2 right-4 transform -translate-y-1/2 text-white cursor-pointer">
-          →
-        </div>
+        </section>
       </div>
     </main>
   );
