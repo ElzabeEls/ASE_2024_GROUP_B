@@ -5,8 +5,8 @@ import { useRef, useState, useEffect } from "react";
 import { fetchRecipes } from "../../lib/api";
 
 /**
- * A search bar component that allows users to search for recipes by title and category.
- * It handles query debouncing, search parameter updates, and redirects based on user input.
+ * A search bar component that allows users to search for recipes by title, category, tags, and steps.
+ * * It includes debounced input handling, displays suggestions, and updates the URL query parameters.
  *
  * @component
  * @example
@@ -18,20 +18,23 @@ const SearchBar = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // State for search parameters
-  const [searchTextQuery, setTextSearchQuery] = useState("");
-  const [searchCategoryQuery, setCategorySearchQuery] = useState("");
-  const [searchTagsQuery, setTagsSearchQuery] = useState("");
-  const [searchStepsQuery, setStepsSearchQuery] = useState("");
+  // State for managing search inputs and suggestions
+  const [searchTextQuery, setTextSearchQuery] = useState(""); // The current search text input
+  const [searchCategoryQuery, setCategorySearchQuery] = useState(""); // The selected category for filtering
+  const [searchTagsQuery, setTagsSearchQuery] = useState(""); // The selected tags for filtering
+  const [searchStepsQuery, setStepsSearchQuery] = useState(""); // The selected steps for filtering
 
-  // Suggestions state and debouncing references
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const debounceTimeout = useRef(null);
-  const longQueryTimeout = useRef(null);
+  const [suggestions, setSuggestions] = useState([]); // Suggestions for the current query
+  const [showSuggestions, setShowSuggestions] = useState(false); // Flag to control suggestion dropdown visibility
+  const [isLoading, setIsLoading] = useState(false); // Loading state for fetching suggestions.
 
-  // Initialize states from search parameters when available
+  const debounceTimeout = useRef(null); // Timeout reference for short query debounce
+  const longQueryTimeout = useRef(null); // Timeout reference for long query debounce
+
+
+   /**
+   * Syncs the search state with URL query parameters when the component mounts or query parameters change.
+   */
   useEffect(() => {
     if (searchParams) {
       setTextSearchQuery(searchParams.get("search") || "");
@@ -41,7 +44,14 @@ const SearchBar = () => {
     }
   }, [searchParams]);
 
-  // Handle debounce for fetching suggestions
+
+
+   /**
+   * Fetches recipe suggestions based on the search query.
+   * Updates the suggestions state and handles loading status.
+   *
+   * @param {string} query - The current search query.
+   */
   const fetchSuggestions = async (query) => {
     if (query.length < 3) {
       setSuggestions([]);
@@ -69,7 +79,12 @@ const SearchBar = () => {
     }
   };
 
-  // Debounced search input handler
+
+/**
+   * Handles changes in the search input field and debounces the query submission.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
+   */
   const handleInputChange = (e) => {
     const value = e.target.value;
     setTextSearchQuery(value);
@@ -87,10 +102,10 @@ const SearchBar = () => {
     if (value.trim().length > 0 && value.trim().length <= 3) {
       debounceTimeout.current = setTimeout(() => {
         handleSearch(value);
-      }, 500);
+      }, 300);  // Debounce short queries with a delay of 300ms
     }
 
-    // Long query debounce (>3 characters)
+    // Long query debounce (> 3 characters)
     if (value.trim().length > 3) {
       longQueryTimeout.current = setTimeout(() => {
         fetchSuggestions(value);
@@ -98,19 +113,19 @@ const SearchBar = () => {
       }, 500); // Debounce long queries with a delay of 500ms
     }
 
-    // // New debounce for submitting any query after 500ms
-    // clearTimeout(debounceTimeout.current); // Clear previous timeout
-    // debounceTimeout.current = setTimeout(() => {
-    //   handleSearch(value); // Ensure the query is submitted after 500ms
-
-    // }, 500);
+    // Debounce for submitting any query when waiting
+    clearTimeout(debounceTimeout.current); // Clear previous timeout
+    debounceTimeout.current = setTimeout(() => {
+      handleSearch(value); 
+    }, 500);// Ensure the query is submitted after 500ms
   };
+
 
   /**
    * Handles the search form submission, constructs a new search URL,
    * and redirects the user to the updated URL with query parameters.
    *
-   * @param {Event} [e] - The form submission event. Prevents default form behavior if provided.
+   * @param {string} value - The search query to process.
    */
   const handleSearch = (value) => {
     if (value !== searchTextQuery) {
@@ -134,15 +149,9 @@ const SearchBar = () => {
   const handleSuggestionClick = (title) => {
     setTextSearchQuery(title);
     setShowSuggestions(false); // Close the suggestion pop-up
-    performSearch(title); // Fetch the full recipe details
+    handleSearch(title);
   };
 
-  /**
-   * Highlights matching words in the recipe titles.
-   * @param {string} title - The recipe title.
-   * @param {string} query - The search query.
-   * @returns {JSX.Element} The title with highlighted matches.
-   */
 
   return (
     <div className="relative flex justify-center mt-8">
