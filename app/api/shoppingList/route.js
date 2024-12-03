@@ -94,6 +94,19 @@ export async function GET(req) {
       );
     }
 
-    
+    // Respond with the shopping list
+    return NextResponse.json(
+      { message: "Shopping list retrieved successfully", data: shoppingList },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error fetching shopping list:", error);
+    return NextResponse.json(
+      {
+        message: "Failed to fetch shopping list. Please try again later.",
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
