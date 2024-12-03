@@ -39,30 +39,48 @@ export default function Home({ searchParams }) {
   }, []);
 
   return (
-    <main>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-center mb-8">Recommended Recipes</h1>
-      </div>
+    <main
+      className="relative min-h-screen bg-cover bg-center"
+      style={{
+        backgroundImage: "url('/background.jpg')",
+      }}
+    >
+      {/* Overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/30"></div>
 
-      {/* Carousel of Recommended Recipes */}
-      <div className="relative mb-8">
-        <div className="carousel-container overflow-hidden relative">
-          <div className="carousel flex space-x-4">
-            {recommendedRecipes.length > 0 ? (
-              recommendedRecipes.map((recipe) => (
-                <div
-                  key={recipe._id}
-                  className="carousel-item bg-white p-4 rounded-lg shadow-md w-80"
-                >
-                  {/* Recipe Card */}
-                  <image
-                    src={recipe.image || "/default-image.jpg"}
-                    alt={recipe.title}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                  />
-                  <h3 className="text-xl font-semibold">{recipe.title}</h3>
-                  <div className="flex items-center mt-2">
-                    <span className="text-orange-500 font-semibold">
+      <div className="relative z-10 text-center text-white py-12 px-4">
+        <header className="mb-8">
+          <h1 className="text-4xl font-bold">Welcome to Recipe Paradise!</h1>
+          <p className="text-lg mt-2">
+            Explore top-rated recipes curated just for you.
+          </p>
+        </header>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-6">Recommended Recipes</h2>
+
+          {/* Carousel */}
+          <div className="relative">
+            {isLoading ? (
+              <Loading />
+            ) : (
+              <div className="carousel-container flex overflow-x-scroll space-x-6 scrollbar-hide">
+                {recommendedRecipes.map((recipe) => (
+                  <div
+                    key={recipe._id}
+                    className="bg-white/80 p-4 rounded-lg shadow-md flex-shrink-0 w-72 flex flex-col"
+                  >
+                    <Image
+                      src={recipe.images[0] || "/default-image.jpg"} // Ensure fallback
+                      alt={recipe.title}
+                      width={288} // Matches w-72 (72 * 4px = 288px)
+                      height={192} // Matches h-48 (48 * 4px = 192px)
+                      className="w-full h-48 object-cover rounded-lg"
+                    />
+                    <h3 className="text-xl font-semibold mt-4 text-gray-900 text-center">
+                      {recipe.title}
+                    </h3>
+                    <p className="text-orange-500 mt-2 text-center">
                       Rating: {recipe.rating} / 5
                     </span>
                   </div>
