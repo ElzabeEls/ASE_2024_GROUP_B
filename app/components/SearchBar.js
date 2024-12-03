@@ -156,23 +156,27 @@ const SearchBar = () => {
 
       {/* Auto-suggestions Dropdown */}
       {showSuggestions && (
-        <div className="absolute top-full mt-1 w-full max-w-lg bg-white border border-gray-300 rounded-md shadow-lg z-10">
+        <div className="absolute top-full mt-1 w-full max-w-lg bg-[var(--dropdown-bg)] border-[var(--dropdown-border)] rounded-md shadow-lg z-10">
           {suggestions.length > 0 ? (
             suggestions.map((suggestion) => (
               <div
                 key={suggestion._id}
                 onClick={() => handleSuggestionClick(suggestion.title)}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                className="px-4 py-2 cursor-pointer hover:bg-[var(--dropdown-hover-bg)] text-[var(--dropdown-text)]"
               >
                 {suggestion.title}
               </div>
             ))
           ) : (
-            <div className="px-4 py-2 text-gray-500">No recipes found</div>
+            <div className="px-4 py-2 text-[var(--dropdown-muted-text)]">
+              No recipes found
+            </div>
           )}
         </div>
       )}
     </div>
   );
-};
-export default SearchBar;
+  };
+  
+  export default SearchBar;
+  

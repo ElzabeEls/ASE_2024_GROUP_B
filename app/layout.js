@@ -47,14 +47,6 @@ export default function RootLayout({ children }) {
       </Head>
       <body className={`flex flex-col min-h-screen ${isDarkMode ? 'dark' : ''}`}>
         <Header />
-        <div className="flex justify-center p-4">
-          <button
-            onClick={toggleTheme}
-            className="theme-toggle bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-4 py-2 rounded"
-          >
-            Toggle {isDarkMode ? "Light" : "Dark"} Mode
-          </button>
-        </div>
         <main className="flex-grow pt-16">{children}</main>
         <Footer />
       </body>

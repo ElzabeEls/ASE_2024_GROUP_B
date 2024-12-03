@@ -32,33 +32,41 @@ export default function RecipeCard({ recipe, searchQuery }) {
   // Calculate total time by adding prep and cook times
   const totalTime = (recipe.prep || 0) + (recipe.cook || 0);
   return (
-    <div className=" bg-peach rounded-lg overflow-hidden shadow-md hover:shadow-2xl hover:shadow-orange-700 p-4">
-    <Head>
-      <title>{recipe.title} | Recipe Details</title>
-      <meta name="description" content={`Learn to make ${recipe.title} with this detailed recipe. Prep time: ${recipe.prep} mins, Cook time: ${recipe.cook} mins.`} />
-      <meta property="og:title" content={recipe.title} />
-      <meta property="og:description" content={`Recipe for ${recipe.title}. Total time: ${totalTime} mins.`} />
-      <meta property="og:image" content={recipe.images[0]} />
-      {/* <meta name="twitter:card" content="summary_large_image" />
+    <div className="bg-[var(--card-bg)] rounded-lg overflow-hidden shadow-md hover:shadow-2xl hover:shadow-[var(--hover-shadow)] p-4">
+      <Head>
+        <title>{recipe.title} | Recipe Details</title>
+        <meta
+          name="description"
+          content={`Learn to make ${recipe.title} with this detailed recipe. Prep time: ${recipe.prep} mins, Cook time: ${recipe.cook} mins.`}
+        />
+        <meta property="og:title" content={recipe.title} />
+        <meta
+          property="og:description"
+          content={`Recipe for ${recipe.title}. Total time: ${totalTime} mins.`}
+        />
+        <meta property="og:image" content={recipe.images[0]} />
+        {/* <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={recipe.title} />
       <meta name="twitter:description" content={`Detailed recipe for ${recipe.title}.`} />
       <meta name="twitter:image" content={recipe.images[0]} /> */}
-    </Head>
+      </Head>
       <Carousel
         images={recipe.images}
         alt={recipe.title}
         className="w-full h-48 object-cover rounded-md"
       />
-      <p className="text-gray-600 text-xs mt-1">
+      <p className="text-[var(--text-muted)] text-xs mt-1">
         Published : {formatDate(recipe.published)}
       </p>
       <div className="p-4">
-        <h3 className="text-brown font-bold text-xl">{highlightText(recipe.title, searchQuery)}</h3>
+        <h3 className="text-[var(--text-heading)] font-bold text-xl">
+        {highlightText(recipe.title, searchQuery)}
+        </h3>
 
         <div className="flex items-center justify-between mt-3 p-4">
-          <p className="flex flex-col items-center fill-current text-green-800  flex-grow text-center">
+          <p className="flex flex-col items-center text-[var(--prep-time-color)] flex-grow text-center">
             <svg
-              fill="#000000"
+              fill="currentColor"
               width="25px"
               height="25px"
               viewBox="0 0 128 128"
@@ -77,9 +85,9 @@ export default function RecipeCard({ recipe, searchQuery }) {
             {recipe.prep} mins
           </p>
           {/* Display cooking time */}
-          <p className="flex flex-col items-center fill-current text-green-900 flex-grow text-center">
+          <p className="flex flex-col items-center text-[var(--prep-time-color)] flex-grow text-center">
             <svg
-              fill="#000000"
+              fill="currentColor"
               height="25px"
               width="25px"
               version="1.1"
@@ -102,24 +110,24 @@ export default function RecipeCard({ recipe, searchQuery }) {
             {recipe.cook} mins
           </p>
 
-          <p className="flex flex-col items-center fill-current text-green-800 flex-grow text-center">
+          <p className="flex flex-col items-center text-[var(--prep-time-color)] flex-grow text-center">
             <svg
+              fill="currentColor"
               width="25px"
               height="25px"
               viewBox="0 0 64 64"
               xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              stroke="#000000"
+              stroke="#currentColor"
             >
-              <circle cx="32" cy="32" r="24" />
-              <polyline points="40 44 32 32 32 16" strokeWidth="4px" />
+              <circle cx="32" cy="32" r="24" stroke="currentColor" strokeWidth="2" fill="none" />
+              <polyline points="40 44 32 32 32 16" stroke ="currentColor" strokeWidth="4px" />
             </svg>
             {totalTime} Mins Total
           </p>
 
-          <p className="flex flex-col items-center fill-current text-green-800 flex-grow text-center">
+          <p className="flex flex-col items-center text-[var(--prep-time-color)] flex-grow text-center">
             <svg
-              fill="#000000"
+              fill="currentColor"
               height="25px"
               width="25px"
               xmlns="http://www.w3.org/2000/svg"
@@ -138,7 +146,8 @@ export default function RecipeCard({ recipe, searchQuery }) {
 
         <Link
           href={`/recipes/${recipe._id}`}
-          className="mt-4 block text-center text-white bg-brown rounded-full py-2 hover:bg-green-800 transition duration-200"
+          className="mt-4 block text-center font-bold text-[var(--button-text-color)] bg-[var(--button-bg-color)] rounded-full py-2 hover:bg-[var(--button-hover-bg-color)] transition duration-200"
+
         >
           Get Cooking
         </Link>
