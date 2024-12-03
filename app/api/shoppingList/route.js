@@ -38,7 +38,7 @@ export async function POST(req) {
     const newShoppingList = {
       userId,
       items: items.map((item) => ({
-        name: item.name,
+        name: item.name.trim().toLowerCase(),
         quantity: item.quantity || 1, // Default quantity to 1
         purchased: item.purchased || false, // Default purchased status to false
       })),
@@ -51,7 +51,7 @@ export async function POST(req) {
 
     // Respond with success
     return NextResponse.json(
-      { message: "Shopping list saved successfully", data: result },
+      { message: "Shopping list saved successfully", listId: result.insertedId },
       { status: 201 }
     );
   } catch (error) {
@@ -63,5 +63,37 @@ export async function POST(req) {
       },
       { status: 500 }
     );
+  }
+}
+
+export async function GET(req) {
+  try {
+    const dbClient = await clientPromise;
+    const db = dbClient.db("devdb");
+    const shoppingLists = db.collection("shopping_lists");
+
+    // Get the userId from the query parameters
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+
+    // Validate the userId
+    if (!userId) {
+      return NextResponse.json(
+        { message: "User ID is required to fetch the shopping list." },
+        { status: 400 }
+      );
+    }
+
+    // Fetch the shopping list for the user
+    const shoppingList = await shoppingLists.findOne({ userId });
+
+    if (!shoppingList) {
+      return NextResponse.json(
+        { message: "No shopping list found for this user." },
+        { status: 404 }
+      );
+    }
+
+    
   }
 }
