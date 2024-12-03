@@ -82,17 +82,19 @@ export default function Home({ searchParams }) {
                     </h3>
                     <p className="text-orange-500 mt-2 text-center">
                       Rating: {recipe.rating} / 5
-                    </span>
+                    </p>
+
+                    {/* Push button to the bottom */}
+                    <div className="mt-auto">
+                      <Link href={`/recipes/${recipe._id}`} passHref>
+                        <button className="w-full py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600">
+                          View Recipe
+                        </button>
+                      </Link>
+                    </div>
                   </div>
-                  <Link href={`/recipes/${recipe._id}`} passHref>
-                    <button className="mt-4 w-full py-2 bg-orange-500 text-white rounded-md">
-                      View Recipe
-                    </button>
-                  </Link>
-                </div>
-              ))
-            ) : (
-              < Loading/>
+                ))}
+              </div>
             )}
           </div>
         </div>
