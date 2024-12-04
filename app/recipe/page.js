@@ -89,7 +89,7 @@ export default async function RecipePage({ searchParams }) {
       {/* No recipes found message in search */}
       {noRecipesFoundInSearch && (
         <p className="text-center text-lg text-red-500 mb-8">
-         Oops! It looks like we don't have that recipe just yet. Maybe try a different search?
+         Oops! It looks like we do not have that recipe just yet. Maybe try a different search?
         </p>
       )}
 
