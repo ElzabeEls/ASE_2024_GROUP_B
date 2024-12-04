@@ -36,6 +36,7 @@ export default async function RecipePage({ searchParams }) {
   );
 
   const recipes = Array.isArray(data) ? data : [];
+  const totalCount = data.totalCount || 0;
   const noRecipesFound =
     recipes.length === 0 && searchParams.steps && searchParams.steps !== "";
 
@@ -67,7 +68,7 @@ export default async function RecipePage({ searchParams }) {
             </span>
           </span>
         )}
-
+{/* 
         {searchParams.search && (
           <span className="text-md font-semibold">
             Search Total:{" "}
@@ -75,7 +76,7 @@ export default async function RecipePage({ searchParams }) {
               {recipes.length}
             </span>
           </span>
-        )}
+        )} */}
         {searchParams.steps && (
           <span className="text-md font-semibold ml-4">
             Steps:{" "}
@@ -95,8 +96,8 @@ export default async function RecipePage({ searchParams }) {
 
       {/*   Recipe Count Message */}
       <div className="text-gray-600 mt-4 text-center">
-        {recipes.length > 0 ? (
-          <p>{recipes.length} recipes match your search and filter criteria.</p>
+        {totalCount > 0 ? (
+          <p>{totalCount} recipes match your search and filter criteria.</p>
         ) : (
           <p>No recipes match your criteria.</p>
         )}

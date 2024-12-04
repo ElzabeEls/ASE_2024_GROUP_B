@@ -21,11 +21,19 @@ export async function GET(req) {
     const limit = parseInt(url.searchParams.get("limit") || "20", 10);
     const search = url.searchParams.get("search") || "";
     const category = url.searchParams.get("category") || "";
-    const tags = url.searchParams.get("tags") ? url.searchParams.get("tags").split(",").map(tag => tag.trim()) : [];
+    const tags = url.searchParams.get("tags")
+      ? url.searchParams
+          .get("tags")
+          .split(",")
+          .map((tag) => tag.trim())
+      : [];
     const steps = parseInt(url.searchParams.get("steps") || "", 10);
     const topRated = url.searchParams.get("top-rated") === "true"; // Check if requesting top-rated recipes
-    const ingredients = url.searchParams.get("ingredients") ? url.searchParams.get("ingredients").split(",") : [];
-    const ingredientsMatchType = url.searchParams.get("ingredientsMatchType") || "all"; // Get the match type (either "all" or "any")
+    const ingredients = url.searchParams.get("ingredients")
+      ? url.searchParams.get("ingredients").split(",")
+      : [];
+    const ingredientsMatchType =
+      url.searchParams.get("ingredientsMatchType") || "all"; // Get the match type (either "all" or "any")
 
     const skip = (page - 1) * limit;
 
@@ -33,7 +41,14 @@ export async function GET(req) {
 
     if (topRated) {
       pipeline.push(
-        { $lookup: { from: "reviews", localField: "_id", foreignField: "recipeId", as: "reviews" } },
+        {
+          $lookup: {
+            from: "reviews",
+            localField: "_id",
+            foreignField: "recipeId",
+            as: "reviews",
+          },
+        },
         { $addFields: { averageRating: { $avg: "$reviews.rating" } } },
         { $sort: { averageRating: -1 } },
         { $limit: 10 },
@@ -45,11 +60,15 @@ export async function GET(req) {
       }
 
       if (category.trim() !== "") {
-        pipeline.push({ $match: { category: new RegExp(`.*${category}.*`, "i") } });
+        pipeline.push({
+          $match: { category: new RegExp(`.*${category}.*`, "i") },
+        });
       }
 
       if (tags.length > 0) {
-        pipeline.push({ $match: { tags: { $in: tags.map(tag => new RegExp(tag, "i")) } } });
+        pipeline.push({
+          $match: { tags: { $in: tags.map((tag) => new RegExp(tag, "i")) } },
+        });
       }
 
       if (!isNaN(steps)) {
@@ -60,10 +79,17 @@ export async function GET(req) {
         const operator = ingredientsMatchType === "all" ? "$all" : "$in";
         pipeline.push({
           $match: {
-            "ingredients.name": { [operator]: ingredients.map(ingredient => new RegExp(ingredient, "i")) }
-          }
+            "ingredients.name": {
+              [operator]: ingredients.map(
+                (ingredient) => new RegExp(ingredient, "i")
+              ),
+            },
+          },
         });
       }
+      // Get the total count of all matching recipes without pagination
+      const totalCountPipeline = [...pipeline];
+      totalCountPipeline.push({ $count: "totalCount" });
 
       pipeline.push({ $skip: skip }, { $limit: limit });
     }
@@ -75,14 +101,18 @@ export async function GET(req) {
 
     const recipes = await recipesCursor.toArray();
 
-    if (recipes.length === 0) {
-      return NextResponse.json(
-        { message: "No recipes found with the specified filters." },
-        { status: 200 }
-      );
+    let totalCount = 0;
+    if (totalCountPipeline.length > 0) {
+      const countCursor = db.collection("recipes").aggregate(totalCountPipeline, {
+        maxTimeMS: 60000,
+      });
+      const countResult = await countCursor.toArray();
+      if (countResult.length > 0) {
+        totalCount = countResult[0].totalCount;
+      }
     }
 
-    return NextResponse.json({ recipes }, { status: 200 });
+    return NextResponse.json({ recipes, totalCount }, { status: 200 });
   } catch (error) {
     return handleApiError(NextResponse, error);
   }
