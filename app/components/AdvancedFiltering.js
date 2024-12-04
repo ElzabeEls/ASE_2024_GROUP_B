@@ -68,6 +68,17 @@ export default function AdvancedFiltering({
 
   };
 
+  const handleClearCategoryFilter = () => {
+    setSelectedCategory(null);
+  
+    // Remove the category filter from the URL to show all recipes
+    const tagsParam = localSelectedTags.length > 0 ? `&tags=${localSelectedTags.join(",")}` : '';
+    const stepsParam = localSelectedSteps ? `&steps=${localSelectedSteps}` : '';
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+  
+    router.push(`/recipe?page=${page}${tagsParam}${stepsParam}${searchParam}`);
+  };
+
   const handleClearTags = () => {
     setLocalSelectedTags([]);
     const tagsParam = ""; 
@@ -142,6 +153,14 @@ export default function AdvancedFiltering({
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
             />
+          )}
+          {selectedCategory && (
+            <button
+              onClick={handleClearCategoryFilter}
+              className="mt-4 block text-center bg-red-700 text-[var(--button-text)] rounded-full px-4 py-2 text-sm font-medium hover:bg-red-600 focus:outline-none transition duration-200 ease-in-out shadow-md hover:shadow-lg"
+            >
+              Clear Category Filter
+            </button>
           )}
   
           {showTagsFilter && (
