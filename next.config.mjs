@@ -1,7 +1,5 @@
 // next.config.mjs
 
-import { withSentryConfig } from "@sentry/nextjs";
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -23,4 +21,4 @@ const nextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, sentryOptions);
+export default nextConfig;
