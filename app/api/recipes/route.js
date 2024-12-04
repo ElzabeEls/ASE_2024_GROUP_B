@@ -55,6 +55,7 @@ export async function GET(req) {
         { $project: { title: 1, category: 1, averageRating: 1, tags: 1 } }
       );
     } else {
+      // Filtering stages
       if (search.trim() !== "") {
         pipeline.push({ $match: { title: new RegExp(search, "i") } });
       }
@@ -87,32 +88,39 @@ export async function GET(req) {
           },
         });
       }
-      // Get the total count of all matching recipes without pagination
-      const totalCountPipeline = [...pipeline];
-      totalCountPipeline.push({ $count: "totalCount" });
 
-      pipeline.push({ $skip: skip }, { $limit: limit });
-    }
-
-    const recipesCursor = db.collection("recipes").aggregate(pipeline, {
-      maxTimeMS: 60000,
-      allowDiskUse: true,
-    });
-
-    const recipes = await recipesCursor.toArray();
-
-    let totalCount = 0;
-    if (totalCountPipeline.length > 0) {
-      const countCursor = db.collection("recipes").aggregate(totalCountPipeline, {
-        maxTimeMS: 60000,
+      // Save the total count
+      pipeline.push({
+        $facet: {
+          totalMatches: [{ $count: "total" }], // Total count facet
+          paginatedResults: [
+            { $skip: skip }, // Pagination
+            { $limit: limit }, // Pagination
+          ],
+        },
       });
-      const countResult = await countCursor.toArray();
-      if (countResult.length > 0) {
-        totalCount = countResult[0].totalCount;
-      }
     }
 
-    return NextResponse.json({ recipes, totalCount }, { status: 200 });
+    // Execute the pipeline
+    const result = await db
+      .collection("recipes")
+      .aggregate(pipeline, {
+        maxTimeMS: 60000,
+        allowDiskUse: true,
+      })
+      .toArray();
+
+    const totalMatches = result[0]?.totalMatches?.[0]?.total || 0;
+    const recipes = result[0]?.paginatedResults || [];
+
+    if (recipes.length === 0) {
+      return NextResponse.json(
+        { message: "No recipes found with the specified filters." },
+        { status: 200 }
+      );
+    }
+    // Return total count and paginated recipes
+    return NextResponse.json({ totalMatches, recipes }, { status: 200 });
   } catch (error) {
     return handleApiError(NextResponse, error);
   }
