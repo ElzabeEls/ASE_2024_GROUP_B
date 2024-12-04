@@ -160,7 +160,7 @@ const SearchBar = () => {
         placeholder="Search for recipes..."
         value={searchTextQuery}
         onChange={handleInputChange}
-        className="w-full max-w-lg px-4 py-2 border-2 border-gray-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-600 text-black"
+         className="w-full px-4 py-2 text-lg text-[var(--button-bg)] placeholder-[var(--button-bg)]  bg-transparent border-b-2 border-[var(--header-bg)]  focus:outline-none focus:ring-0"
       />
 
       {/* Auto-suggestions Dropdown */}
