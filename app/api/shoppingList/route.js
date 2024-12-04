@@ -141,7 +141,13 @@ export async function PUT(req) {
         },
       }));
 
-     
+      const result = await shoppingLists.bulkWrite(bulkOps);
+
+      if (result.modifiedCount === 0) {
+        return NextResponse.json(
+          { message: "No items were updated. Please check the item names." },
+          { status: 404 }
+        );
       }
 
       return NextResponse.json(
