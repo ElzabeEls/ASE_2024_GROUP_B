@@ -3,11 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { Heart, HeartOff } from "lucide-react";
 
-
 export default function FavouriteButton({
   recipeId,
   initialIsFavourite = false,
-  onFavouriteChange,
   token
 }) {
   const [isFavourite, setIsFavourite] = useState(initialIsFavourite);
@@ -18,8 +16,9 @@ export default function FavouriteButton({
   const handleFavouriteClick = () => {
     if (isFavourite) {
       setShowConfirmDialog(true);
+    } else {
+      toggleFavourite();
     }
-    toggleFavourite();
   };
 
   const toggleFavourite = async () => {
@@ -45,9 +44,10 @@ export default function FavouriteButton({
       if (response.ok) {
         const newState = !isFavourite;
         setIsFavourite(newState);
-        if (onFavouriteChange) {
-          onFavouriteChange(newState);
-        }
+        
+        // Dispatch event to update favourite count
+        window.dispatchEvent(new Event("favouritesUpdated"));
+        
         setAlertMessage(
           newState ? "Added to favourites!" : "Removed from favourites"
         );
