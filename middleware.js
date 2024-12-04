@@ -1,6 +1,5 @@
 import { jwtVerify } from "jose";
 import { NextResponse } from "next/server";
-import clientPromise from "./mongodb.js";
 
 /**
  * Middleware to handle JWT verification and route protection.
@@ -25,14 +24,6 @@ export async function middleware(req) {
     // Verify the token using jose
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload } = await jwtVerify(token.value, secret);
-
-    // Check if token exists in the database
-    const client = await clientPromise;
-    const db = client.db("your_database_name");
-    const tokenEntry = await db.collection("tokens").findOne({ token: token.value });
-    if (!tokenEntry) {
-      throw new Error("Token not found or invalidated");
-    }
 
     // Attach user data to headers
     const newHeaders = new Headers(req.headers);
