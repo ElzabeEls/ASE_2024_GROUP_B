@@ -2,14 +2,19 @@ import { jwtVerify } from "jose";
 import { NextResponse } from "next/server";
 
 /**
- * Middleware to handle JWT token verification using jose.
+ * Middleware to handle JWT verification and route protection.
+ * 
+ * @async
+ * @function middleware
+ * @param {Request} req - The incoming HTTP request object.
+ * @returns {Promise<NextResponse>} - Proceeds to the next middleware or redirects to login.
  */
 export async function middleware(req) {
   // Retrieve the token from cookies
   const token = req.cookies.get("token");
-
+  
   if (!token) {
-    // Redirect to login and include the original requested path as a query parameter
+    // Redirect to login if the token is missing
     const redirectUrl = new URL("/login", req.url);
     redirectUrl.searchParams.set("redirectTo", req.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
@@ -20,25 +25,33 @@ export async function middleware(req) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload } = await jwtVerify(token.value, secret);
 
-    // Attach user data to headers for further use in server-side logic
+    // Attach user data to headers
     const newHeaders = new Headers(req.headers);
     newHeaders.set("x-user", JSON.stringify(payload));
 
-    // Proceed with the request
+    // Proceed to the next middleware or route handler
     return NextResponse.next({
       request: {
         headers: newHeaders,
       },
     });
   } catch (error) {
-    // Redirect to login for invalid token
+    console.error("JWT Verification Error:", error.message);
+
+    // Redirect to login for invalid tokens
     const redirectUrl = new URL("/login", req.url);
     redirectUrl.searchParams.set("redirectTo", req.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 }
 
-// Apply the middleware only to specific routes
+/**
+ * Specifies which routes the middleware applies to.
+ * 
+ * @constant
+ * @type {Object}
+ * @property {Array<string>} matcher - Array of route patterns requiring authentication.
+ */
 export const config = {
   matcher: ["/favourites"], // Add routes requiring authentication
 };
