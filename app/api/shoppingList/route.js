@@ -134,7 +134,13 @@ export async function PUT(req) {
         purchased: item.purchased,
       }));
 
-      
+      const bulkOps = updates.map((update) => ({
+        updateOne: {
+          filter: { userId, "items.name": update.name },
+          update: { $set: { "items.$.purchased": update.purchased } },
+        },
+      }));
+
      
       }
 
