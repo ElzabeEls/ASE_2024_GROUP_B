@@ -1,4 +1,3 @@
-// app/recipe/page.js
 import Link from "next/link";
 import { fetchRecipes } from "../../lib/api";
 import AdvancedFiltering from "../components/AdvancedFiltering";
@@ -42,6 +41,8 @@ export default async function RecipePage({ searchParams }) {
   const totalCount = data.totalMatches || 0;
   const noRecipesFound =
     recipes.length === 0 && searchParams.steps && searchParams.steps !== "";
+    const noRecipesFoundInSearch =
+    recipes.length === 0 && searchParams.search && searchParams.search !== "";
 
   return (
     <main>
@@ -90,21 +91,19 @@ export default async function RecipePage({ searchParams }) {
         )}
       </div>
 
-      {/* No recipes found message */}
-      {noRecipesFound && (
+       {/* No recipes found message */}
+       {noRecipesFound && (
         <p className="text-center text-lg text-red-500 mb-8">
           No recipes found with the specified number of steps.
         </p>
       )}
-
-      {/*   Recipe Count Message */}
-      <div className="text-gray-600 mt-4 text-center">
-        {totalCount > 0 ? (
-          <p>{totalCount} recipes match your search and filter criteria.</p>
-        ) : (
-          <p>No recipes match your criteria.</p>
-        )}
-      </div>
+      
+      {/* No recipes found message in search */}
+      {noRecipesFoundInSearch && (
+        <p className="text-center text-lg text-red-500 mb-8">
+         Oops! It looks like we do not have that recipe just yet. Maybe try a different search?
+        </p>
+      )}
 
       {/* Recipe Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
