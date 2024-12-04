@@ -34,9 +34,6 @@ export default async function RecipePage({ searchParams }) {
     searchParamsToInclude.selectedSteps
   );
 
-  console.log("data.totalMatches");
-  console.log(data.totalMatches);
-
   const recipes = Array.isArray(data.recipes) ? data.recipes : [];
   const totalCount = data.totalMatches || 0;
   const noRecipesFound =
