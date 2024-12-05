@@ -16,7 +16,8 @@ export async function middleware(req) {
   // Exclude static files (served directly from the public folder)
   if (
     url.pathname.startsWith("/_next") || // Built assets
-    url.pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/) // Image files
+    url.pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/) || // Image files
+    url.pathname.startsWith("/public/") // Allow serving static files from the public directory
   ) {
     return NextResponse.next();
   }
