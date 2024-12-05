@@ -7,38 +7,45 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { metadata } from '../lib/metadata';
 
+/**
+ * Root layout component of the application.
+ * Provides the main structure with the header, main content area, and footer.
+ *
+ * @function RootLayout
+ * @param {Object} props - Component properties.
+ * @param {React.ReactNode} props.children - Child elements to be rendered in the main section.
+ * @returns {JSX.Element} The HTML layout for the page.
+ */
 export default function RootLayout({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [themeLoaded, setThemeLoaded] = useState(false);
 
   useEffect(() => {
-    // Check localStorage or system preference
     const savedTheme = localStorage.getItem('theme');
     const prefersDarkMode =
       savedTheme === 'dark' ||
       (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
     setIsDarkMode(prefersDarkMode);
-    // Add or remove the 'dark' class immediately
     document.documentElement.classList.toggle('dark', prefersDarkMode);
     setThemeLoaded(true); // Prevent rendering until the theme is set
-  }, []);
-
-  useEffect(() => {
-    if (themeLoaded) {
-      document.documentElement.classList.toggle('dark', isDarkMode);
-      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-    }
-  }, [isDarkMode, themeLoaded]);
-
-  const toggleTheme = () => {
-    setIsDarkMode((prev) => !prev);
-  };
-
-  if (!themeLoaded) {
-    // Optionally render a loading spinner or nothing to prevent mismatched rendering
-    return null;
+ }, []);
+ useEffect(() => {
+  if (themeLoaded) {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }
+}, [isDarkMode, themeLoaded]);
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode ? 'dark' : 'light';
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle('dark', !isDarkMode);
+    localStorage.setItem('theme', newTheme);
+  };
+  // if (!themeLoaded) {
+  //   // Optionally render a loading spinner or nothing to prevent mismatched rendering
+  //   return null;
+  // }
+
 
   return (
     <html lang="en">
@@ -51,7 +58,7 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content={isDarkMode ? "#0a0a0a" : "#ffffff"} />
       </Head>
       <body className={`flex flex-col min-h-screen ${isDarkMode ? 'dark' : ''}`}>
-        <Header isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+        <Header />
         <main className="flex-grow pt-16">{children}</main>
         <Footer />
       </body>
