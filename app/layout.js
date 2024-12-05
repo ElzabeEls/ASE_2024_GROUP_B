@@ -1,11 +1,10 @@
 "use client";
-
-import './global.css';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Head from 'next/head';
-import { useEffect, useState } from 'react';
-import { metadata } from '../lib/metadata';
+import "./global.css";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Head from "next/head";
+import { useEffect, useState } from "react";
+import { metadata } from "../lib/metadata";
 
 /**
  * Root layout component of the application.
@@ -21,31 +20,43 @@ export default function RootLayout({ children }) {
   const [themeLoaded, setThemeLoaded] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
+    // Retrieve theme from localStorage or fallback to system preference
+    const savedTheme = localStorage.getItem("theme");
     const prefersDarkMode =
-      savedTheme === 'dark' ||
-      (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    setIsDarkMode(prefersDarkMode);
-    document.documentElement.classList.toggle('dark', prefersDarkMode);
-    setThemeLoaded(true); // Prevent rendering until the theme is set
- }, []);
- useEffect(() => {
-  if (themeLoaded) {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  }
-}, [isDarkMode, themeLoaded]);
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode ? 'dark' : 'light';
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark', !isDarkMode);
-    localStorage.setItem('theme', newTheme);
-  };
-  // if (!themeLoaded) {
-  //   // Optionally render a loading spinner or nothing to prevent mismatched rendering
-  //   return null;
-  // }
+      savedTheme === "dark" ||
+      (!savedTheme &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
 
+    // Apply the theme immediately to <html> element
+    if (prefersDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+
+    // Set the theme state
+    setIsDarkMode(prefersDarkMode);
+    setThemeLoaded(true); // Theme is now applied
+  }, []); // Only run once when the component mounts
+
+  useEffect(() => {
+    if (themeLoaded) {
+      // Persist theme to localStorage
+      localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+      // Apply the dark theme to the <html> element based on the state
+      if (isDarkMode) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  }, [isDarkMode, themeLoaded]);
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode ? "dark" : "light";
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem("theme", newTheme); // Store the updated theme preference
+  };
 
   return (
     <html lang="en">
@@ -57,8 +68,9 @@ export default function RootLayout({ children }) {
         <link rel="manifest" href={metadata.manifest} />
         <meta name="theme-color" content={isDarkMode ? "#0a0a0a" : "#ffffff"} />
       </Head>
-      <body className={`flex flex-col min-h-screen ${isDarkMode ? 'dark' : ''}`}>
-        <Header />
+      <body className={`flex flex-col min-h-screen`}>
+        {/* Pass isDarkMode and toggleTheme to Header */}
+        <Header isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
         <main className="flex-grow pt-16">{children}</main>
         <Footer />
       </body>
