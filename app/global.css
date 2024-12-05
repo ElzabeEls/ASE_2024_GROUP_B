@@ -6,7 +6,7 @@
 :root {
   --background: #F1E9D2;
   --foreground: #171717;
-  --card-bg: #ffffff;
+  --card-bg: #FFF5E1;
   --hover-shadow: #D2B48C;
   --button-bg: #D2B48C; 
   --button-text: #171717;
@@ -25,18 +25,18 @@
   --tag-hover-bg: #d1d5db;
   --tag-hover-text: #171717;
   --icon-color: #333333;
-  --primary: #1f2937; /* Text color for light theme */
-  --secondary: #374151; /* Subtle text color for light theme */
+  --primary: #F4A261; /* Text color for light theme */
+  --secondary: #2A9D8F; /* Subtle text color for light theme */
   --highlight: #D2B48C; /* Accent color for light theme */
   --button: #D2B48C; /* Button background for light theme */
   --filter-label: #333; /* dark text for light theme */
   --filter-placeholder: #999; /* gray placeholder text */
-  --button-hover: #ffdab9; /* Peach hover background */
+  --button-hover: #E9C89B; /* Peach hover background */
   --svg-fill-light: #000; /* Black for light theme */
   --button-text-color: Black; /* White text for light mode */
   --button-bg-color: #D2B48C; /* Brown background for light mode */
   --button-hover-bg-color: #F1E9D2; /* Darker brown for hover effect */
-  --error-text: #d65050;
+  --error-text: #E76F51;
   --success-text: #49a976;
   --home-text: #ffffff;
   --recipe-bg:#FFF8E7;
