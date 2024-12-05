@@ -12,7 +12,7 @@ import { NextResponse } from "next/server";
  */
 export async function middleware(req) {
   console.log("Intercepted path:", req.nextUrl.pathname);
-  const url = req.nextUrl;
+  // const url = req.nextUrl;
 
   // Exclude static files (served directly from the public folder)
   if (
