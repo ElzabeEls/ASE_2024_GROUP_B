@@ -4,40 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
 
-const Header = () => {
+const Header = ({isDarkMode, toggleTheme }) => {
   // State to track mobile menu visibility
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // State to track theme mode
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Initialize theme based on user preference or system settings
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const prefersDark = savedTheme
-      ? savedTheme === "dark"
-      : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setIsDarkMode(prefersDark);
-    document.documentElement.classList.toggle("dark", prefersDark);
-  }, []);
-
-  // Update theme and localStorage whenever `isDarkMode` changes
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [isDarkMode]);
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);  
   // Toggle menu visibility
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
-
-  // Toggle theme between dark and light
-  const toggleTheme = () => setIsDarkMode((prevMode) => !prevMode);
-
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-[var(--header-bg)] bg-opacity-80 shadow-md backdrop-blur-lg">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
