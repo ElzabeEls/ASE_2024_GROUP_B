@@ -12,7 +12,7 @@ import { NextResponse } from "next/server";
  */
 export async function middleware(req) {
   console.log("Intercepted path:", req.nextUrl.pathname);
-  // const url = req.nextUrl;
+   const url = req.nextUrl;
 
   // Exclude static files (served directly from the public folder)
   if (
@@ -30,7 +30,7 @@ export async function middleware(req) {
   if (!token) {
     // Redirect to login if the token is missing
     const redirectUrl = new URL("/login", req.url);
-    redirectUrl.searchParams.set("redirectTo", req.nextUrl.pathname);
+    redirectUrl.searchParams.set("redirectTo", url.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
