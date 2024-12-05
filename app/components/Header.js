@@ -49,6 +49,11 @@ const Header = ({isDarkMode, toggleTheme }) => {
               Favourites
             </span>
           </Link>
+          <Link href="/shoppingList">
+            <span className="hover:text-[var(--link-hover)] cursor-pointer">
+              Shopping-list
+            </span>
+          </Link>
           <Link href="/login">
             <button className="bg-[var(--button-bg)] px-3 py-1 rounded-full">
               <span className="font-bold text-[var(--login-text)]">Login</span>
@@ -109,6 +114,11 @@ const Header = ({isDarkMode, toggleTheme }) => {
             <Link href="/favourites">
               <span className="hover:text-[var(--link-hover)] cursor-pointer">
                 Favourites
+              </span>
+            </Link>
+            <Link href="/shoppingList">
+              <span className="hover:text-[var(--link-hover)] cursor-pointer">
+              Shopping-list
               </span>
             </Link>
             <Link href="/login">
