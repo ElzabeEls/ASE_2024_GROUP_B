@@ -26,12 +26,15 @@ export async function GET(req) {
     // Calculate the number of documents to skip based on the page and limit
     const skip = (page - 1) * limit;
 
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
     /**
      * @description Executes a full-text search for the specified searchTerm.
      * @type {Promise<Array<Object>>} - Promise resolving to an array of matching recipes from the full-text search.
      */
+
     const textSearchPromise = db.collection("recipes")
-      .find({ $text: { $search: searchTerm } })
+      .find({ $text: { $search: normalizedSearchTerm } })
       .toArray();
 
     /**
