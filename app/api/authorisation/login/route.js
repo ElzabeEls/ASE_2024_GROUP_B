@@ -53,34 +53,45 @@ export async function POST(req) {
       { expiresIn: "1h" } // Token expiration
     );
 
-
-  // Set token as an HTTP-only cookie
-  const cookieOptions = {
+    // Define cookie options
+    const cookieOptions = {
     httpOnly: true,  // Prevents JavaScript from accessing the cookie
     secure: process.env.NODE_ENV === "production", // Only use cookies over HTTPS
-    maxAge: 60 * 60 * 1000, // 1 hour
-    sameSite: "Strict", // Helps prevent CSRF attacks
-    path: "/", // Cookie is accessible throughout the entire app
-  };
+      maxAge: 60 * 60 * 1000, // 1 hour
+      sameSite: "Strict", // Helps prevent CSRF attacks
+      path: "/", // Cookie is accessible throughout the entire app
+    };
 
+    // Set additional cookies for user state
+    const userCookies = [
+      `user_email=${encodeURIComponent(user.email)}; Path=/; Max-Age=3600; Secure=${process.env.NODE_ENV === "production"}; SameSite=Strict`,
+      `logged_in=yes; Path=/; Max-Age=3600; Secure=${process.env.NODE_ENV === "production"}; SameSite=Strict`,
+      `user_session=${token}; Path=/; Max-Age=3600; Secure=${process.env.NODE_ENV === "production"}; SameSite=Strict; HttpOnly`,
+    ];
 
-  
-    // If authentication is successful, respond with user details or a success message
+    // Set all cookies in headers
+    const setCookieHeader = [`token=${token}; ${Object.entries(cookieOptions)
+      .map(([key, value]) => `${key}=${value}`)
+      .join("; ")}`, ...userCookies];
 
+    // Respond with user details and cookies
     return new Response(
       JSON.stringify({
         message: "Login successful",
-        token,
         userId: user._id,
         email: user.email,
       }),
-      { status: 200, headers: { "Content-Type": "application/json" ,
-      "Set-Cookie": `token=${token}; ${Object.entries(cookieOptions).map(([key, value]) => `${key}=${value}`).join('; ')}`
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Set-Cookie": setCookieHeader.join(", "),
+        },
       }
-     }
     );
   } catch (error) {
     // Handle any unexpected errors
+    console.error("Login error:", error.message);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
