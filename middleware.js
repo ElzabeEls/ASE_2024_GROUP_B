@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 /**
  * Middleware to handle JWT verification and route protection.
  *
+ *
  * @async
  * @function middleware
  * @param {Request} req - The incoming HTTP request object.
@@ -24,6 +25,7 @@ export async function middleware(req) {
 
   // Retrieve the token from cookies
   const token = req.cookies.get("token");
+
 
   if (!token) {
     // Redirect to login if the token is missing
@@ -59,6 +61,7 @@ export async function middleware(req) {
 
 /**
  * Specifies which routes the middleware applies to.
+ *
  *
  * @constant
  * @type {Object}
