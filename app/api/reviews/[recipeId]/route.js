@@ -210,18 +210,22 @@ async function updateRecipeStats(recipeId, db) {
       ])
       .toArray();
 
-    if (aggregateData) {
-      const { averageRating, reviewCount } = aggregateData;
-      const result = await recipesCollection.updateOne(
-        { _id: new ObjectId(recipeId) },
-        { $set: { averageRating, reviewCount } }
-      );
-      console.log('Recipe stats updated:', result);
-    } else {
-      console.warn(`No reviews found for recipeId: ${recipeId}`);
+      if (aggregateData) {
+        const { averageRating, reviewCount } = aggregateData;
+        const result = await recipesCollection.updateOne(
+          { _id: new ObjectId(recipeId) },
+          { $set: { averageRating, reviewCount } }
+        );
+        console.log('Recipe stats updated:', result);
+      } else {
+        await recipesCollection.updateOne(
+          { _id: new ObjectId(recipeId) },
+          { $set: { averageRating: 0, reviewCount: 0 } } // Reset stats if no reviews
+        );
+        console.warn(`No reviews found for recipeId: ${recipeId}, stats reset.`);
+      }
+    } catch (error) {
+      console.error('Error in updateRecipeStats:', error);
+      throw new Error('Failed to update recipe stats');
     }
-  } catch (error) {
-    console.error('Error in updateRecipeStats:', error);
-    throw error; // Re-throw to ensure it propagates up
   }
-}

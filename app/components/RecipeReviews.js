@@ -66,6 +66,12 @@ const RecipeReviews = ({ recipeId }) => {
     };
   }, [recipeId]);
 
+  const calculateAverageRating = () => {
+    if (reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / reviews.length).toFixed(1); // Round to one decimal place
+  };
+
   /**
    * Show feedback message temporarily.
    *
@@ -105,7 +111,9 @@ const RecipeReviews = ({ recipeId }) => {
         throw new Error(data.error || "Failed to submit review.");
       }
 
-      const successMessage = isEditing ? "Review updated successfully!" : "Review submitted successfully!";
+      const successMessage = isEditing
+        ? "Review updated successfully!"
+        : "Review submitted successfully!";
       if (isEditing) {
         setReviews((prev) =>
           prev.map((r) =>
@@ -116,7 +124,13 @@ const RecipeReviews = ({ recipeId }) => {
         );
       } else {
         setReviews((prev) => [
-          { _id: data.reviewId, username, date: new Date(), rating, review: reviewText },
+          {
+            _id: data.reviewId,
+            username,
+            date: new Date(),
+            rating,
+            review: reviewText,
+          },
           ...prev,
         ]);
       }
@@ -181,18 +195,18 @@ const RecipeReviews = ({ recipeId }) => {
     setUsername(review.username);
     setReviewText(review.review);
     setRating(review.rating);
-  
+
     // Scroll slightly above the review input form
     const offset = 130; // Adjust this value as needed for the slight upward scroll
     const formElement = formRef.current;
-    const formPosition = formElement.getBoundingClientRect().top + window.pageYOffset;
-  
+    const formPosition =
+      formElement.getBoundingClientRect().top + window.pageYOffset;
+
     window.scrollTo({
       top: formPosition - offset,
       behavior: "smooth",
     });
   };
-  
 
   if (loading) return <p>Loading reviews...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
@@ -200,6 +214,12 @@ const RecipeReviews = ({ recipeId }) => {
   return (
     <section className="mt-8 relative">
       <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+
+       {/* Display Average Rating */}
+       <div className="mb-4">
+        <p className="text-lg font-medium">Average Rating: {calculateAverageRating()} / 5</p>
+      </div>
+
 
       <form ref={formRef} onSubmit={handleSubmit} className="mb-6">
         <div className="mb-4">
@@ -231,7 +251,7 @@ const RecipeReviews = ({ recipeId }) => {
           >
             {[...Array(5)].map((_, i) => (
               <option key={i + 1} value={i + 1}>
-                {i + 1} Star{(i + 1) > 1 ? "s" : ""}
+                {i + 1} Star{i + 1 > 1 ? "s" : ""}
               </option>
             ))}
           </select>
@@ -241,19 +261,21 @@ const RecipeReviews = ({ recipeId }) => {
           disabled={submitting}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
         >
-          {submitting ? "Submitting..." : isEditing ? "Update Review" : "Submit Review"}
+          {submitting
+            ? "Submitting..."
+            : isEditing
+            ? "Update Review"
+            : "Submit Review"}
         </button>
       </form>
 
       {feedbackMessage && (
-  <div
-    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50"
-  >
-    <div className="bg-green-100 text-green-700 px-6 py-3 rounded-lg shadow-lg text-center">
-      {feedbackMessage}
-    </div>
-  </div>
-)}
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+          <div className="bg-green-100 text-green-700 px-6 py-3 rounded-lg shadow-lg text-center">
+            {feedbackMessage}
+          </div>
+        </div>
+      )}
 
       {/* Render Reviews */}
       {reviews.length > 0 ? (
@@ -262,7 +284,9 @@ const RecipeReviews = ({ recipeId }) => {
             <div key={review._id} className="border rounded-lg p-4 bg-gray-50">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">{review.username}</p>
-                <p className="font-medium text-teal-600">Rating: {review.rating} / 5</p>
+                <span className="text-yellow-500">
+                  {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                </span>
               </div>
               <p className="text-gray-700 mt-2">{review.review}</p>
               <div className="mt-2 flex gap-2">
