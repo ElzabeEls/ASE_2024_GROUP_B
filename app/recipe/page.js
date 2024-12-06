@@ -3,8 +3,6 @@ import { fetchRecipes } from "../../lib/api";
 import AdvancedFiltering from "../components/AdvancedFiltering";
 import RecipeCard from "../components/RecipeCard";
 import SearchBar from "../components/SearchBar";
-import AdvancedFiltering from "../components/AdvancedFiltering";
-import { fetchRecipes } from "../../lib/api";
 import { cookies } from 'next/headers';
 
 /**
