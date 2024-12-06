@@ -68,5 +68,5 @@ export async function middleware(req) {
  * @property {Array<string>} matcher - Array of route patterns requiring authentication.
  */
 export const config = {
-  matcher: ["/favourites"], // Add routes requiring authentication
+  matcher: ["/favourites", "/shoppingList"], // Add routes requiring authentication
 };

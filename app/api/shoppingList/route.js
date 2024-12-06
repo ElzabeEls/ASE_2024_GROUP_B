@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/mongodb";
 
-// Save a new shopping list
+/**
+ * Save a new shopping list for a user.
+ * @param {Request} req - The HTTP request object.
+ * @returns {Promise<NextResponse>} - The response object containing a success message or error details.
+ */
 export async function POST(req) {
   try {
     const dbClient = await clientPromise;
@@ -61,7 +65,11 @@ export async function POST(req) {
   }
 }
 
-// Retrieve a shopping list
+/**
+ * Retrieve a shopping list for a user.
+ * @param {Request} req - The HTTP request object.
+ * @returns {Promise<NextResponse>} - The response object containing the shopping list or error details.
+ */
 export async function GET(req) {
   try {
     const dbClient = await clientPromise;
@@ -103,7 +111,11 @@ export async function GET(req) {
   }
 }
 
-// Update or add items to a shopping list, including marking items as purchased
+/**
+ * Update or add items to a shopping list, including marking items as purchased.
+ * @param {Request} req - The HTTP request object.
+ * @returns {Promise<NextResponse>} - The response object indicating the operation's success or failure.
+ */
 export async function PUT(req) {
   try {
     const dbClient = await clientPromise;
@@ -235,7 +247,11 @@ export async function PUT(req) {
   }
 }
 
-// Remove specific items from a shopping list
+/**
+ * Remove specific items from a shopping list.
+ * @param {Request} req - The HTTP request object.
+ * @returns {Promise<NextResponse>} - The response object indicating the operation's success or failure.
+ */
 export async function DELETE(req) {
   try {
     const dbClient = await clientPromise;

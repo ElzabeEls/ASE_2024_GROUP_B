@@ -26,6 +26,9 @@ const RecipeReviews = ({ recipeId }) => {
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
+  // States for sorting reviews
+  const [sortOption, setSortOption] = useState("newest");
+
   // Feedback message
   const [feedbackMessage, setFeedbackMessage] = useState(null);
   const feedbackTimer = useRef(null);
@@ -73,10 +76,30 @@ const RecipeReviews = ({ recipeId }) => {
   };
 
   /**
-   * Show feedback message temporarily.
+   * Sorts reviews based on the selected sorting option.
+   *
+   * @returns {Array} Sorted reviews array.
+   */
+
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sortOption === "newest") {
+      return new Date(b.date) - new Date(a.date);
+    } else if (sortOption === "oldest") {
+      return new Date(a.date) - new Date(b.date);
+    } else if (sortOption === "highest") {
+      return b.rating - a.rating;
+    } else if (sortOption === "lowest") {
+      return a.rating - b.rating;
+    }
+    return 0;
+  });
+
+  /**
+   * Displays a feedback message for a limited duration.
    *
    * @param {string} message - The feedback message to display.
    */
+
   const showFeedbackMessage = (message) => {
     setFeedbackMessage(message);
     clearTimeout(feedbackTimer.current);
@@ -86,10 +109,11 @@ const RecipeReviews = ({ recipeId }) => {
   };
 
   /**
-   * Handle the submission or editing of a review.
+   * Handles the submission of a new or edited review.
    *
-   * @param {React.FormEvent} e - The submit event.
+   * @param {Event} e - The form submission event.
    */
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -149,11 +173,12 @@ const RecipeReviews = ({ recipeId }) => {
     }
   };
 
-  /**
-   * Delete a review by ID.
+   /**
+   * Deletes a review by its ID.
    *
    * @param {string} reviewId - The ID of the review to delete.
    */
+
   const handleDelete = async (reviewId) => {
     setDeleting(true);
 
@@ -180,21 +205,20 @@ const RecipeReviews = ({ recipeId }) => {
     }
   };
 
-  /**
-   * Initialize editing of an existing review.
+   /**
+   * Prepares a review for editing.
    *
-   * @param {Object} review - The review to be edited.
-   * * @param {string} review._id - The ID of the review to be edited.
-   * @param {string} review.username - The username of the reviewer.
-   * @param {string} review.review - The content of the review.
-   * @param {number} review.rating - The rating given in the review.
+   * @param {Object} review - The review object to edit.
    */
+
   const handleEdit = (review) => {
     setIsEditing(true);
     setEditReviewId(review._id);
     setUsername(review.username);
     setReviewText(review.review);
     setRating(review.rating);
+
+
 
     // Scroll slightly above the review input form
     const offset = 130; // Adjust this value as needed for the slight upward scroll
@@ -213,6 +237,15 @@ const RecipeReviews = ({ recipeId }) => {
 
   return (
     <section className="mt-8 relative">
+ {feedbackMessage && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+    <div className="bg-green-500 text-white text-center py-3 px-6 rounded-md shadow-lg backdrop-blur-md max-w-xs w-full">
+      <p>{feedbackMessage}</p>
+    </div>
+  </div>
+)}
+
+
       <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
 
        {/* Display Average Rating */}
@@ -259,7 +292,11 @@ const RecipeReviews = ({ recipeId }) => {
         <button
           type="submit"
           disabled={submitting}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+          className={`px-4 py-2 rounded-md shadow ${
+            submitting
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
+          }`}
         >
           {submitting
             ? "Submitting..."
@@ -268,6 +305,20 @@ const RecipeReviews = ({ recipeId }) => {
             : "Submit Review"}
         </button>
       </form>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1">Sort Reviews</label>
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          className="w-full border rounded p-2"
+        >
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="highest">Highest Rating</option>
+          <option value="lowest">Lowest Rating</option>
+        </select>
+      </div> 
 
       {feedbackMessage && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
@@ -310,28 +361,49 @@ const RecipeReviews = ({ recipeId }) => {
         <p>No reviews yet. Be the first to leave a review!</p>
       )}
 
-      {/* Delete Confirmation */}
-      {confirmDelete && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <p className="mb-4">Are you sure you want to delete this review?</p>
-            <div className="flex justify-between">
-              <button
-                onClick={() => handleDelete(confirmDelete)}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none"
-              >
-                Yes, Delete
-              </button>
-              <button
-                onClick={() => setConfirmDelete(null)}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none"
-              >
-                Cancel
-              </button>
-            </div>
+     <div>
+  {sortedReviews.map((review) => (
+    <div key={review._id} className="border rounded-lg p-4 bg-[#FEF7E7] mb-4">
+      <p className="font-semibold text-lg">{review.username}</p>
+      <p className="text-gray-800 mt-2">{review.review}</p>
+      <p className="text-teal-600 font-medium mt-1">Rating: {review.rating} / 5</p>
+      <div className="flex space-x-4 mt-2">
+        <button
+          onClick={() => handleEdit(review)}
+          className="px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => setConfirmDelete(review._id)}
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+        >
+          Delete
+        </button>
+      </div>
+      {confirmDelete === review._id && (
+        <div className="mt-3 p-3 bg-red-100 rounded-lg">
+          <p className="text-sm text-red-700">Are you sure you want to delete this review?</p>
+          <div className="flex space-x-2 mt-2">
+            <button
+              onClick={() => handleDelete(review._id)}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => setConfirmDelete(null)}
+              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+            >
+              No
+            </button>
           </div>
         </div>
       )}
+    </div>
+  ))}
+</div>
+
     </section>
   );
 };
