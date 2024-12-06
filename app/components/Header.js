@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "./ThemeToggle";
 import { Heart } from "lucide-react";
 
 
-const Header = () => {
+const Header = ({isDarkMode, toggleTheme }) => {
   // State to track mobile menu visibility
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -49,29 +49,34 @@ const Header = () => {
       window.removeEventListener("favouritesUpdated", updateCount);
     };
   }, []);
-  
+
   
 
   return (
-    <header className="glossy-highlight fixed top-0 left-0 w-full z-50 bg-[var(--header-bg)] bg-opacity-80 shadow-md backdrop-blur-lg">
+    <header className="fixed top-0 left-0 w-full z-50 bg-[var(--header-bg)] bg-opacity-80 shadow-md backdrop-blur-lg">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo Section */}
         <div className="flex items-center space-x-4">
           <Link href="/">
-            <div className="h-10 cursor-pointer">
-              <Image
-                src="/ArejengLogo.png"
-                alt="Logo"
-                width={40}
-                height={40}
-                className="h-full w-auto"
-              />
+            <div className="h-10 cursor-pointer flex items-center">
+              {isDarkMode ? (
+                <Image
+                  src="/ArejengLogoDark.png" // Dark theme logo file
+                  alt="Logo for Dark Theme"
+                  width={120}
+                  height={120}
+                  className="h-auto w-auto"
+                />
+              ) : (
+                <Image
+                  src="/ArejengLogo.png" // Light theme logo file
+                  alt="Logo for Light Theme"
+                  width={120}
+                  height={120}
+                  className="h-auto w-auto"
+                />
+              )}
             </div>
-          </Link>
-          <Link href="/">
-            <h1 className="text-[var(--header-text)] text-xl md:text-2xl font-bold">
-              Arejeng
-            </h1>
           </Link>
         </div>
 
@@ -87,35 +92,24 @@ const Header = () => {
               Favourites ({favouriteCount})
             </span>
           </Link>
-        
-          
-          
-          {isLoggedIn ? (
-            <button
-              onClick={() => {
-                localStorage.removeItem("jwt");
-                setIsLoggedIn(false);
-                window.location.href = "/";
-              }}
-              className="bg-white px-2 py-1 rounded-full"
-            >
-              <span className="font-bold text-red-600">Logout</span>
-            </button>
-          ) : (
-            <>
-              <Link href="/login">
-              <button className="bg-[var(--button-bg)] px-2 py-1 rounded-full">
+          <Link href="/shoppingList">
+            <span className="hover:text-[var(--link-hover)] cursor-pointer">
+              Shopping-list
+            </span>
+          </Link>
+          <Link href="/login">
+            <button className="bg-[var(--button-bg)] px-3 py-1 rounded-full">
               <span className="font-bold text-[var(--login-text)]">Login</span>
             </button>
           </Link>
           <Link href="/signup">
             <button className="bg-[var(--button-bg)] px-3 py-1 rounded-full">
-              <span className="font-bold text-[var(--signup-text)]">Sign Up</span>
+              <span className="font-bold text-[var(--signup-text)]">
+                Sign Up
+              </span>
             </button>
-              </Link>
-            </>
-          )}
-          <ThemeToggle />
+          </Link>
+          <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -165,17 +159,26 @@ const Header = () => {
                 Favourites
               </span>
             </Link>
+            <Link href="/shoppingList">
+              <span className="hover:text-[var(--link-hover)] cursor-pointer">
+              Shopping-list
+              </span>
+            </Link>
             <Link href="/login">
               <button className="bg-[var(--button-bg)] px-3 py-1 rounded-full w-full text-left">
-                <span className="font-bold text-[var(--login-text)]">Login</span>
+                <span className="font-bold text-[var(--login-text)]">
+                  Login
+                </span>
               </button>
             </Link>
             <Link href="/signup">
               <button className="bg-[var(--button-bg)] px-3 py-1 rounded-full w-full text-left">
-                <span className="font-bold text-[var(--signup-text)]">Sign Up</span>
+                <span className="font-bold text-[var(--signup-text)]">
+                  Sign Up
+                </span>
               </button>
             </Link>
-            <ThemeToggle />
+            <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
           </nav>
         </div>
       )}
