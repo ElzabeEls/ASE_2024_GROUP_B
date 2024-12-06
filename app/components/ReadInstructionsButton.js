@@ -226,7 +226,7 @@ export default function ReadInstructionsButton({ instructions }) {
     <div className="flex flex-col items-center">
       <button
         onClick={handleButtonClick}
-        className="bg-brown text-white px-6 py-3 rounded-md hover:bg-peach transition duration-200 mb-4 flex items-center gap-2"
+        className="bg-[var(--b2r-bg)] text-[var(--title-color)] px-6 py-3 rounded-md hover:bg-[var(--border)] transition duration-200 mb-4 flex items-center gap-2"
         title="Read Instructions"
       >
         <BookOpen className="w-5 h-5" aria-label="Read Instructions" />

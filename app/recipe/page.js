@@ -44,7 +44,7 @@ export default async function RecipePage({ searchParams }) {
     recipes.length === 0 && searchParams.search && searchParams.search !== "";
 
   return (
-    <main>
+    <main  >
       <div className="flex justify-between items-center mb-8">
         <div className="flex-1 flex justify-center">
           <SearchBar />
@@ -66,7 +66,7 @@ export default async function RecipePage({ searchParams }) {
         {searchParams.search && (
           <span className="text-md font-semibold">
             Search:{" "}
-            <span className="px-2 py-1 bg-gray-200 rounded-full text-gray-700">
+            <span className="px-2 py-1  rounded-full">
               {searchParams.search}
             </span>
           </span>

@@ -16,9 +16,9 @@ export default function SpeedAdjuster({ speed, setSpeed }) {
     <div className="mt-4 w-full max-w-xs">
       <label
         htmlFor="speed"
-        className="text-gray-700 font-medium mb-2 flex items-center space-x-2"
+        className="text-[var(--title-color)] font-bold mb-2 flex items-center space-x-2"
       >
-        <span className="text-sm w-2 h-2 text-gray-500">{speed.toFixed(1)}x</span>
+        <span className="text-m w-2 h-2 text-[var(--title-color)]">{speed.toFixed(1)}x</span>
       </label>
       <input
         type="range"
@@ -28,7 +28,7 @@ export default function SpeedAdjuster({ speed, setSpeed }) {
         step="0.1"
         value={speed}
         onChange={(e) => setSpeed(parseFloat(e.target.value))}
-        className="w-fit mt-2 rounded-lg cursor-pointer bg-gray-200 accent-teal-600"
+        className="w-fit mt-2 rounded-lg cursor-pointer bg-[var(--b2r-bg)] [var(--border)]"
       />
     </div>
   );

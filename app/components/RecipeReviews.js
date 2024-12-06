@@ -213,7 +213,7 @@ const RecipeReviews = ({ recipeId }) => {
 
   return (
     <section className="mt-8 relative">
-      <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+      <h2 className="text-2xl font-bold mb-4">Reviews</h2>
 
        {/* Display Average Rating */}
        <div className="mb-4">
@@ -232,7 +232,7 @@ const RecipeReviews = ({ recipeId }) => {
             required
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 ">
           <label className="block text-sm font-medium mb-1">Your Review</label>
           <textarea
             value={reviewText}

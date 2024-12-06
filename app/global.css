@@ -48,6 +48,23 @@
    --rating-bg: #000000; /* Home button and rating color  */
    --viewRecipe-bg: #A67B5B;
    --recipe-title-text: #000000;
+
+    /* Sign up   */
+  --password-text: #171717;
+
+  /* utils */
+  --bg-utils: #D2B48C;
+
+  /* Recipe detail page */
+  --recipe-not-found-text:#ffffff;
+  --back-to-recipe-text:#ffffff;
+  --b2r-bg:#A67B5B;
+  --b2r-hover-bg:#d2af93;
+  --title-color:#171717;
+  --card-bg: #e9c59b;
+  --border: #e88718;
+  --numbers: #A67B5B; 
+
 }
 
 .dark {
@@ -95,6 +112,21 @@
   --recipe-title-text: #ffffff;
   /* Sign up   */
   --password-text: #ffffff;
+
+  /* Recipe detail page */
+  --recipe-not-found-text:#171717;
+  --back-to-recipe-text:#171717;
+  --b2r-bg: #9ca3af;
+  --b2r-hover-bg:#343a40;
+  --title-color:#ffffff;
+  --card-bg: #666;
+  --border: #e88718;
+  --numbers: #666; 
+
+
+  
+
+
 
 }
 
