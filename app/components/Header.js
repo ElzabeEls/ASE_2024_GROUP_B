@@ -21,30 +21,36 @@ const Header = () => {
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     setIsLoggedIn(!!token);
-
+  
     const fetchFavouriteCount = async () => {
       if (!token) return;
-
       try {
         const response = await fetch("/api/favourites?action=count", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        const data = await response.json();
-        setFavouriteCount(data.count);
+        if (response.ok) {
+          const data = await response.json();
+          setFavouriteCount(data.count);
+        }
       } catch (error) {
         console.error("Error fetching favourite count:", error);
       }
     };
-
+  
     fetchFavouriteCount();
-
-    // Listen for favourite updates
-    window.addEventListener("favouritesUpdated", fetchFavouriteCount);
-    return () =>
-      window.removeEventListener("favouritesUpdated", fetchFavouriteCount);
+  
+    // Update favourites count on custom event
+    const updateCount = () => {
+      fetchFavouriteCount();
+    };
+    window.addEventListener("favouritesUpdated", updateCount);
+  
+    return () => {
+      window.removeEventListener("favouritesUpdated", updateCount);
+    };
   }, []);
+  
+  
 
   return (
     <header className="glossy-highlight fixed top-0 left-0 w-full z-50 bg-[var(--header-bg)] bg-opacity-80 shadow-md backdrop-blur-lg">
@@ -74,30 +80,15 @@ const Header = () => {
           <Link href="/recipe">
             <span className="hover:text-[var(--link-hover)] cursor-pointer">
               Recipes
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              ></svg>
             </span>
           </Link>
           <Link href="/favourites">
             <span className="hover:text-[var(--link-hover)] cursor-pointer">
-              Favourites
+              Favourites ({favouriteCount})
             </span>
           </Link>
         
-          {isLoggedIn && (
-            <Link
-              href="/favourites"
-              className="flex items-center space-x-2 hover:text-gray-500"
-            >
-              <Heart className="w-5 h-5" />
-              <span>Favourites ({favouriteCount})</span>
-            </Link>
-          )}
+          
           
           {isLoggedIn ? (
             <button

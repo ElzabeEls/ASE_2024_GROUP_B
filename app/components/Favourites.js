@@ -3,89 +3,80 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
-export default function Favourites({ recipes }) {
+export default function Favourites({ recipes, token }) {
   const [favourites, setFavourites] = useState(recipes);
-  const [favouriteCount, setFavouriteCount] = useState(0);
+  const [favouriteCount, setFavouriteCount] = useState(recipes.length);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [recipeToRemove, setRecipeToRemove] = useState(null);
 
-  async function addFavourite() {
-    const recipeId = "a71f9756-fd61-4514-977d-261e38345d55"; // Replace with actual recipe ID
+  // Function to remove recipe from favourites
+  const handleRemoveFavourite = async () => {
+    if (!recipeToRemove) return;
+
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/favourites`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/favourites/${recipeToRemove._id}`,
         {
-          method: "POST",
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ recipeId }),
         }
       );
 
       if (response.ok) {
-        const data = await response.json();
-        setFavourites((prev) => [...prev, data]);
-        setFavouriteCount((prevCount) => prevCount + 1);
+        // Remove the recipe from the state and update the count
+        setFavourites((prevFavourites) =>
+          prevFavourites.filter((fav) => fav._id !== recipeToRemove._id)
+        );
+        setFavouriteCount((prevCount) => prevCount - 1);
+        setShowConfirmDialog(false); // Close confirmation dialog
+        setRecipeToRemove(null); // Reset selected recipe
+      } else {
+        console.error("Failed to remove recipe from favourites:", await response.text());
+        alert("Failed to remove recipe. Please try again.");
       }
     } catch (error) {
-      console.error("Error adding favourite:", error);
+      console.error("Error removing favourite:", error);
+      alert("An error occurred while removing the recipe. Please try again.");
     }
-  }
-
-  /*
-  const handleFavouriteChange = (recipeId) => {
-    setFavourites(favourites.filter((fav) => fav.recipe._id !== recipeId));
-    setFavouriteCount((prevCount) => prevCount - 1);
-    window.dispatchEvent(new Event("favouritesUpdated"));
   };
-*/
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-center mb-8">Favourites</h1>
-        <button
-          onClick={addFavourite}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-        >
-          Add Favourite!
-        </button>
+      <div className="flex justify-center items-center mb-8">
+        <h1 className="text-2xl font-bold text-center">Favourites</h1>
       </div>
 
-      {/* Carousel of Recommended Recipes */}
-      <div className="relative mb-8">
-        <div className="carousel-container overflow-hidden relative">
-          <div className="carousel flex space-x-4">
-            {favouriteCount > 0
-              ? favourites.map((favourite) => (
-                  <div
-                    key={favourite._id}
-                    className="carousel-item bg-white p-4 rounded-lg shadow-md w-80"
-                  >
-                    <Image
-                      width={1000}
-                      height={1000}
-                      src={favourite.images[0] || "/default-recipe-image.jpg"}
-                      alt={favourite.title}
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                    />
-                    <h3 className="text-xl font-semibold">{favourite.title}</h3>
-                    <div className="flex items-center mt-2">
-                      <span className="text-orange-500 font-semibold">
-                        Rating: {favourite.recipe.rating} / 5
-                      </span>
-                    </div>
-                    <Link href={`/recipes/${favourite._id}`} passHref>
-                      <button className="mt-4 w-full py-2 bg-orange-500 text-white rounded-md">
-                        View Recipe
-                      </button>
-                    </Link>
-                  </div>
-                ))
-              : null}
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-lg font-semibold">Remove from Favourites?</h2>
+            <p className="mt-2 text-gray-600">
+              Are you sure you want to remove this recipe from your favourites?
+            </p>
+            <div className="flex justify-end mt-4 space-x-2">
+              <button
+                onClick={() => {
+                  setShowConfirmDialog(false);
+                  setRecipeToRemove(null);
+                }}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRemoveFavourite}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+              >
+                Remove
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Grid of Favourite Recipes */}
       {favourites.length === 0 ? (
@@ -102,31 +93,49 @@ export default function Favourites({ recipes }) {
           {favourites.map((favourite) => (
             <div
               key={favourite._id}
-              className="bg-white rounded-lg shadow-md overflow-hidden"
+              className="bg-[var(--card-bg)] rounded-lg overflow-hidden shadow-md hover:shadow-2xl hover:shadow-[var(--hover-shadow)] p-4 max-w-xs mx-auto"
             >
               <div className="relative">
                 <Image
-                  width={1000}
-                  height={1000}
+                  width={500}
+                  height={500}
                   src={favourite.images[0] || "/default-recipe-image.jpg"}
                   alt={favourite.title}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-48 object-cover rounded-md"
                 />
               </div>
+              <p className="text-[var(--text-muted)] text-xs mt-1">
+                Added on {new Date(favourite.createdAt).toLocaleDateString()}
+              </p>
               <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">
+                <h3 className="text-[var(--text-heading)] font-bold text-xl line-clamp-2">
                   {favourite.title}
-                </h2>
-                <p className="text-gray-600 text-sm mb-4">
-                  Added on {new Date(favourite.createdAt).toLocaleDateString()}
-                </p>
-                <div className="flex justify-between items-center">
+                </h3>
+
+                <div className="flex items-center justify-between mt-3 p-4">
+                  <p className="flex flex-col items-center text-[var(--prep-time-color)] flex-grow text-center">
+                    {favourite.prep} mins
+                  </p>
+                  <p className="flex flex-col items-center text-[var(--prep-time-color)] flex-grow text-center">
+                    {favourite.cook} mins
+                  </p>
+                </div>
+                <div className="flex justify-between items-center mt-3">
                   <Link
                     href={`/recipes/${favourite._id}`}
-                    className="text-blue-500 hover:underline"
+                    className="text-blue-500 hover:underline text-sm"
                   >
                     View Recipe
                   </Link>
+                  <button
+                    onClick={() => {
+                      setRecipeToRemove(favourite);
+                      setShowConfirmDialog(true);
+                    }}
+                    className="text-red-500 hover:text-red-700 text-sm"
+                  >
+                    Remove from Favourites
+                  </button>
                 </div>
               </div>
             </div>

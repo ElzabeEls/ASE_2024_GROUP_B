@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/mongodb";
-import jwt from "jsonwebtoken"; // Ensure this is installed: npm install jsonwebtoken
+import jwt from "jsonwebtoken"; 
 
 export const dynamic = "force-dynamic";
 
@@ -142,16 +142,19 @@ export async function POST(request) {
  */
 export async function DELETE(request) {
   try {
+    // Check for the authorization header
     const authHeader = request.headers.get("authorization");
     if (!authHeader) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Extract the token from the authorization header
     const token = authHeader.split(" ")[1];
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Verify the JWT token and extract user email
     let userEmail;
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -161,12 +164,10 @@ export async function DELETE(request) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    // Parse the request body for the recipe ID
     const { recipeId } = await request.json();
 
-    const client = await clientPromise;
-    const db = client.db("devdb");
-    await ensureFavouritesCollection(db);
-
+    // Validate that a recipe ID is provided
     if (!recipeId) {
       return NextResponse.json(
         { error: "Recipe ID is required" },
@@ -174,9 +175,17 @@ export async function DELETE(request) {
       );
     }
 
+    // Connect to the MongoDB database
+    const client = await clientPromise;
+    const db = client.db("devdb");
+    await ensureFavouritesCollection(db);
+
+    // Attempt to delete the favourite by userEmail and recipeId
     const deleteResult = await db
       .collection("favourites")
       .deleteOne({ userEmail, recipeId });
+
+    // Check if a record was deleted
     if (deleteResult.deletedCount === 0) {
       return NextResponse.json(
         { error: "Favourite not found" },
@@ -184,8 +193,10 @@ export async function DELETE(request) {
       );
     }
 
+    // Return a success response
     return NextResponse.json({ message: "Recipe removed from favourites" });
   } catch (error) {
+    // Handle errors and provide detailed responses
     console.error("Error removing from favourites:", error);
     return NextResponse.json(
       { error: "Error removing from favourites" },
