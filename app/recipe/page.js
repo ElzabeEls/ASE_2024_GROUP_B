@@ -43,11 +43,11 @@ export default async function RecipePage({ searchParams }) {
 
   return (
     <main>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-6">
         <div className="flex-1 flex justify-center">
           <SearchBar />
         </div>
-        <div className="ml-4 flex items-center mt-6">
+        <div className="flex-1 flex justify-center">
           <AdvancedFiltering
             selectedCategory={searchParams.category}
             selectedSteps={searchParams.steps}
@@ -56,8 +56,6 @@ export default async function RecipePage({ searchParams }) {
           />
         </div>
       </div>
-
-      <h1 className="text-2xl font-bold text-center mb-8">Recipes</h1>
 
       {/* Display filters applied */}
       <div className="text-center mb-4">
@@ -103,7 +101,7 @@ export default async function RecipePage({ searchParams }) {
       )}
 
       {/* Recipe Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {recipes.map((recipe) => (
           <RecipeCard
             key={recipe._id}
